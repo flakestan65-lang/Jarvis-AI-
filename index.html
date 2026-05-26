@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+html_code = '''<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -34,7 +35,6 @@
             position: relative;
         }
 
-        /* Animated background grid */
         .bg-grid {
             position: fixed;
             top: 0;
@@ -49,7 +49,6 @@
             z-index: 0;
         }
 
-        /* Floating particles */
         .particles {
             position: fixed;
             top: 0;
@@ -78,7 +77,6 @@
             100% { opacity: 0; transform: translateY(-10vh) scale(1); }
         }
 
-        /* Main container */
         .app-container {
             display: flex;
             flex-direction: column;
@@ -90,7 +88,6 @@
             padding: 0 16px;
         }
 
-        /* Header */
         .header {
             display: flex;
             align-items: center;
@@ -187,7 +184,6 @@
             50% { opacity: 0.4; }
         }
 
-        /* Chat area */
         .chat-container {
             flex: 1;
             overflow-y: auto;
@@ -211,7 +207,6 @@
             border-radius: 2px;
         }
 
-        /* Messages */
         .message {
             display: flex;
             gap: 12px;
@@ -281,7 +276,6 @@
             color: var(--text-primary);
         }
 
-        /* Code blocks */
         .message-content pre {
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--border-glow);
@@ -308,7 +302,6 @@
             color: var(--text-primary);
         }
 
-        /* Thinking animation */
         .thinking {
             display: flex;
             align-items: center;
@@ -332,7 +325,6 @@
             40% { transform: scale(1); opacity: 1; }
         }
 
-        /* Input area */
         .input-container {
             padding: 16px 0 24px;
             border-top: 1px solid var(--border-glow);
@@ -405,7 +397,6 @@
             fill: currentColor;
         }
 
-        /* Welcome screen */
         .welcome-screen {
             display: flex;
             flex-direction: column;
@@ -472,7 +463,6 @@
             box-shadow: 0 0 15px var(--jarvis-blue-glow);
         }
 
-        /* Error toast */
         .error-toast {
             position: fixed;
             bottom: 100px;
@@ -494,7 +484,6 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Responsive */
         @media (max-width: 600px) {
             .title-group h1 { font-size: 1.1rem; }
             .message { max-width: 92%; }
@@ -507,7 +496,6 @@
     <div class="particles" id="particles"></div>
 
     <div class="app-container">
-        <!-- Header -->
         <div class="header">
             <div class="logo-section">
                 <div class="jarvis-icon">
@@ -526,7 +514,6 @@
             </div>
         </div>
 
-        <!-- Chat -->
         <div class="chat-container" id="chatContainer">
             <div class="welcome-screen" id="welcomeScreen">
                 <div class="welcome-icon">
@@ -536,7 +523,7 @@
                 </div>
                 <div class="welcome-title">Добро пожаловать, сэр</div>
                 <div class="welcome-text">
-                    Я J.A.R.V.I.S. — ваш персональный ИИ-ассистент. 
+                    Я J.A.R.V.I.S. — ваш персональный ИИ-ассистент.
                     Готов помочь с любыми задачами: от написания кода до анализа данных.
                 </div>
                 <div class="quick-actions">
@@ -548,13 +535,12 @@
             </div>
         </div>
 
-        <!-- Input -->
         <div class="input-container">
             <div class="input-wrapper">
-                <textarea 
-                    class="input-field" 
-                    id="userInput" 
-                    placeholder="Введите сообщение..." 
+                <textarea
+                    class="input-field"
+                    id="userInput"
+                    placeholder="Введите сообщение..."
                     rows="1"
                     onkeydown="handleKeyDown(event)"
                 ></textarea>
@@ -570,12 +556,7 @@
     <div class="error-toast" id="errorToast"></div>
 
     <script>
-        // ═══════════════════════════════════════════════════════
-        // ВСТАВЬ СВОЙ API KEY CEREBRAS СЮДА ↓↓↓
-        // ═══════════════════════════════════════════════════════
         const API_KEY = 'csk-49rckn4yd6jk23xtrk6fhhpmvcm3y9prytm3d2h244nnxp5m';
-        // ═══════════════════════════════════════════════════════
-
         const API_URL = 'https://api.cerebras.ai/v1/chat/completions';
         const MODEL = 'llama3.1-8b';
 
@@ -592,7 +573,6 @@
             { role: 'system', content: 'You are J.A.R.V.I.S., a highly intelligent AI assistant inspired by Iron Man\'s Jarvis. You are polite, helpful, and speak with a touch of sophistication. You address the user respectfully. Respond in the same language the user uses.' }
         ];
 
-        // Create floating particles
         function createParticles() {
             const container = document.getElementById('particles');
             for (let i = 0; i < 30; i++) {
@@ -606,7 +586,6 @@
         }
         createParticles();
 
-        // Auto-resize textarea
         userInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
@@ -655,24 +634,12 @@
         }
 
         function formatContent(text) {
-            // Escape HTML
             text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-            // Code blocks ```code```
-            text = text.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
-
-            // Inline code `code`
+            text = text.replace(/```(\\w*)\\n([\\s\\S]*?)```/g, '<pre><code>$2</code></pre>');
             text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-
-            // Bold **text**
-            text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-
-            // Italic *text*
-            text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-
-            // Line breaks
-            text = text.replace(/\n/g, '<br>');
-
+            text = text.replace(/\\*\\*([^*]+)\\*\\*/g, '<strong>$1</strong>');
+            text = text.replace(/\\*([^*]+)\\*/g, '<em>$1</em>');
+            text = text.replace(/\\n/g, '<br>');
             return text;
         }
 
@@ -711,7 +678,6 @@
                 return;
             }
 
-            // Add user message
             addMessage('user', text);
             messages.push({ role: 'user', content: text });
 
@@ -767,8 +733,13 @@
             }
         }
 
-        // Focus input on load
         userInput.focus();
     </script>
 </body>
-</html>
+</html>'''
+
+with open('/mnt/agents/output/jarvis.html', 'w', encoding='utf-8') as f:
+    f.write(html_code)
+
+print("File saved successfully!")
+print(f"File size: {len(html_code)} characters")
