@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AppVault — Каталог приложений</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a22;
+    --surface2: #222230;
+    --border: rgba(255,255,255,0.07);
+    --text: #f0f0f8;
+    --muted: #888899;
+    --accent: #6c5ce7;
+    --accent2: #a29bfe;
+    --green: #00cec9;
+    --orange: #fd9644;
+    --pink: #e84393;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Nunito Sans', sans-serif; overscroll-behavior: none; }
+
+  /* ---- TOP BAR ---- */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(15,15,19,0.92);
+    backdrop-filter: blur(16px);
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-row1 { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .logo { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 22px; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent2); }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#6c5ce7,#a29bfe); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; }
+
+  /* Search */
+  .search-wrap { position: relative; }
+  .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .search-input {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 12px 10px 38px;
+    color: var(--text); font-size: 15px; font-family: inherit; outline: none;
+  }
+  .search-input::placeholder { color: var(--muted); }
+  .search-input:focus { border-color: var(--accent); }
+
+  /* ---- TABS ---- */
+  .tabs-wrap { overflow-x: auto; scrollbar-width: none; padding: 14px 16px 0; }
+  .tabs-wrap::-webkit-scrollbar { display: none; }
+  .tabs { display: flex; gap: 8px; white-space: nowrap; }
+  .tab {
+    padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--muted); cursor: pointer; transition: all .2s; font-family: 'Nunito', sans-serif;
+  }
+  .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .tab:active { transform: scale(0.95); }
+
+  /* ---- SCROLL BODY ---- */
+  .body { overflow-y: auto; height: calc(100dvh - 130px); padding-bottom: 80px; scrollbar-width: none; }
+  .body::-webkit-scrollbar { display: none; }
+
+  /* ---- SECTION ---- */
+  .section { padding: 20px 16px 4px; }
+  .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .section-title { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 18px; }
+  .section-more { font-size: 13px; color: var(--accent2); font-weight: 600; }
+
+  /* ---- FEATURED SCROLL ---- */
+  .featured-scroll { overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+  .featured-scroll::-webkit-scrollbar { display: none; }
+  .featured-list { display: flex; gap: 12px; }
+
+  .featured-card {
+    flex-shrink: 0; width: 280px; height: 156px; border-radius: var(--radius);
+    position: relative; overflow: hidden; cursor: pointer;
+    transition: transform .2s;
+  }
+  .featured-card:active { transform: scale(0.97); }
+  .featured-card .bg { position: absolute; inset: 0; }
+  .featured-card .overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 55%); }
+  .featured-card .info { position: absolute; bottom: 14px; left: 14px; right: 14px; }
+  .featured-card .tag { display: inline-block; font-size: 11px; font-weight: 700; font-family: 'Nunito', sans-serif; padding: 3px 9px; border-radius: 6px; margin-bottom: 6px; background: rgba(255,255,255,0.2); color: #fff; backdrop-filter: blur(4px); }
+  .featured-card .name { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 16px; line-height: 1.2; color: #fff; margin-bottom: 4px; }
+  .featured-card .sub { font-size: 12px; color: rgba(255,255,255,0.7); }
+
+  /* ---- APP ROWS (horizontal scroll) ---- */
+  .app-scroll { overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px 4px; }
+  .app-scroll::-webkit-scrollbar { display: none; }
+  .app-row { display: flex; gap: 14px; }
+  .app-card-v {
+    flex-shrink: 0; width: 90px; cursor: pointer;
+  }
+  .app-card-v .icon-wrap {
+    width: 72px; height: 72px; border-radius: 18px; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+  .app-card-v .app-name { font-size: 12px; font-weight: 600; text-align: center; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .app-card-v .app-cat { font-size: 11px; color: var(--muted); text-align: center; margin-top: 2px; }
+  .app-card-v:active .icon-wrap { transform: scale(0.93); }
+  .app-card-v .icon-wrap { transition: transform .15s; }
+
+  /* ---- APP LIST (vertical) ---- */
+  .app-list { display: flex; flex-direction: column; gap: 1px; }
+  .app-list-item {
+    display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+    background: var(--surface); cursor: pointer; transition: background .15s;
+  }
+  .app-list-item:first-child { border-radius: var(--radius) var(--radius) 0 0; }
+  .app-list-item:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+  .app-list-item:only-child { border-radius: var(--radius); }
+  .app-list-item:active { background: var(--surface2); }
+  .list-icon { width: 52px; height: 52px; border-radius: 13px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .list-meta { flex: 1; min-width: 0; }
+  .list-name { font-weight: 700; font-size: 15px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-desc { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-stars { font-size: 11px; color: var(--orange); margin-top: 3px; }
+  .list-btn {
+    flex-shrink: 0; padding: 7px 16px; border-radius: 20px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--accent2); font-size: 13px; font-weight: 700; font-family: 'Nunito', sans-serif;
+    cursor: pointer; transition: all .15s;
+  }
+  .list-btn:active { background: var(--accent); color: #fff; border-color: var(--accent); transform: scale(0.96); }
+
+  /* ---- BOTTOM NAV ---- */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(15,15,19,0.96); backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    display: flex; height: 62px; padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; cursor: pointer; color: var(--muted); transition: color .15s;
+  }
+  .nav-item.active { color: var(--accent2); }
+  .nav-item svg { width: 22px; height: 22px; }
+  .nav-item span { font-size: 10px; font-weight: 700; font-family: 'Nunito', sans-serif; }
+  .nav-item:active { opacity: 0.7; }
+
+  /* ---- APP DETAIL MODAL ---- */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200;
+    display: flex; align-items: flex-end; opacity: 0; pointer-events: none;
+    transition: opacity .25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface); width: 100%; border-radius: 24px 24px 0 0;
+    padding: 0 0 40px; max-height: 88dvh; overflow-y: auto; scrollbar-width: none;
+    transform: translateY(40px); transition: transform .25s cubic-bezier(.32,1.2,.5,1);
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
+  .modal-header { display: flex; align-items: center; gap: 16px; padding: 20px 20px 0; }
+  .modal-icon { width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 38px; flex-shrink: 0; }
+  .modal-title { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 20px; }
+  .modal-dev { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .modal-rating { font-size: 13px; color: var(--orange); margin-top: 4px; }
+  .modal-actions { display: flex; gap: 10px; padding: 16px 20px 0; }
+  .modal-install {
+    flex: 1; padding: 13px; border-radius: var(--radius-sm); background: var(--accent);
+    color: #fff; font-size: 16px; font-weight: 800; font-family: 'Nunito', sans-serif;
+    border: none; cursor: pointer; transition: opacity .15s;
+  }
+  .modal-install:active { opacity: 0.85; }
+  .modal-wishlist {
+    width: 48px; height: 48px; border-radius: var(--radius-sm); background: var(--surface2);
+    border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--muted); font-size: 20px; transition: all .15s;
+  }
+  .modal-wishlist.liked { color: var(--pink); border-color: var(--pink); background: rgba(232,67,147,0.1); }
+  .modal-stats { display: flex; gap: 1px; margin: 16px 20px 0; border-radius: var(--radius-sm); overflow: hidden; }
+  .modal-stat { flex: 1; background: var(--surface2); padding: 12px 0; text-align: center; }
+  .modal-stat .val { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 15px; }
+  .modal-stat .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .modal-desc { padding: 16px 20px 0; font-size: 14px; line-height: 1.65; color: rgba(240,240,248,0.8); }
+  .modal-screenshots { overflow-x: auto; scrollbar-width: none; margin: 16px 0 0; padding: 0 20px; }
+  .modal-screenshots::-webkit-scrollbar { display: none; }
+  .screens-row { display: flex; gap: 10px; }
+  .screen-thumb { flex-shrink: 0; width: 120px; height: 80px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .modal-close { position: absolute; display: none; }
+
+  /* ---- SEARCH RESULTS ---- */
+  .search-results { display: none; }
+  .search-results.show { display: block; }
+  .search-empty { text-align: center; padding: 48px 16px; color: var(--muted); font-size: 15px; }
+  .search-empty span { display: block; font-size: 36px; margin-bottom: 12px; }
+
+  /* ---- BANNERS ---- */
+  .banner {
+    margin: 16px 16px 0; border-radius: var(--radius); padding: 16px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .banner-icon { font-size: 32px; flex-shrink: 0; }
+  .banner-text .title { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 15px; margin-bottom: 2px; }
+  .banner-text .sub { font-size: 12px; opacity: 0.75; }
+
+  /* PAGE TOGGLE */
+  .page { display: none; }
+  .page.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-row1">
+    <div class="logo">App<span>Vault</span></div>
+    <div class="avatar">АА</div>
+  </div>
+  <div class="search-wrap">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="search-input" id="searchInput" type="search" placeholder="Поиск приложений и игр…" autocomplete="off">
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-tab="home">Главная</div>
+    <div class="tab" data-tab="games">Игры</div>
+    <div class="tab" data-tab="apps">Приложения</div>
+    <div class="tab" data-tab="top">Топ</div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body" id="mainBody">
+
+  <!-- SEARCH RESULTS -->
+  <div class="search-results" id="searchResults">
+    <div class="section">
+      <div class="app-list" id="searchList"></div>
+    </div>
+  </div>
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <!-- Banner -->
+    <div class="banner" style="background: linear-gradient(135deg, #2d1b69 0%, #1a1a2e 100%); border: 1px solid rgba(108,92,231,0.3);">
+      <div class="banner-icon">🎁</div>
+      <div class="banner-text" style="color:#fff;">
+        <div class="title">Премиум — 1 месяц бесплатно</div>
+        <div class="sub">Тысячи приложений без рекламы</div>
+      </div>
+    </div>
+
+    <!-- Featured -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">🔥 Рекомендуем</div>
+        <div class="section-more">Все</div>
+      </div>
+      <div class="featured-scroll">
+        <div class="featured-list" id="featuredList"></div>
+      </div>
+    </div>
+
+    <!-- New -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">✨ Новинки</div>
+        <div class="section-more">Все</div>
+      </div>
+      <div class="app-scroll">
+        <div class="app-row" id="newApps"></div>
+      </div>
+    </div>
+
+    <!-- Top free -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">📈 Топ бесплатных</div>
+        <div class="section-more">Все</div>
+      </div>
+      <div class="app-list" id="topFreeList"></div>
+    </div>
+  </div>
+
+  <!-- GAMES PAGE -->
+  <div class="page" id="page-games">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">🕹 Популярные игры</div>
+      </div>
+      <div class="app-list" id="gamesList"></div>
+    </div>
+  </div>
+
+  <!-- APPS PAGE -->
+  <div class="page" id="page-apps">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">📱 Все приложения</div>
+      </div>
+      <div class="app-list" id="allAppsList"></div>
+    </div>
+  </div>
+
+  <!-- TOP PAGE -->
+  <div class="page" id="page-top">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">🏆 Чарт недели</div>
+      </div>
+      <div class="app-list" id="topChartList"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" data-nav="home">
+    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Главная</span>
+  </div>
+  <div class="nav-item" data-nav="games">
+    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="3"/><path d="M8 11h8M12 11v4M6 3l6 4 6-4"/></svg>
+    <span>Игры</span>
+  </div>
+  <div class="nav-item" data-nav="apps">
+    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span>Приложения</span>
+  </div>
+  <div class="nav-item" data-nav="top">
+    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    <span>Топ</span>
+  </div>
+</div>
+
+<!-- APP DETAIL MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-icon" id="mIcon"></div>
+      <div>
+        <div class="modal-title" id="mTitle"></div>
+        <div class="modal-dev" id="mDev"></div>
+        <div class="modal-rating" id="mRating"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-install" id="mInstall">Установить</button>
+      <div class="modal-wishlist" id="mWishlist">♡</div>
+    </div>
+    <div class="modal-stats" id="mStats"></div>
+    <div class="modal-desc" id="mDesc"></div>
+    <div class="modal-screenshots">
+      <div class="screens-row" id="mScreens"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const APPS = [
+  { id:1, name:'Photon Edit', dev:'CreativeStudio', cat:'Фото', icon:'🎨', color:'#2d3436 linear-gradient(135deg,#6c5ce7,#a29bfe)', rating:4.8, reviews:'12K', size:'48 МБ', installs:'5M+', desc:'Профессиональный редактор с масками, слоями и фильтрами AI. Превратите любое фото в шедевр.', screens:['🌅','🎭','✨','🖼'], tags:['apps','top','featured'], featured:{bg:'linear-gradient(135deg,#6c5ce7 0%,#fd79a8 100%)', tag:'🎨 Фото'} },
+  { id:2, name:'Pulse Music', dev:'SoundWave Inc', cat:'Музыка', icon:'🎵', color:'linear-gradient(135deg,#00cec9,#0984e3)', rating:4.9, reviews:'31K', size:'62 МБ', installs:'10M+', desc:'Стриминг без рекламы, лирика в реальном времени и рекомендации на основе настроения.', screens:['🎸','🎧','🎶','🎤'], tags:['apps','top'], featured:{bg:'linear-gradient(135deg,#00b894 0%,#0984e3 100%)', tag:'🎵 Музыка'} },
+  { id:3, name:'ZenRun', dev:'FitLife', cat:'Спорт', icon:'🏃', color:'linear-gradient(135deg,#fd9644,#e84393)', rating:4.7, reviews:'8K', size:'35 МБ', installs:'2M+', desc:'GPS-трекер, тренировочные планы и мотивация от AI-тренера.', screens:['🗺','📊','🏅','💪'], tags:['apps','new'] },
+  { id:4, name:'NovaCam', dev:'Optics Lab', cat:'Камера', icon:'📸', color:'linear-gradient(135deg,#2d3436,#636e72)', rating:4.6, reviews:'5K', size:'54 МБ', installs:'1M+', desc:'Камера с ночным режимом, портретом и 4K-видео с ИИ-стабилизацией.', screens:['🌃','🤳','🌄','🎬'], tags:['apps','new'] },
+  { id:5, name:'Helix VPN', dev:'SecureNet', cat:'Безопасность', icon:'🔒', color:'linear-gradient(135deg,#0652DD,#1289A7)', rating:4.5, reviews:'22K', size:'18 МБ', installs:'8M+', desc:'Быстрый VPN с более чем 50 серверами по всему миру. Без логов, без ограничений.', screens:['🌐','🛡','⚡','🔑'], tags:['apps','top'] },
+  { id:6, name:'NOVA RPG', dev:'Epic Forge', cat:'RPG', icon:'⚔️', color:'linear-gradient(135deg,#b71540,#6F1E51)', rating:4.9, reviews:'55K', size:'1.2 ГБ', installs:'15M+', desc:'Эпическое RPG с открытым миром, 100+ часов сюжета и мультиплеером.', screens:['🏰','🐉','🗡','💎'], tags:['games','top','featured'], featured:{bg:'linear-gradient(135deg,#b71540 0%,#6F1E51 100%)', tag:'⚔️ RPG'} },
+  { id:7, name:'Pixel Dash', dev:'Retro Games', cat:'Аркада', icon:'👾', color:'linear-gradient(135deg,#f9ca24,#f0932b)', rating:4.7, reviews:'18K', size:'85 МБ', installs:'7M+', desc:'Ретро-аркада с процедурно-генерируемыми уровнями и режимом двух игроков.', screens:['👾','🕹','🎮','🏆'], tags:['games','new'] },
+  { id:8, name:'Brain Surge', dev:'MindGames', cat:'Головоломки', icon:'🧩', color:'linear-gradient(135deg,#6c5ce7,#00cec9)', rating:4.8, reviews:'9K', size:'42 МБ', installs:'3M+', desc:'Более 500 уровней логических задач. Тренируйте мозг каждый день.', screens:['🧠','🔢','🎯','⭐'], tags:['games','top'] },
+  { id:9, name:'SkySports', dev:'SportsTech', cat:'Спорт', icon:'⚽', color:'linear-gradient(135deg,#00b894,#00cec9)', rating:4.6, reviews:'40K', size:'78 МБ', installs:'20M+', desc:'Счета в реальном времени, трансляции и статистика по всем мировым лигам.', screens:['⚽','🏀','🎾','🏆'], tags:['apps','top','featured'], featured:{bg:'linear-gradient(135deg,#00b894 0%,#0984e3 100%)', tag:'⚽ Спорт'} },
+  { id:10, name:'TypeSwift', dev:'KeyLabs', cat:'Клавиатура', icon:'⌨️', color:'linear-gradient(135deg,#636e72,#2d3436)', rating:4.4, reviews:'14K', size:'22 МБ', installs:'4M+', desc:'Умная клавиатура с предсказанием текста и голосовым вводом на 40+ языках.', screens:['⌨️','🌐','🎙','✍️'], tags:['apps','new'] },
+  { id:11, name:'Neon Rider', dev:'FastLane', cat:'Гонки', icon:'🏎', color:'linear-gradient(135deg,#fdcb6e,#e17055)', rating:4.8, reviews:'27K', size:'650 МБ', installs:'9M+', desc:'Гонки в неоновом городе. Настройка машин и онлайн-турниры.', screens:['🏎','🌆','🏁','⚡'], tags:['games','new'] },
+  { id:12, name:'Mindly', dev:'WellnessApp', cat:'Здоровье', icon:'🧘', color:'linear-gradient(135deg,#a29bfe,#fd79a8)', rating:4.9, reviews:'6K', size:'29 МБ', installs:'1.5M+', desc:'Медитация, дыхательные упражнения и трекер настроения для ежедневного благополучия.', screens:['🧘','💆','🌙','☀️'], tags:['apps','new'] },
+];
+
+let likedApps = new Set();
+let installedApps = new Set();
+
+function starStr(r) {
+  let s = '';
+  for(let i=1;i<=5;i++) s += i<=Math.floor(r) ? '★' : (i-0.5<=r ? '✦' : '☆');
+  return s + ' ' + r;
+}
+
+// --- FEATURED CARDS ---
+function buildFeatured() {
+  const list = document.getElementById('featuredList');
+  APPS.filter(a=>a.tags.includes('featured')).forEach(a=>{
+    const c = document.createElement('div');
+    c.className = 'featured-card';
+    c.innerHTML = `
+      <div class="bg" style="background:${a.featured.bg}; display:flex; align-items:center; justify-content:center; font-size:64px;">${a.icon}</div>
+      <div class="overlay"></div>
+      <div class="info">
+        <span class="tag">${a.featured.tag}</span>
+        <div class="name">${a.name}</div>
+        <div class="sub">${a.dev} · ${a.rating} ★</div>
+      </div>`;
+    c.onclick = ()=>openModal(a);
+    list.appendChild(c);
+  });
+}
+
+// --- APP ICONS (horizontal scroll) ---
+function buildNewApps() {
+  const row = document.getElementById('newApps');
+  APPS.filter(a=>a.tags.includes('new')).forEach(a=>{
+    const c = document.createElement('div');
+    c.className = 'app-card-v';
+    c.innerHTML = `
+      <div class="icon-wrap" style="background:${a.color}">${a.icon}</div>
+      <div class="app-name">${a.name}</div>
+      <div class="app-cat">${a.cat}</div>`;
+    c.onclick = ()=>openModal(a);
+    row.appendChild(c);
+  });
+}
+
+// --- APP LIST ITEM ---
+function makeListItem(a, rank) {
+  const c = document.createElement('div');
+  c.className = 'app-list-item';
+  c.innerHTML = `
+    <div class="list-icon" style="background:${a.color}">${a.icon}</div>
+    <div class="list-meta">
+      <div class="list-name">${rank ? rank+'. ' : ''}${a.name}</div>
+      <div class="list-desc">${a.cat} · ${a.dev}</div>
+      <div class="list-stars">${starStr(a.rating)} (${a.reviews})</div>
+    </div>
+    <button class="list-btn">${installedApps.has(a.id)?'Открыть':'Получить'}</button>`;
+  c.querySelector('.list-btn').onclick = e=>{
+    e.stopPropagation();
+    installedApps.add(a.id);
+    e.target.textContent = 'Открыть';
+    e.target.style.color = 'var(--green)';
+  };
+  c.onclick = ()=>openModal(a);
+  return c;
+}
+
+function buildTopFree() {
+  const el = document.getElementById('topFreeList');
+  APPS.filter(a=>a.tags.includes('top')).slice(0,5).forEach((a,i)=>el.appendChild(makeListItem(a,i+1)));
+}
+
+function buildGames() {
+  const el = document.getElementById('gamesList');
+  APPS.filter(a=>a.tags.includes('games')).forEach((a,i)=>el.appendChild(makeListItem(a,i+1)));
+}
+
+function buildAllApps() {
+  const el = document.getElementById('allAppsList');
+  APPS.filter(a=>a.tags.includes('apps')).forEach(a=>el.appendChild(makeListItem(a)));
+}
+
+function buildTopChart() {
+  const el = document.getElementById('topChartList');
+  const sorted = [...APPS].sort((a,b)=>b.rating-a.rating);
+  sorted.forEach((a,i)=>el.appendChild(makeListItem(a,i+1)));
+}
+
+// --- MODAL ---
+function openModal(a) {
+  document.getElementById('mIcon').style.cssText = `background:${a.color}; font-size:38px;`;
+  document.getElementById('mIcon').textContent = a.icon;
+  document.getElementById('mTitle').textContent = a.name;
+  document.getElementById('mDev').textContent = a.dev + ' · ' + a.cat;
+  document.getElementById('mRating').textContent = starStr(a.rating) + '  (' + a.reviews + ' отзывов)';
+  document.getElementById('mInstall').textContent = installedApps.has(a.id) ? '✓ Открыть' : 'Установить';
+  document.getElementById('mInstall').onclick = ()=>{
+    installedApps.add(a.id);
+    document.getElementById('mInstall').textContent = '✓ Открыть';
+  };
+  const wl = document.getElementById('mWishlist');
+  wl.textContent = likedApps.has(a.id) ? '♥' : '♡';
+  wl.className = 'modal-wishlist' + (likedApps.has(a.id) ? ' liked' : '');
+  wl.onclick = ()=>{
+    if(likedApps.has(a.id)) { likedApps.delete(a.id); wl.textContent='♡'; wl.className='modal-wishlist'; }
+    else { likedApps.add(a.id); wl.textContent='♥'; wl.className='modal-wishlist liked'; }
+  };
+  document.getElementById('mStats').innerHTML = `
+    <div class="modal-stat"><div class="val">${a.rating}★</div><div class="lbl">Оценка</div></div>
+    <div class="modal-stat"><div class="val">${a.installs}</div><div class="lbl">Установок</div></div>
+    <div class="modal-stat"><div class="val">${a.size}</div><div class="lbl">Размер</div></div>
+    <div class="modal-stat"><div class="val">${a.reviews}</div><div class="lbl">Отзывов</div></div>`;
+  document.getElementById('mDesc').textContent = a.desc;
+  const screens = document.getElementById('mScreens');
+  screens.innerHTML = '';
+  a.screens.forEach(s=>{
+    const d = document.createElement('div');
+    d.className = 'screen-thumb';
+    d.style.cssText = `background:${a.color}; font-size:28px;`;
+    d.textContent = s;
+    screens.appendChild(d);
+  });
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.add('open');
+  overlay.onclick = e=>{ if(e.target===overlay) closeModal(); };
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// --- TABS + NAV ---
+document.getElementById('tabs').addEventListener('click', e=>{
+  const tab = e.target.closest('.tab');
+  if(!tab) return;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  const name = tab.dataset.tab;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{ n.classList.toggle('active', n.dataset.nav===name); });
+});
+
+document.querySelectorAll('.nav-item').forEach(n=>{
+  n.onclick = ()=>{
+    const name = n.dataset.nav;
+    document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+    n.classList.add('active');
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+name).classList.add('active');
+  };
+});
+
+// --- SEARCH ---
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+const searchList = document.getElementById('searchList');
+const mainPages = document.querySelectorAll('.page, .tabs-wrap, .banner');
+
+searchInput.addEventListener('input', ()=>{
+  const q = searchInput.value.trim().toLowerCase();
+  if(!q) {
+    searchResults.classList.remove('show');
+    return;
+  }
+  searchResults.classList.add('show');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const found = APPS.filter(a=>a.name.toLowerCase().includes(q)||a.cat.toLowerCase().includes(q)||a.dev.toLowerCase().includes(q));
+  searchList.innerHTML = '';
+  if(!found.length) {
+    searchList.innerHTML = '<div class="search-empty"><span>🔍</span>Ничего не найдено</div>';
+  } else {
+    found.forEach(a=>searchList.appendChild(makeListItem(a)));
+  }
+});
+searchInput.addEventListener('search', ()=>{ if(!searchInput.value) searchResults.classList.remove('show'); });
+
+// --- INIT ---
+buildFeatured();
+buildNewApps();
+buildTopFree();
+buildGames();
+buildAllApps();
+buildTopChart();
+</script>
+</body>
+</html>
