@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Минималистичный Браузер</title>
 <style>
-/* ============================================
-   БАЗОВЫЕ ПЕРЕМЕННЫЕ И СБРОС
-   ============================================ */
 :root {
   --bg: #ffffff;
   --bg-secondary: #f5f5f5;
@@ -44,224 +41,95 @@
 }
 
 [data-theme="dark"] {
-  --bg: #0f0f0f;
-  --bg-secondary: #1a1a1a;
-  --bg-tertiary: #252525;
-  --text: #e8e8e8;
-  --text-secondary: #999999;
-  --border: #333333;
-  --accent: #3b82f6;
-  --accent-hover: #60a5fa;
-  --error-bg: #2a1515;
-  --error-text: #ef4444;
-  --tab-active-bg: #1a1a1a;
-  --tab-inactive-bg: #141414;
+  --bg: #0f0f0f; --bg-secondary: #1a1a1a; --bg-tertiary: #252525;
+  --text: #e8e8e8; --text-secondary: #999999; --border: #333333;
+  --accent: #3b82f6; --accent-hover: #60a5fa;
+  --error-bg: #2a1515; --error-text: #ef4444;
+  --tab-active-bg: #1a1a1a; --tab-inactive-bg: #141414;
 }
 
 [data-theme="light"] {
-  --bg: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --bg-tertiary: #eeeeee;
-  --text: #1a1a1a;
-  --text-secondary: #666666;
-  --border: #e0e0e0;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --error-bg: #fef2f2;
-  --error-text: #dc2626;
-  --tab-active-bg: #ffffff;
-  --tab-inactive-bg: #f0f0f0;
+  --bg: #ffffff; --bg-secondary: #f5f5f5; --bg-tertiary: #eeeeee;
+  --text: #1a1a1a; --text-secondary: #666666; --border: #e0e0e0;
+  --accent: #2563eb; --accent-hover: #1d4ed8;
+  --error-bg: #fef2f2; --error-text: #dc2626;
+  --tab-active-bg: #ffffff; --tab-inactive-bg: #f0f0f0;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  overflow: hidden;
-  height: 100vh;
-  width: 100vw;
+  background: var(--bg); color: var(--text);
+  overflow: hidden; height: 100vh; width: 100vw;
 }
 
-/* ============================================
-   ШАПКА БРАУЗЕРА (НАВИГАЦИЯ)
-   ============================================ */
 .browser-header {
-  height: var(--header-height);
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  padding: 0 8px;
-  gap: 4px;
-  flex-shrink: 0;
+  height: var(--header-height); background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border); display: flex;
+  align-items: center; padding: 0 8px; gap: 4px; flex-shrink: 0;
 }
 
 .nav-btn {
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  transition: background 0.15s, color 0.15s;
+  width: 32px; height: 32px; border: none; background: transparent;
+  color: var(--text-secondary); cursor: pointer; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; transition: background 0.15s, color 0.15s;
 }
-
-.nav-btn:hover {
-  background: var(--bg-tertiary);
-  color: var(--text);
-}
-
-.nav-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
+.nav-btn:hover { background: var(--bg-tertiary); color: var(--text); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
 .address-bar-container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0 8px;
-  height: 34px;
-  gap: 6px;
-  transition: border-color 0.2s;
+  flex: 1; display: flex; align-items: center; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 0 8px; height: 34px; gap: 6px; transition: border-color 0.2s;
 }
-
-.address-bar-container:focus-within {
-  border-color: var(--accent);
-}
+.address-bar-container:focus-within { border-color: var(--accent); }
 
 .address-bar {
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: var(--text);
-  font-size: 14px;
-  outline: none;
-  font-family: inherit;
+  flex: 1; border: none; background: transparent; color: var(--text);
+  font-size: 14px; outline: none; font-family: inherit;
 }
+.address-bar::placeholder { color: var(--text-secondary); }
+.secure-icon { color: #22c55e; font-size: 12px; }
 
-.address-bar::placeholder {
-  color: var(--text-secondary);
-}
-
-.secure-icon {
-  color: #22c55e;
-  font-size: 12px;
-}
-
-/* ============================================
-   ВКЛАДКИ
-   ============================================ */
 .tabs-bar {
-  height: var(--tab-height);
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: flex-end;
-  padding: 0 4px;
-  gap: 2px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  flex-shrink: 0;
+  height: var(--tab-height); background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border); display: flex;
+  align-items: flex-end; padding: 0 4px; gap: 2px;
+  overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
 }
-
-.tabs-bar::-webkit-scrollbar {
-  display: none;
-}
+.tabs-bar::-webkit-scrollbar { display: none; }
 
 .tab {
-  min-width: 120px;
-  max-width: 200px;
-  height: 32px;
-  background: var(--tab-inactive-bg);
-  border: 1px solid var(--border);
-  border-bottom: none;
-  border-radius: 6px 6px 0 0;
-  display: flex;
-  align-items: center;
-  padding: 0 8px;
-  gap: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--text-secondary);
-  position: relative;
-  user-select: none;
-  transition: background 0.15s;
+  min-width: 120px; max-width: 200px; height: 32px;
+  background: var(--tab-inactive-bg); border: 1px solid var(--border);
+  border-bottom: none; border-radius: 6px 6px 0 0;
+  display: flex; align-items: center; padding: 0 8px; gap: 6px;
+  cursor: pointer; font-size: 12px; color: var(--text-secondary);
+  position: relative; user-select: none; transition: background 0.15s;
 }
-
-.tab:hover {
-  background: var(--bg-tertiary);
-}
-
+.tab:hover { background: var(--bg-tertiary); }
 .tab.active {
-  background: var(--tab-active-bg);
-  color: var(--text);
-  border-bottom: 1px solid var(--tab-active-bg);
-  margin-bottom: -1px;
-  z-index: 1;
+  background: var(--tab-active-bg); color: var(--text);
+  border-bottom: 1px solid var(--tab-active-bg); margin-bottom: -1px; z-index: 1;
 }
-
-.tab-title {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+.tab-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .tab-close {
-  width: 16px;
-  height: 16px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  opacity: 0;
-  transition: opacity 0.15s, background 0.15s;
+  width: 16px; height: 16px; border: none; background: transparent;
+  color: var(--text-secondary); cursor: pointer; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; opacity: 0; transition: opacity 0.15s, background 0.15s;
 }
-
-.tab:hover .tab-close,
-.tab.active .tab-close {
-  opacity: 1;
-}
-
-.tab-close:hover {
-  background: var(--border);
-  color: var(--text);
-}
+.tab:hover .tab-close, .tab.active .tab-close { opacity: 1; }
+.tab-close:hover { background: var(--border); color: var(--text); }
 
 .tab-loading {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--accent);
-  animation: loading-pulse 1s infinite;
-  display: none;
+  position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent); animation: loading-pulse 1s infinite; display: none;
 }
-
-.tab.loading .tab-loading {
-  display: block;
-}
+.tab.loading .tab-loading { display: block; }
 
 @keyframes loading-pulse {
   0%, 100% { opacity: 1; }
@@ -269,687 +137,261 @@ body {
 }
 
 .new-tab-btn {
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  margin-bottom: 2px;
-  flex-shrink: 0;
+  width: 28px; height: 28px; border: none; background: transparent;
+  color: var(--text-secondary); cursor: pointer; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 2px; flex-shrink: 0;
 }
+.new-tab-btn:hover { background: var(--bg-tertiary); color: var(--text); }
 
-.new-tab-btn:hover {
-  background: var(--bg-tertiary);
-  color: var(--text);
-}
-
-/* ============================================
-   ОСНОВНОЙ КОНТЕНТ
-   ============================================ */
 .browser-body {
-  display: flex;
-  flex: 1;
+  display: flex; flex: 1;
   height: calc(100vh - var(--header-height) - var(--tab-height));
   overflow: hidden;
 }
 
-.viewport {
-  flex: 1;
-  position: relative;
-  background: var(--bg);
-}
-
-.viewport iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  display: none;
-}
-
-.viewport iframe.active {
-  display: block;
-}
+.viewport { flex: 1; position: relative; background: var(--bg); }
+.viewport iframe { width: 100%; height: 100%; border: none; display: none; }
+.viewport iframe.active { display: block; }
 
 .error-page {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 40px;
-  text-align: center;
-  background: var(--bg);
+  display: none; flex-direction: column; align-items: center;
+  justify-content: center; height: 100%; padding: 40px;
+  text-align: center; background: var(--bg);
 }
-
-.error-page.visible {
-  display: flex;
-}
-
-.error-page h2 {
-  font-size: 20px;
-  margin-bottom: 12px;
-  color: var(--error-text);
-}
-
-.error-page p {
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin-bottom: 20px;
-}
-
+.error-page.visible { display: flex; }
+.error-page h2 { font-size: 20px; margin-bottom: 12px; color: var(--error-text); }
+.error-page p { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
 .error-retry {
-  padding: 8px 20px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
+  padding: 8px 20px; background: var(--accent); color: white;
+  border: none; border-radius: 4px; cursor: pointer; font-size: 14px;
 }
+.error-retry:hover { background: var(--accent-hover); }
 
-.error-retry:hover {
-  background: var(--accent-hover);
-}
-
-/* ============================================
-   БОКОВАЯ ПАНЕЛЬ
-   ============================================ */
 .sidebar {
-  width: var(--sidebar-width);
-  background: var(--bg-secondary);
-  border-left: 1px solid var(--border);
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
+  width: var(--sidebar-width); background: var(--bg-secondary);
+  border-left: 1px solid var(--border); display: none;
+  flex-direction: column; overflow: hidden;
 }
-
-.sidebar.open {
-  display: flex;
-}
+.sidebar.open { display: flex; }
 
 .sidebar-header {
-  height: 40px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
-  font-size: 14px;
-  font-weight: 500;
+  height: 40px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 12px; font-size: 14px; font-weight: 500;
 }
-
 .sidebar-close {
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 24px; height: 24px; border: none; background: transparent;
+  color: var(--text-secondary); cursor: pointer; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
 }
+.sidebar-close:hover { background: var(--bg-tertiary); color: var(--text); }
+.sidebar-content { flex: 1; overflow-y: auto; padding: 8px; }
 
-.sidebar-close:hover {
-  background: var(--bg-tertiary);
-  color: var(--text);
-}
-
-.sidebar-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px;
-}
-
-/* ============================================
-   ЗАКЛАДКИ
-   ============================================ */
 .bookmark-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: background 0.15s;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 4px; cursor: pointer;
+  font-size: 13px; transition: background 0.15s;
 }
-
-.bookmark-item:hover {
-  background: var(--bg-tertiary);
-}
-
-.bookmark-item .bookmark-favicon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-
-.bookmark-item .bookmark-title {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
+.bookmark-item:hover { background: var(--bg-tertiary); }
+.bookmark-item .bookmark-favicon { width: 16px; height: 16px; flex-shrink: 0; }
+.bookmark-item .bookmark-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bookmark-item .bookmark-delete {
-  width: 18px;
-  height: 18px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  border-radius: 3px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
+  width: 18px; height: 18px; border: none; background: transparent;
+  color: var(--text-secondary); cursor: pointer; border-radius: 3px;
+  display: none; align-items: center; justify-content: center; font-size: 11px;
 }
+.bookmark-item:hover .bookmark-delete { display: flex; }
+.bookmark-delete:hover { background: var(--border); color: var(--error-text); }
 
-.bookmark-item:hover .bookmark-delete {
-  display: flex;
-}
-
-.bookmark-delete:hover {
-  background: var(--border);
-  color: var(--error-text);
-}
-
-/* ============================================
-   ИСТОРИЯ
-   ============================================ */
 .history-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: background 0.15s;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 4px; cursor: pointer;
+  font-size: 13px; transition: background 0.15s;
 }
-
-.history-item:hover {
-  background: var(--bg-tertiary);
-}
-
-.history-item .history-url {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--text-secondary);
-}
-
-.history-item .history-time {
-  font-size: 11px;
-  color: var(--text-secondary);
-  flex-shrink: 0;
-}
+.history-item:hover { background: var(--bg-tertiary); }
+.history-item .history-url { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); }
+.history-item .history-time { font-size: 11px; color: var(--text-secondary); flex-shrink: 0; }
 
 .history-clear-btn {
-  width: 100%;
-  padding: 8px;
-  margin-top: 8px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
-  cursor: pointer;
-  font-size: 13px;
+  width: 100%; padding: 8px; margin-top: 8px;
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text); cursor: pointer; font-size: 13px;
 }
+.history-clear-btn:hover { background: var(--border); }
 
-.history-clear-btn:hover {
-  background: var(--border);
-}
-
-/* ============================================
-   МЕНЕДЖЕР РАСШИРЕНИЙ
-   ============================================ */
 .extension-item {
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  margin-bottom: 8px;
-  background: var(--bg);
+  padding: 10px; border: 1px solid var(--border); border-radius: 6px;
+  margin-bottom: 8px; background: var(--bg);
 }
-
 .extension-item .ext-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
 }
-
-.extension-item .ext-name {
-  font-weight: 500;
-  font-size: 13px;
-}
-
-.extension-item .ext-version {
-  font-size: 11px;
-  color: var(--text-secondary);
-}
-
-.extension-item .ext-desc {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-}
-
-.extension-item .ext-actions {
-  display: flex;
-  gap: 6px;
-}
+.extension-item .ext-name { font-weight: 500; font-size: 13px; }
+.extension-item .ext-version { font-size: 11px; color: var(--text-secondary); }
+.extension-item .ext-desc { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+.extension-item .ext-actions { display: flex; gap: 6px; }
 
 .ext-btn {
-  padding: 4px 10px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--bg-secondary);
-  color: var(--text);
-  cursor: pointer;
-  font-size: 12px;
-  transition: background 0.15s;
+  padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px;
+  background: var(--bg-secondary); color: var(--text); cursor: pointer;
+  font-size: 12px; transition: background 0.15s;
 }
-
-.ext-btn:hover {
-  background: var(--bg-tertiary);
-}
-
-.ext-btn.primary {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-}
-
-.ext-btn.primary:hover {
-  background: var(--accent-hover);
-}
-
-.ext-btn.danger {
-  color: var(--error-text);
-  border-color: var(--error-text);
-}
-
-.ext-btn.danger:hover {
-  background: var(--error-bg);
-}
+.ext-btn:hover { background: var(--bg-tertiary); }
+.ext-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+.ext-btn.primary:hover { background: var(--accent-hover); }
+.ext-btn.danger { color: var(--error-text); border-color: var(--error-text); }
+.ext-btn.danger:hover { background: var(--error-bg); }
 
 .toggle-switch {
-  width: 36px;
-  height: 20px;
-  background: var(--border);
-  border-radius: 10px;
-  position: relative;
-  cursor: pointer;
-  transition: background 0.2s;
-  flex-shrink: 0;
+  width: 36px; height: 20px; background: var(--border); border-radius: 10px;
+  position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0;
 }
-
-.toggle-switch.on {
-  background: var(--accent);
-}
-
+.toggle-switch.on { background: var(--accent); }
 .toggle-switch::after {
-  content: '';
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  background: white;
-  border-radius: 50%;
-  top: 2px;
-  left: 2px;
-  transition: transform 0.2s;
+  content: ''; position: absolute; width: 16px; height: 16px;
+  background: white; border-radius: 50%; top: 2px; left: 2px; transition: transform 0.2s;
 }
+.toggle-switch.on::after { transform: translateX(16px); }
 
-.toggle-switch.on::after {
-  transform: translateX(16px);
-}
-
-.ext-install-area {
-  margin-bottom: 12px;
-}
-
+.ext-install-area { margin-bottom: 12px; }
 .ext-install-area textarea {
-  width: 100%;
-  height: 120px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 8px;
-  color: var(--text);
-  font-family: monospace;
-  font-size: 12px;
-  resize: vertical;
-  outline: none;
+  width: 100%; height: 120px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 8px; color: var(--text); font-family: monospace;
+  font-size: 12px; resize: vertical; outline: none;
 }
+.ext-install-area textarea:focus { border-color: var(--accent); }
 
-.ext-install-area textarea:focus {
-  border-color: var(--accent);
-}
-
-/* ============================================
-   КОНТЕКСТНОЕ МЕНЮ
-   ============================================ */
 .context-menu {
-  position: fixed;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 4px;
-  min-width: 160px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  z-index: 10000;
-  display: none;
+  position: fixed; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px; min-width: 160px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; display: none;
 }
-
-.context-menu.visible {
-  display: block;
-}
-
+.context-menu.visible { display: block; }
 .context-menu-item {
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background 0.15s;
+  padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; gap: 8px; transition: background 0.15s;
 }
+.context-menu-item:hover { background: var(--bg-secondary); }
+.context-menu-separator { height: 1px; background: var(--border); margin: 4px 0; }
 
-.context-menu-item:hover {
-  background: var(--bg-secondary);
-}
-
-.context-menu-separator {
-  height: 1px;
-  background: var(--border);
-  margin: 4px 0;
-}
-
-/* ============================================
-   ВСПЛЫВАЮЩИЕ ПАНЕЛИ РАСШИРЕНИЙ
-   ============================================ */
 .ext-panel {
-  position: fixed;
-  top: calc(var(--header-height) + var(--tab-height) + 8px);
-  right: 8px;
-  width: 320px;
-  max-height: 400px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-  z-index: 9999;
-  display: none;
-  flex-direction: column;
+  position: fixed; top: calc(var(--header-height) + var(--tab-height) + 8px);
+  right: 8px; width: 320px; max-height: 400px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+  z-index: 9999; display: none; flex-direction: column;
 }
-
-.ext-panel.visible {
-  display: flex;
-}
-
+.ext-panel.visible { display: flex; }
 .ext-panel-header {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-  font-weight: 500;
-  font-size: 13px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+  font-weight: 500; font-size: 13px; display: flex;
+  justify-content: space-between; align-items: center;
 }
-
 .ext-panel-close {
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 20px; height: 20px; border: none; background: transparent;
+  color: var(--text-secondary); cursor: pointer; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
 }
+.ext-panel-close:hover { background: var(--bg-tertiary); color: var(--text); }
+.ext-panel-body { padding: 12px; overflow-y: auto; font-size: 13px; }
 
-.ext-panel-close:hover {
-  background: var(--bg-tertiary);
-  color: var(--text);
-}
-
-.ext-panel-body {
-  padding: 12px;
-  overflow-y: auto;
-  font-size: 13px;
-}
-
-/* ============================================
-   ПАНЕЛЬ РАСШИРЕНИЙ В ШАПКЕ
-   ============================================ */
-.ext-toolbar {
-  display: flex;
-  gap: 2px;
-  margin-left: 4px;
-}
-
+.ext-toolbar { display: flex; gap: 2px; margin-left: 4px; }
 .ext-toolbar-btn {
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
+  width: 28px; height: 28px; border: none; background: transparent;
+  color: var(--text-secondary); cursor: pointer; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center; font-size: 13px;
 }
+.ext-toolbar-btn:hover { background: var(--bg-tertiary); color: var(--text); }
+.ext-toolbar-btn.active { background: var(--accent); color: white; }
 
-.ext-toolbar-btn:hover {
-  background: var(--bg-tertiary);
-  color: var(--text);
-}
-
-.ext-toolbar-btn.active {
-  background: var(--accent);
-  color: white;
-}
-
-/* ============================================
-   НАЧАЛЬНАЯ СТРАНИЦА
-   ============================================ */
 .start-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  background: var(--bg);
-  gap: 20px;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 100%; background: var(--bg); gap: 20px;
 }
-
-.start-page h1 {
-  font-size: 28px;
-  font-weight: 300;
-  color: var(--text);
-}
-
+.start-page h1 { font-size: 28px; font-weight: 300; color: var(--text); }
 .start-page .start-search {
-  width: 100%;
-  max-width: 500px;
-  padding: 12px 20px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg-secondary);
-  color: var(--text);
-  font-size: 16px;
-  outline: none;
-  text-align: center;
+  width: 100%; max-width: 500px; padding: 12px 20px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg-secondary); color: var(--text);
+  font-size: 16px; outline: none; text-align: center;
 }
+.start-page .start-search:focus { border-color: var(--accent); }
 
-.start-page .start-search:focus {
-  border-color: var(--accent);
-}
-
-.start-shortcuts {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 20px;
-}
-
+.start-shortcuts { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
 .start-shortcut {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-  width: 80px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 16px; border-radius: 8px; cursor: pointer;
+  transition: background 0.15s; width: 80px;
 }
-
-.start-shortcut:hover {
-  background: var(--bg-secondary);
-}
-
+.start-shortcut:hover { background: var(--bg-secondary); }
 .start-shortcut-icon {
-  width: 40px;
-  height: 40px;
-  background: var(--bg-tertiary);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
+  width: 40px; height: 40px; background: var(--bg-tertiary);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;
 }
+.start-shortcut-title { font-size: 12px; color: var(--text-secondary); }
 
-.start-shortcut-title {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-/* ============================================
-   АДАПТИВНОСТЬ
-   ============================================ */
 @media (max-width: 600px) {
-  .sidebar {
-    position: fixed;
-    top: calc(var(--header-height) + var(--tab-height));
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    z-index: 9998;
-  }
-  
-  .ext-panel {
-    left: 8px;
-    right: 8px;
-    width: auto;
-  }
+  .sidebar { position: fixed; top: calc(var(--header-height) + var(--tab-height)); left: 0; right: 0; bottom: 0; width: 100%; z-index: 9998; }
+  .ext-panel { left: 8px; right: 8px; width: auto; }
 }
 
-/* ============================================
-   СКРОЛЛБАР
-   ============================================ */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 </style>
 </head>
 <body>
 
-<!-- ============================================
-     ШАПКА БРАУЗЕРА
-     ============================================ -->
 <div class="browser-header">
-  <button class="nav-btn" id="btnBack" title="Назад (Alt+Left)">←</button>
-  <button class="nav-btn" id="btnForward" title="Вперёд (Alt+Right)">→</button>
-  <button class="nav-btn" id="btnRefresh" title="Обновить (F5)">↻</button>
-  <button class="nav-btn" id="btnHome" title="Домой">⌂</button>
+  <button class="nav-btn" id="btnBack" title="Назад (Alt+Left)">&#8592;</button>
+  <button class="nav-btn" id="btnForward" title="Вперёд (Alt+Right)">&#8594;</button>
+  <button class="nav-btn" id="btnRefresh" title="Обновить (F5)">&#8635;</button>
+  <button class="nav-btn" id="btnHome" title="Домой">&#8962;</button>
   
   <div class="address-bar-container">
-    <span class="secure-icon" id="secureIcon">🔒</span>
+    <span class="secure-icon" id="secureIcon">&#128274;</span>
     <input type="text" class="address-bar" id="addressBar" placeholder="Введите URL или поисковый запрос..." autocomplete="off">
   </div>
   
   <div class="ext-toolbar" id="extToolbar"></div>
   
-  <button class="nav-btn" id="btnBookmarks" title="Закладки">☆</button>
-  <button class="nav-btn" id="btnHistory" title="История">🕐</button>
-  <button class="nav-btn" id="btnExtensions" title="Расширения">🧩</button>
-  <button class="nav-btn" id="btnTheme" title="Тёмная тема">🌙</button>
+  <button class="nav-btn" id="btnBookmarks" title="Закладки">&#9734;</button>
+  <button class="nav-btn" id="btnHistory" title="История">&#128336;</button>
+  <button class="nav-btn" id="btnExtensions" title="Расширения">&#129513;</button>
+  <button class="nav-btn" id="btnTheme" title="Тёмная тема">&#127769;</button>
 </div>
 
-<!-- ============================================
-     ВКЛАДКИ
-     ============================================ -->
 <div class="tabs-bar" id="tabsBar">
   <button class="new-tab-btn" id="newTabBtn" title="Новая вкладка (Ctrl+T)">+</button>
 </div>
 
-<!-- ============================================
-     ОСНОВНОЕ ТЕЛО
-     ============================================ -->
 <div class="browser-body">
   <div class="viewport" id="viewport"></div>
   
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <span id="sidebarTitle">Панель</span>
-      <button class="sidebar-close" id="sidebarClose">✕</button>
+      <button class="sidebar-close" id="sidebarClose">&#10005;</button>
     </div>
     <div class="sidebar-content" id="sidebarContent"></div>
   </div>
 </div>
 
-<!-- ============================================
-     КОНТЕКСТНОЕ МЕНЮ
-     ============================================ -->
 <div class="context-menu" id="contextMenu">
-  <div class="context-menu-item" id="ctxNewTab">🆕 Новая вкладка</div>
-  <div class="context-menu-item" id="ctxReload">🔄 Обновить</div>
+  <div class="context-menu-item" id="ctxNewTab">&#127381; Новая вкладка</div>
+  <div class="context-menu-item" id="ctxReload">&#128260; Обновить</div>
   <div class="context-menu-separator"></div>
-  <div class="context-menu-item" id="ctxBookmark">⭐ Добавить в закладки</div>
-  <div class="context-menu-item" id="ctxCopyUrl">📋 Копировать URL</div>
+  <div class="context-menu-item" id="ctxBookmark">&#11088; Добавить в закладки</div>
+  <div class="context-menu-item" id="ctxCopyUrl">&#128203; Копировать URL</div>
   <div class="context-menu-separator"></div>
-  <div class="context-menu-item" id="ctxBack">⬅️ Назад</div>
-  <div class="context-menu-item" id="ctxForward">➡️ Вперёд</div>
+  <div class="context-menu-item" id="ctxBack">&#11013;&#65039; Назад</div>
+  <div class="context-menu-item" id="ctxForward">&#10145;&#65039; Вперёд</div>
 </div>
 
 <div id="extPanelsContainer"></div>
 
 <script>
-// ============================================
-// КОНФИГУРАЦИЯ И СОСТОЯНИЕ
-// ============================================
 const CONFIG = {
   searchEngine: 'https://duckduckgo.com/?q=',
   homePage: 'about:blank',
@@ -958,56 +400,25 @@ const CONFIG = {
 };
 
 let state = {
-  tabs: [],
-  activeTabId: null,
-  tabCounter: 0,
-  history: [],
-  bookmarks: [],
-  extensions: [],
-  theme: 'auto',
-  sidebarOpen: false,
-  sidebarMode: null
+  tabs: [], activeTabId: null, tabCounter: 0,
+  history: [], bookmarks: [], extensions: [],
+  theme: 'auto', sidebarOpen: false, sidebarMode: null
 };
 
-// ============================================
-// УТИЛИТЫ
-// ============================================
-function generateId() {
-  return 'tab_' + (++state.tabCounter) + '_' + Date.now();
-}
+function generateId() { return 'tab_' + (++state.tabCounter) + '_' + Date.now(); }
 
 function isValidUrl(string) {
-  try {
-    new URL(string);
-    return true;
-  } catch {
-    return false;
-  }
+  try { new URL(string); return true; } catch { return false; }
 }
 
 function normalizeUrl(url) {
   if (!url) return CONFIG.homePage;
   url = url.trim();
   if (url === 'about:blank') return url;
-  if (isValidUrl(url)) {
-    const u = new URL(url);
-    return u.href;
-  }
-  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(url)) {
-    return url;
-  }
-  if (/^[a-zA-Z0-9][a-zA-Z0-9-]*(\.[a-zA-Z0-9][a-zA-Z0-9-]*)+/.test(url)) {
-    return 'https://' + url;
-  }
+  if (isValidUrl(url)) { const u = new URL(url); return u.href; }
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(url)) return url;
+  if (/^[a-zA-Z0-9][a-zA-Z0-9-]*(\.[a-zA-Z0-9][a-zA-Z0-9-]*)+/.test(url)) return 'https://' + url;
   return CONFIG.searchEngine + encodeURIComponent(url);
-}
-
-function getDomain(url) {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return url;
-  }
 }
 
 function formatTime(date) {
@@ -1016,14 +427,12 @@ function formatTime(date) {
 }
 
 function escapeHtml(text) {
+  if (!text) return '';
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
 
-// ============================================
-// LOCALSTORAGE
-// ============================================
 function loadState() {
   try {
     const saved = localStorage.getItem('browser_state');
@@ -1034,107 +443,46 @@ function loadState() {
       state.extensions = parsed.extensions || [];
       state.theme = parsed.theme || 'auto';
     }
-  } catch (e) {
-    console.error('Ошибка загрузки состояния:', e);
-  }
+  } catch (e) { console.error('Ошибка загрузки состояния:', e); }
 }
 
 function saveState() {
   try {
-    const toSave = {
-      history: state.history,
-      bookmarks: state.bookmarks,
-      extensions: state.extensions,
-      theme: state.theme
-    };
+    const toSave = { history: state.history, bookmarks: state.bookmarks, extensions: state.extensions, theme: state.theme };
     localStorage.setItem('browser_state', JSON.stringify(toSave));
-  } catch (e) {
-    console.error('Ошибка сохранения состояния:', e);
-  }
+  } catch (e) { console.error('Ошибка сохранения состояния:', e); }
 }
 
-// ============================================
-// ТЕМА
-// ============================================
 function applyTheme() {
   const root = document.documentElement;
   root.removeAttribute('data-theme');
-  if (state.theme === 'dark') {
-    root.setAttribute('data-theme', 'dark');
-  } else if (state.theme === 'light') {
-    root.setAttribute('data-theme', 'light');
-  }
-  document.getElementById('btnTheme').textContent = state.theme === 'dark' ? '☀️' : '🌙';
+  if (state.theme === 'dark') root.setAttribute('data-theme', 'dark');
+  else if (state.theme === 'light') root.setAttribute('data-theme', 'light');
+  document.getElementById('btnTheme').textContent = state.theme === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19';
 }
 
 function toggleTheme() {
-  if (state.theme === 'auto') {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    state.theme = prefersDark ? 'light' : 'dark';
-  } else if (state.theme === 'dark') {
-    state.theme = 'light';
-  } else {
-    state.theme = 'dark';
-  }
-  applyTheme();
-  saveState();
+  if (state.theme === 'auto') { state.theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark'; }
+  else if (state.theme === 'dark') state.theme = 'light';
+  else state.theme = 'dark';
+  applyTheme(); saveState();
 }
 
-// ============================================
-// ВКЛАДКИ
-// ============================================
 function createTab(url = CONFIG.homePage, title = 'Новая вкладка') {
-  if (state.tabs.length >= CONFIG.maxTabs) {
-    alert('Достигнуто максимальное количество вкладок');
-    return null;
-  }
-  
+  if (state.tabs.length >= CONFIG.maxTabs) { alert('Достигнуто максимальное количество вкладок'); return null; }
   const tabId = generateId();
-  const tab = {
-    id: tabId,
-    url: url,
-    title: title,
-    loading: false,
-    canGoBack: false,
-    canGoForward: false,
-    history: [url],
-    historyIndex: 0
-  };
-  
+  const tab = { id: tabId, url: url, title: title, loading: false, canGoBack: false, canGoForward: false, history: [url], historyIndex: 0 };
   state.tabs.push(tab);
-  createTabDOM(tab);
-  createIframe(tab);
-  switchToTab(tabId);
-  return tab;
+  createTabDOM(tab); createIframe(tab); switchToTab(tabId); return tab;
 }
 
 function createTabDOM(tab) {
   const tabEl = document.createElement('div');
-  tabEl.className = 'tab';
-  tabEl.dataset.tabId = tab.id;
-  tabEl.innerHTML = `
-    <span class="tab-title">${escapeHtml(tab.title)}</span>
-    <button class="tab-close" title="Закрыть вкладку">✕</button>
-    <div class="tab-loading"></div>
-  `;
-  
-  tabEl.addEventListener('click', (e) => {
-    if (e.target.classList.contains('tab-close')) {
-      closeTab(tab.id);
-    } else {
-      switchToTab(tab.id);
-    }
-  });
-  
-  tabEl.addEventListener('mousedown', (e) => {
-    if (e.button === 1) {
-      e.preventDefault();
-      closeTab(tab.id);
-    }
-  });
-  
-  const tabsBar = document.getElementById('tabsBar');
-  tabsBar.insertBefore(tabEl, document.getElementById('newTabBtn'));
+  tabEl.className = 'tab'; tabEl.dataset.tabId = tab.id;
+  tabEl.innerHTML = '<span class="tab-title">' + escapeHtml(tab.title) + '</span><button class="tab-close" title="Закрыть вкладку">&#10005;</button><div class="tab-loading"></div>';
+  tabEl.addEventListener('click', (e) => { if (e.target.classList.contains('tab-close')) closeTab(tab.id); else switchToTab(tab.id); });
+  tabEl.addEventListener('mousedown', (e) => { if (e.button === 1) { e.preventDefault(); closeTab(tab.id); } });
+  document.getElementById('tabsBar').insertBefore(tabEl, document.getElementById('newTabBtn'));
 }
 
 function createIframe(tab) {
@@ -1142,264 +490,112 @@ function createIframe(tab) {
   iframe.id = 'iframe_' + tab.id;
   iframe.sandbox = 'allow-scripts allow-same-origin allow-popups allow-forms allow-downloads';
   iframe.src = tab.url;
-  
-  const viewport = document.getElementById('viewport');
-  viewport.appendChild(iframe);
-  
+  document.getElementById('viewport').appendChild(iframe);
   iframe.addEventListener('load', () => handleIframeLoad(tab.id));
   iframe.addEventListener('error', () => handleIframeError(tab.id));
 }
 
 function switchToTab(tabId) {
   state.activeTabId = tabId;
-  
-  document.querySelectorAll('.tab').forEach(el => {
-    el.classList.toggle('active', el.dataset.tabId === tabId);
-  });
-  
-  document.querySelectorAll('.viewport iframe').forEach(el => {
-    el.classList.toggle('active', el.id === 'iframe_' + tabId);
-  });
-  
+  document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tabId === tabId));
+  document.querySelectorAll('.viewport iframe').forEach(el => el.classList.toggle('active', el.id === 'iframe_' + tabId));
   const tab = state.tabs.find(t => t.id === tabId);
-  if (tab) {
-    updateAddressBar(tab.url);
-    updateNavButtons();
-    updateBookmarkButton();
-  }
-  
+  if (tab) { updateAddressBar(tab.url); updateNavButtons(); }
   BrowserAPI._emit('tabActivated', { tabId });
 }
 
 function closeTab(tabId) {
   const idx = state.tabs.findIndex(t => t.id === tabId);
   if (idx === -1) return;
-  
   state.tabs.splice(idx, 1);
-  
-  const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
-  if (tabEl) tabEl.remove();
-  
-  const iframe = document.getElementById('iframe_' + tabId);
-  if (iframe) iframe.remove();
-  
+  const tabEl = document.querySelector('.tab[data-tab-id="' + tabId + '"]'); if (tabEl) tabEl.remove();
+  const iframe = document.getElementById('iframe_' + tabId); if (iframe) iframe.remove();
   if (state.activeTabId === tabId) {
-    if (state.tabs.length > 0) {
-      const newIdx = Math.min(idx, state.tabs.length - 1);
-      switchToTab(state.tabs[newIdx].id);
-    } else {
-      state.activeTabId = null;
-      updateAddressBar('');
-      showStartPage();
-    }
+    if (state.tabs.length > 0) { const newIdx = Math.min(idx, state.tabs.length - 1); switchToTab(state.tabs[newIdx].id); }
+    else { state.activeTabId = null; updateAddressBar(''); showStartPage(); }
   }
-  
   saveState();
 }
 
 function updateTabTitle(tabId, title) {
   const tab = state.tabs.find(t => t.id === tabId);
-  if (tab) {
-    tab.title = title || tab.url;
-    const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"] .tab-title`);
-    if (tabEl) tabEl.textContent = tab.title;
-  }
+  if (tab) { tab.title = title || tab.url; const tabEl = document.querySelector('.tab[data-tab-id="' + tabId + '"] .tab-title'); if (tabEl) tabEl.textContent = tab.title; }
 }
 
 function updateTabLoading(tabId, loading) {
   const tab = state.tabs.find(t => t.id === tabId);
-  if (tab) {
-    tab.loading = loading;
-    const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
-    if (tabEl) tabEl.classList.toggle('loading', loading);
-  }
+  if (tab) { tab.loading = loading; const tabEl = document.querySelector('.tab[data-tab-id="' + tabId + '"]'); if (tabEl) tabEl.classList.toggle('loading', loading); }
 }
 
 function showStartPage() {
   const viewport = document.getElementById('viewport');
   document.querySelectorAll('.viewport iframe').forEach(el => el.classList.remove('active'));
-  
   let startPage = document.getElementById('startPage');
   if (!startPage) {
-    startPage = document.createElement('div');
-    startPage.id = 'startPage';
-    startPage.className = 'start-page';
-    startPage.innerHTML = `
-      <h1>🌐 Браузер</h1>
-      <input type="text" class="start-search" placeholder="Введите поисковый запрос или URL..." id="startSearch">
-      <div class="start-shortcuts">
-        <div class="start-shortcut" data-url="https://duckduckgo.com">
-          <div class="start-shortcut-icon">🔍</div>
-          <span class="start-shortcut-title">DuckDuckGo</span>
-        </div>
-        <div class="start-shortcut" data-url="https://github.com">
-          <div class="start-shortcut-icon">🐙</div>
-          <span class="start-shortcut-title">GitHub</span>
-        </div>
-        <div class="start-shortcut" data-url="https://wikipedia.org">
-          <div class="start-shortcut-icon">📚</div>
-          <span class="start-shortcut-title">Wikipedia</span>
-        </div>
-        <div class="start-shortcut" data-url="https://news.ycombinator.com">
-          <div class="start-shortcut-icon">🗞️</div>
-          <span class="start-shortcut-title">Hacker News</span>
-        </div>
-      </div>
-    `;
+    startPage = document.createElement('div'); startPage.id = 'startPage'; startPage.className = 'start-page';
+    startPage.innerHTML = '<h1>&#127760; Браузер</h1><input type="text" class="start-search" placeholder="Введите поисковый запрос или URL..." id="startSearch"><div class="start-shortcuts"><div class="start-shortcut" data-url="https://duckduckgo.com"><div class="start-shortcut-icon">&#128269;</div><span class="start-shortcut-title">DuckDuckGo</span></div><div class="start-shortcut" data-url="https://github.com"><div class="start-shortcut-icon">&#128025;</div><span class="start-shortcut-title">GitHub</span></div><div class="start-shortcut" data-url="https://wikipedia.org"><div class="start-shortcut-icon">&#128218;</div><span class="start-shortcut-title">Wikipedia</span></div><div class="start-shortcut" data-url="https://news.ycombinator.com"><div class="start-shortcut-icon">&#128478;&#65039;</div><span class="start-shortcut-title">Hacker News</span></div></div>';
     viewport.appendChild(startPage);
-    
-    startPage.querySelector('#startSearch').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const url = normalizeUrl(e.target.value);
-        if (state.tabs.length === 0) {
-          createTab(url);
-        } else {
-          navigateTo(url);
-        }
-        startPage.style.display = 'none';
-      }
-    });
-    
-    startPage.querySelectorAll('.start-shortcut').forEach(el => {
-      el.addEventListener('click', () => {
-        const url = el.dataset.url;
-        if (state.tabs.length === 0) {
-          createTab(url);
-        } else {
-          navigateTo(url);
-        }
-        startPage.style.display = 'none';
-      });
-    });
+    startPage.querySelector('#startSearch').addEventListener('keydown', (e) => { if (e.key === 'Enter') { const url = normalizeUrl(e.target.value); if (state.tabs.length === 0) createTab(url); else navigateTo(url); startPage.style.display = 'none'; } });
+    startPage.querySelectorAll('.start-shortcut').forEach(el => { el.addEventListener('click', () => { const url = el.dataset.url; if (state.tabs.length === 0) createTab(url); else navigateTo(url); startPage.style.display = 'none'; }); });
   }
   startPage.style.display = 'flex';
 }
 
-// ============================================
-// НАВИГАЦИЯ
-// ============================================
 function navigateTo(url, tabId = null) {
-  const targetTabId = tabId || state.activeTabId;
-  if (!targetTabId) return;
-  
-  const tab = state.tabs.find(t => t.id === targetTabId);
-  if (!tab) return;
-  
+  const targetTabId = tabId || state.activeTabId; if (!targetTabId) return;
+  const tab = state.tabs.find(t => t.id === targetTabId); if (!tab) return;
   const normalizedUrl = normalizeUrl(url);
-  
   let finalUrl = normalizedUrl;
-  BrowserAPI._emit('beforeLoad', { url: normalizedUrl, tabId: targetTabId }, (result) => {
-    if (result && result.url) finalUrl = result.url;
-  });
-  
-  tab.url = finalUrl;
-  tab.loading = true;
-  tab.history = tab.history.slice(0, tab.historyIndex + 1);
-  tab.history.push(finalUrl);
-  tab.historyIndex = tab.history.length - 1;
-  
-  updateTabLoading(targetTabId, true);
-  updateAddressBar(finalUrl);
-  updateNavButtons();
-  
-  const iframe = document.getElementById('iframe_' + targetTabId);
-  if (iframe) {
-    iframe.src = finalUrl;
-  }
-  
+  BrowserAPI._emit('beforeLoad', { url: normalizedUrl, tabId: targetTabId }, (result) => { if (result && result.url) finalUrl = result.url; });
+  tab.url = finalUrl; tab.loading = true;
+  tab.history = tab.history.slice(0, tab.historyIndex + 1); tab.history.push(finalUrl); tab.historyIndex = tab.history.length - 1;
+  updateTabLoading(targetTabId, true); updateAddressBar(finalUrl); updateNavButtons();
+  const iframe = document.getElementById('iframe_' + targetTabId); if (iframe) iframe.src = finalUrl;
   addToHistory(finalUrl, tab.title || finalUrl);
 }
 
 function handleIframeLoad(tabId) {
-  const tab = state.tabs.find(t => t.id === tabId);
-  if (!tab) return;
-  
+  const tab = state.tabs.find(t => t.id === tabId); if (!tab) return;
   updateTabLoading(tabId, false);
-  
-  const iframe = document.getElementById('iframe_' + tabId);
-  if (!iframe) return;
-  
+  const iframe = document.getElementById('iframe_' + tabId); if (!iframe) return;
   try {
-    const title = iframe.contentDocument?.title || tab.url;
-    updateTabTitle(tabId, title);
-    
-    try {
-      const newUrl = iframe.contentWindow.location.href;
-      if (newUrl && newUrl !== 'about:blank' && newUrl !== tab.url) {
-        tab.url = newUrl;
-        updateAddressBar(newUrl);
-        addToHistory(newUrl, title);
-      }
-    } catch (e) {}
-    
-    tab.canGoBack = iframe.contentWindow.history.length > 1;
-    updateNavButtons();
-    
+    const title = iframe.contentDocument?.title || tab.url; updateTabTitle(tabId, title);
+    try { const newUrl = iframe.contentWindow.location.href; if (newUrl && newUrl !== 'about:blank' && newUrl !== tab.url) { tab.url = newUrl; updateAddressBar(newUrl); addToHistory(newUrl, title); } } catch (e) {}
+    tab.canGoBack = iframe.contentWindow.history.length > 1; updateNavButtons();
   } catch (e) {}
-  
   BrowserAPI._emit('load', { url: tab.url, tabId });
 }
 
 function handleIframeError(tabId) {
   updateTabLoading(tabId, false);
+  showErrorPage('Ошибка загрузки', 'Не удалось загрузить страницу. Проверьте URL и подключение к интернету.');
 }
 
 function goBack() {
-  const tab = state.tabs.find(t => t.id === state.activeTabId);
-  if (!tab || tab.historyIndex <= 0) return;
-  
-  tab.historyIndex--;
-  const url = tab.history[tab.historyIndex];
-  tab.url = url;
-  
-  const iframe = document.getElementById('iframe_' + state.activeTabId);
-  if (iframe) iframe.src = url;
-  
-  updateAddressBar(url);
-  updateNavButtons();
+  const tab = state.tabs.find(t => t.id === state.activeTabId); if (!tab || tab.historyIndex <= 0) return;
+  tab.historyIndex--; const url = tab.history[tab.historyIndex]; tab.url = url;
+  const iframe = document.getElementById('iframe_' + state.activeTabId); if (iframe) iframe.src = url;
+  updateAddressBar(url); updateNavButtons();
 }
 
 function goForward() {
-  const tab = state.tabs.find(t => t.id === state.activeTabId);
-  if (!tab || tab.historyIndex >= tab.history.length - 1) return;
-  
-  tab.historyIndex++;
-  const url = tab.history[tab.historyIndex];
-  tab.url = url;
-  
-  const iframe = document.getElementById('iframe_' + state.activeTabId);
-  if (iframe) iframe.src = url;
-  
-  updateAddressBar(url);
-  updateNavButtons();
+  const tab = state.tabs.find(t => t.id === state.activeTabId); if (!tab || tab.historyIndex >= tab.history.length - 1) return;
+  tab.historyIndex++; const url = tab.history[tab.historyIndex]; tab.url = url;
+  const iframe = document.getElementById('iframe_' + state.activeTabId); if (iframe) iframe.src = url;
+  updateAddressBar(url); updateNavButtons();
 }
 
 function refresh() {
-  const tab = state.tabs.find(t => t.id === state.activeTabId);
-  if (!tab) return;
-  
-  const iframe = document.getElementById('iframe_' + state.activeTabId);
-  if (iframe) {
-    iframe.src = tab.url;
-    updateTabLoading(state.activeTabId, true);
-  }
+  const tab = state.tabs.find(t => t.id === state.activeTabId); if (!tab) return;
+  const iframe = document.getElementById('iframe_' + state.activeTabId); if (iframe) { iframe.src = tab.url; updateTabLoading(state.activeTabId, true); }
 }
 
 function updateAddressBar(url) {
-  const bar = document.getElementById('addressBar');
-  bar.value = url === 'about:blank' ? '' : url;
-  
+  const bar = document.getElementById('addressBar'); bar.value = url === 'about:blank' ? '' : url;
   const secureIcon = document.getElementById('secureIcon');
-  if (url.startsWith('https://')) {
-    secureIcon.textContent = '🔒';
-    secureIcon.style.color = '#22c55e';
-  } else if (url.startsWith('http://')) {
-    secureIcon.textContent = '⚠️';
-    secureIcon.style.color = '#f59e0b';
-  } else {
-    secureIcon.textContent = '🔒';
-    secureIcon.style.color = 'var(--text-secondary)';
-  }
+  if (url.startsWith('https://')) { secureIcon.textContent = '\uD83D\uDD12'; secureIcon.style.color = '#22c55e'; }
+  else if (url.startsWith('http://')) { secureIcon.textContent = '\u26A0\uFE0F'; secureIcon.style.color = '#f59e0b'; }
+  else { secureIcon.textContent = '\uD83D\uDD12'; secureIcon.style.color = 'var(--text-secondary)'; }
 }
 
 function updateNavButtons() {
@@ -1408,658 +604,197 @@ function updateNavButtons() {
   document.getElementById('btnForward').disabled = !tab || tab.historyIndex >= tab.history.length - 1;
 }
 
-// ============================================
-// ИСТОРИЯ
-// ============================================
-function addToHistory(url, title) {
-  if (url === 'about:blank') return;
-  
-  const entry = {
-    url: url,
-    title: title || url,
-    time: Date.now()
-  };
-  
-  if (state.history.length > 0 && state.history[0].url === url) {
-    state.history[0] = entry;
-  } else {
-    state.history.unshift(entry);
-  }
-  
-  if (state.history.length > CONFIG.maxHistory) {
-    state.history = state.history.slice(0, CONFIG.maxHistory);
-  }
-  
-  saveState();
-  
-  if (state.sidebarOpen && state.sidebarMode === 'history') {
-    renderHistory();
-  }
+function showErrorPage(title, message) {
+  const viewport = document.getElementById('viewport'); let errorPage = document.getElementById('errorPage');
+  if (!errorPage) { errorPage = document.createElement('div'); errorPage.id = 'errorPage'; errorPage.className = 'error-page'; viewport.appendChild(errorPage); }
+  errorPage.innerHTML = '<h2>' + escapeHtml(title) + '</h2><p>' + escapeHtml(message) + '</p><button class="error-retry" onclick="refresh()">Попробовать снова</button>';
+  errorPage.classList.add('visible');
 }
 
-function clearHistory() {
-  state.history = [];
+function hideErrorPage() { const errorPage = document.getElementById('errorPage'); if (errorPage) errorPage.classList.remove('visible'); }
+
+function addToHistory(url, title) {
+  if (url === 'about:blank') return;
+  const entry = { url: url, title: title || url, time: Date.now() };
+  if (state.history.length > 0 && state.history[0].url === url) state.history[0] = entry; else state.history.unshift(entry);
+  if (state.history.length > CONFIG.maxHistory) state.history = state.history.slice(0, CONFIG.maxHistory);
   saveState();
-  renderHistory();
+  if (state.sidebarOpen && state.sidebarMode === 'history') renderHistory();
 }
+
+function clearHistory() { state.history = []; saveState(); renderHistory(); }
 
 function renderHistory() {
   const container = document.getElementById('sidebarContent');
-  if (state.history.length === 0) {
-    container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">История пуста</p>';
-    return;
-  }
-  
+  if (state.history.length === 0) { container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">История пуста</p>'; return; }
   let html = '';
-  state.history.forEach(entry => {
-    html += `
-      <div class="history-item" data-url="${escapeHtml(entry.url)}">
-        <span class="history-url">${escapeHtml(entry.title || entry.url)}</span>
-        <span class="history-time">${formatTime(entry.time)}</span>
-      </div>
-    `;
-  });
-  
-  html += '<button class="history-clear-btn" id="clearHistoryBtn">🗑️ Очистить историю</button>';
+  state.history.forEach(entry => { html += '<div class="history-item" data-url="' + escapeHtml(entry.url) + '"><span class="history-url">' + escapeHtml(entry.title || entry.url) + '</span><span class="history-time">' + formatTime(entry.time) + '</span></div>'; });
+  html += '<button class="history-clear-btn" id="clearHistoryBtn">&#128465;&#65039; Очистить историю</button>';
   container.innerHTML = html;
-  
-  container.querySelectorAll('.history-item').forEach(el => {
-    el.addEventListener('click', () => {
-      navigateTo(el.dataset.url);
-      closeSidebar();
-    });
-  });
-  
+  container.querySelectorAll('.history-item').forEach(el => { el.addEventListener('click', () => { navigateTo(el.dataset.url); closeSidebar(); }); });
   document.getElementById('clearHistoryBtn')?.addEventListener('click', clearHistory);
 }
 
-// ============================================
-// ЗАКЛАДКИ
-// ============================================
 function addBookmark(url, title) {
   if (!url || url === 'about:blank') return;
-  
-  if (state.bookmarks.some(b => b.url === url)) {
-    removeBookmark(url);
-    return;
-  }
-  
-  state.bookmarks.push({
-    url: url,
-    title: title || url,
-    added: Date.now()
-  });
-  
-  saveState();
-  updateBookmarkButton();
-  
-  if (state.sidebarOpen && state.sidebarMode === 'bookmarks') {
-    renderBookmarks();
-  }
+  if (state.bookmarks.some(b => b.url === url)) { removeBookmark(url); return; }
+  state.bookmarks.push({ url: url, title: title || url, added: Date.now() });
+  saveState(); updateBookmarkButton();
+  if (state.sidebarOpen && state.sidebarMode === 'bookmarks') renderBookmarks();
 }
 
 function removeBookmark(url) {
   state.bookmarks = state.bookmarks.filter(b => b.url !== url);
-  saveState();
-  updateBookmarkButton();
-  
-  if (state.sidebarOpen && state.sidebarMode === 'bookmarks') {
-    renderBookmarks();
-  }
+  saveState(); updateBookmarkButton();
+  if (state.sidebarOpen && state.sidebarMode === 'bookmarks') renderBookmarks();
 }
 
 function updateBookmarkButton() {
   const tab = state.tabs.find(t => t.id === state.activeTabId);
   const isBookmarked = tab && state.bookmarks.some(b => b.url === tab.url);
   const btn = document.getElementById('btnBookmarks');
-  btn.textContent = isBookmarked ? '★' : '☆';
-  btn.style.color = isBookmarked ? 'var(--accent)' : '';
+  btn.textContent = isBookmarked ? '\u2605' : '\u2606'; btn.style.color = isBookmarked ? 'var(--accent)' : '';
 }
 
 function renderBookmarks() {
   const container = document.getElementById('sidebarContent');
-  if (state.bookmarks.length === 0) {
-    container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">Закладок нет</p>';
-    return;
-  }
-  
+  if (state.bookmarks.length === 0) { container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">Закладок нет</p>'; return; }
   let html = '';
-  state.bookmarks.forEach(bm => {
-    html += `
-      <div class="bookmark-item" data-url="${escapeHtml(bm.url)}">
-        <span class="bookmark-favicon">🌐</span>
-        <span class="bookmark-title">${escapeHtml(bm.title || bm.url)}</span>
-        <button class="bookmark-delete" data-url="${escapeHtml(bm.url)}">✕</button>
-      </div>
-    `;
-  });
-  
+  state.bookmarks.forEach(bm => { html += '<div class="bookmark-item" data-url="' + escapeHtml(bm.url) + '"><span class="bookmark-favicon">&#127760;</span><span class="bookmark-title">' + escapeHtml(bm.title || bm.url) + '</span><button class="bookmark-delete" data-url="' + escapeHtml(bm.url) + '">&#10005;</button></div>'; });
   container.innerHTML = html;
-  
-  container.querySelectorAll('.bookmark-item').forEach(el => {
-    el.addEventListener('click', (e) => {
-      if (e.target.classList.contains('bookmark-delete')) return;
-      navigateTo(el.dataset.url);
-      closeSidebar();
-    });
-  });
-  
-  container.querySelectorAll('.bookmark-delete').forEach(el => {
-    el.addEventListener('click', (e) => {
-      e.stopPropagation();
-      removeBookmark(el.dataset.url);
-    });
-  });
+  container.querySelectorAll('.bookmark-item').forEach(el => { el.addEventListener('click', (e) => { if (e.target.classList.contains('bookmark-delete')) return; navigateTo(el.dataset.url); closeSidebar(); }); });
+  container.querySelectorAll('.bookmark-delete').forEach(el => { el.addEventListener('click', (e) => { e.stopPropagation(); removeBookmark(el.dataset.url); }); });
 }
 
-// ============================================
-// БОКОВАЯ ПАНЕЛЬ
-// ============================================
 function openSidebar(mode) {
-  state.sidebarOpen = true;
-  state.sidebarMode = mode;
-  
-  const sidebar = document.getElementById('sidebar');
-  const title = document.getElementById('sidebarTitle');
+  state.sidebarOpen = true; state.sidebarMode = mode;
+  const sidebar = document.getElementById('sidebar'); const title = document.getElementById('sidebarTitle');
   sidebar.classList.add('open');
-  
-  if (mode === 'bookmarks') {
-    title.textContent = '⭐ Закладки';
-    renderBookmarks();
-  } else if (mode === 'history') {
-    title.textContent = '🕐 История';
-    renderHistory();
-  } else if (mode === 'extensions') {
-    title.textContent = '🧩 Расширения';
-    renderExtensions();
-  }
+  if (mode === 'bookmarks') { title.textContent = '\u2B50 Закладки'; renderBookmarks(); }
+  else if (mode === 'history') { title.textContent = '\uD83D\uDD50 История'; renderHistory(); }
+  else if (mode === 'extensions') { title.textContent = '\uD83E\uDDE9 Расширения'; renderExtensions(); }
 }
 
-function closeSidebar() {
-  state.sidebarOpen = false;
-  state.sidebarMode = null;
-  document.getElementById('sidebar').classList.remove('open');
-}
+function closeSidebar() { state.sidebarOpen = false; state.sidebarMode = null; document.getElementById('sidebar').classList.remove('open'); }
 
-function toggleSidebar(mode) {
-  if (state.sidebarOpen && state.sidebarMode === mode) {
-    closeSidebar();
-  } else {
-    openSidebar(mode);
-  }
-}
+function toggleSidebar(mode) { if (state.sidebarOpen && state.sidebarMode === mode) closeSidebar(); else openSidebar(mode); }
 
-// ============================================
-// РАСШИРЕНИЯ — API
-// ============================================
 const BrowserAPI = {
-  _listeners: {
-    beforeLoad: [],
-    load: [],
-    tabActivated: [],
-    message: []
-  },
-  
-  onBeforeLoad(callback) {
-    this._listeners.beforeLoad.push(callback);
-    return () => {
-      this._listeners.beforeLoad = this._listeners.beforeLoad.filter(cb => cb !== callback);
-    };
-  },
-  
-  onLoad(callback) {
-    this._listeners.load.push(callback);
-    return () => {
-      this._listeners.load = this._listeners.load.filter(cb => cb !== callback);
-    };
-  },
-  
+  _listeners: { beforeLoad: [], load: [], tabActivated: [], message: [] },
+  onBeforeLoad(callback) { this._listeners.beforeLoad.push(callback); return () => { this._listeners.beforeLoad = this._listeners.beforeLoad.filter(cb => cb !== callback); }; },
+  onLoad(callback) { this._listeners.load.push(callback); return () => { this._listeners.load = this._listeners.load.filter(cb => cb !== callback); }; },
   injectCSS(css, tabId = null) {
-    const targetId = tabId || state.activeTabId;
-    const iframe = document.getElementById('iframe_' + targetId);
-    if (!iframe) return false;
-    
-    try {
-      const doc = iframe.contentDocument;
-      const style = doc.createElement('style');
-      style.textContent = css;
-      doc.head.appendChild(style);
-      return true;
-    } catch (e) {
-      console.error('injectCSS ошибка:', e);
-      return false;
-    }
+    const targetId = tabId || state.activeTabId; const iframe = document.getElementById('iframe_' + targetId); if (!iframe) return false;
+    try { const doc = iframe.contentDocument; const style = doc.createElement('style'); style.textContent = css; doc.head.appendChild(style); return true; } catch (e) { console.error('injectCSS ошибка:', e); return false; }
   },
-  
   injectJS(script, tabId = null) {
-    const targetId = tabId || state.activeTabId;
-    const iframe = document.getElementById('iframe_' + targetId);
-    if (!iframe) return false;
-    
-    try {
-      const doc = iframe.contentDocument;
-      const scr = doc.createElement('script');
-      scr.textContent = script;
-      doc.body.appendChild(scr);
-      return true;
-    } catch (e) {
-      console.error('injectJS ошибка:', e);
-      return false;
-    }
+    const targetId = tabId || state.activeTabId; const iframe = document.getElementById('iframe_' + targetId); if (!iframe) return false;
+    try { const doc = iframe.contentDocument; const scr = doc.createElement('script'); scr.textContent = script; doc.body.appendChild(scr); return true; } catch (e) { console.error('injectJS ошибка:', e); return false; }
   },
-  
-  getCurrentURL() {
-    const tab = state.tabs.find(t => t.id === state.activeTabId);
-    return tab ? tab.url : null;
-  },
-  
-  getTabInfo(tabId = null) {
-    const id = tabId || state.activeTabId;
-    const tab = state.tabs.find(t => t.id === id);
-    if (!tab) return null;
-    return {
-      id: tab.id,
-      url: tab.url,
-      title: tab.title,
-      loading: tab.loading
-    };
-  },
-  
+  getCurrentURL() { const tab = state.tabs.find(t => t.id === state.activeTabId); return tab ? tab.url : null; },
+  getTabInfo(tabId = null) { const id = tabId || state.activeTabId; const tab = state.tabs.find(t => t.id === id); if (!tab) return null; return { id: tab.id, url: tab.url, title: tab.title, loading: tab.loading }; },
   createPanel(html, title = 'Панель расширения') {
-    const panelId = 'ext_panel_' + Date.now();
-    const panel = document.createElement('div');
-    panel.className = 'ext-panel';
-    panel.id = panelId;
-    panel.innerHTML = `
-      <div class="ext-panel-header">
-        <span>${escapeHtml(title)}</span>
-        <button class="ext-panel-close" onclick="document.getElementById('${panelId}').classList.remove('visible')">✕</button>
-      </div>
-      <div class="ext-panel-body">${html}</div>
-    `;
+    const panelId = 'ext_panel_' + Date.now(); const panel = document.createElement('div'); panel.className = 'ext-panel'; panel.id = panelId;
+    panel.innerHTML = '<div class="ext-panel-header"><span>' + escapeHtml(title) + '</span><button class="ext-panel-close" onclick="document.getElementById(\'' + panelId + '\').classList.remove(\'visible\')">&#10005;</button></div><div class="ext-panel-body">' + html + '</div>';
     document.getElementById('extPanelsContainer').appendChild(panel);
-    
-    return {
-      show: () => panel.classList.add('visible'),
-      hide: () => panel.classList.remove('visible'),
-      destroy: () => panel.remove(),
-      id: panelId
-    };
+    return { show: () => panel.classList.add('visible'), hide: () => panel.classList.remove('visible'), destroy: () => panel.remove(), id: panelId };
   },
-  
-  sendMessage(type, data) {
-    this._emit('message', { type, data, from: 'extension' });
-  },
-  
+  sendMessage(type, data) { this._emit('message', { type, data, from: 'extension' }); },
   storage: {
     local: {
-      get(key) {
-        try {
-          const all = JSON.parse(localStorage.getItem('ext_storage') || '{}');
-          return key ? all[key] : all;
-        } catch (e) {
-          return key ? undefined : {};
-        }
-      },
-      set(key, value) {
-        try {
-          const all = JSON.parse(localStorage.getItem('ext_storage') || '{}');
-          all[key] = value;
-          localStorage.setItem('ext_storage', JSON.stringify(all));
-          return true;
-        } catch (e) {
-          return false;
-        }
-      }
+      get(key) { try { const all = JSON.parse(localStorage.getItem('ext_storage') || '{}'); return key ? all[key] : all; } catch (e) { return key ? undefined : {}; } },
+      set(key, value) { try { const all = JSON.parse(localStorage.getItem('ext_storage') || '{}'); all[key] = value; localStorage.setItem('ext_storage', JSON.stringify(all)); return true; } catch (e) { return false; } }
     }
   },
-  
   _emit(event, data, modifier = null) {
-    const listeners = this._listeners[event] || [];
-    let result = data;
-    listeners.forEach(cb => {
-      try {
-        const r = cb(data);
-        if (modifier && r) result = modifier(r) || result;
-      } catch (e) {
-        console.error('Ошибка в обработчике расширения:', e);
-      }
-    });
+    const listeners = this._listeners[event] || []; let result = data;
+    listeners.forEach(cb => { try { const r = cb(data); if (modifier && r) result = modifier(r) || result; } catch (e) { console.error('Ошибка в обработчике расширения:', e); } });
     return result;
   }
 };
 
 window.BrowserAPI = BrowserAPI;
 
-// ============================================
-// МЕНЕДЖЕР РАСШИРЕНИЙ
-// ============================================
 function installExtension(config) {
   try {
     const ext = typeof config === 'string' ? JSON.parse(config) : config;
-    
-    if (!ext.id || !ext.name) {
-      throw new Error('Расширение должно иметь id и name');
-    }
-    
-    if (state.extensions.some(e => e.id === ext.id)) {
-      throw new Error('Расширение с таким ID уже установлено');
-    }
-    
-    const extension = {
-      id: ext.id,
-      name: ext.name,
-      version: ext.version || '1.0.0',
-      description: ext.description || '',
-      permissions: ext.permissions || [],
-      enabled: true,
-      code: ext.code || '',
-      icon: ext.icon || '🧩',
-      installed: Date.now()
-    };
-    
-    state.extensions.push(extension);
-    saveState();
-    
-    if (extension.enabled && extension.code) {
-      executeExtension(extension);
-    }
-    
-    updateExtToolbar();
-    return extension;
-  } catch (e) {
-    alert('Ошибка установки расширения: ' + e.message);
-    return null;
-  }
+    if (!ext.id || !ext.name) throw new Error('Расширение должно иметь id и name');
+    if (state.extensions.some(e => e.id === ext.id)) throw new Error('Расширение с таким ID уже установлено');
+    const extension = { id: ext.id, name: ext.name, version: ext.version || '1.0.0', description: ext.description || '', permissions: ext.permissions || [], enabled: true, code: ext.code || '', icon: ext.icon || '\uD83E\uDDE9', installed: Date.now() };
+    state.extensions.push(extension); saveState();
+    if (extension.enabled && extension.code) executeExtension(extension);
+    updateExtToolbar(); return extension;
+  } catch (e) { alert('Ошибка установки расширения: ' + e.message); return null; }
 }
 
-function executeExtension(ext) {
-  try {
-    const fn = new Function('BrowserAPI', ext.code);
-    fn(BrowserAPI);
-  } catch (e) {
-    console.error('Ошибка выполнения расширения ' + ext.id + ':', e);
-  }
-}
+function executeExtension(ext) { try { const fn = new Function('BrowserAPI', ext.code); fn(BrowserAPI); } catch (e) { console.error('Ошибка выполнения расширения ' + ext.id + ':', e); } }
 
 function toggleExtension(extId) {
-  const ext = state.extensions.find(e => e.id === extId);
-  if (!ext) return;
-  
-  ext.enabled = !ext.enabled;
-  saveState();
-  
-  if (ext.enabled && ext.code) {
-    executeExtension(ext);
-  }
-  
-  renderExtensions();
-  updateExtToolbar();
+  const ext = state.extensions.find(e => e.id === extId); if (!ext) return;
+  ext.enabled = !ext.enabled; saveState();
+  if (ext.enabled && ext.code) executeExtension(ext);
+  renderExtensions(); updateExtToolbar();
 }
 
-function removeExtension(extId) {
-  state.extensions = state.extensions.filter(e => e.id !== extId);
-  saveState();
-  renderExtensions();
-  updateExtToolbar();
-}
+function removeExtension(extId) { state.extensions = state.extensions.filter(e => e.id !== extId); saveState(); renderExtensions(); updateExtToolbar(); }
 
 function updateExtToolbar() {
-  const toolbar = document.getElementById('extToolbar');
-  toolbar.innerHTML = '';
-  
-  state.extensions.filter(e => e.enabled).forEach(ext => {
-    const btn = document.createElement('button');
-    btn.className = 'ext-toolbar-btn';
-    btn.textContent = ext.icon;
-    btn.title = ext.name;
-    btn.addEventListener('click', () => {
-      BrowserAPI._emit('message', { type: 'toolbarClick', extId: ext.id });
-    });
-    toolbar.appendChild(btn);
-  });
+  const toolbar = document.getElementById('extToolbar'); toolbar.innerHTML = '';
+  state.extensions.filter(e => e.enabled).forEach(ext => { const btn = document.createElement('button'); btn.className = 'ext-toolbar-btn'; btn.textContent = ext.icon; btn.title = ext.name; btn.addEventListener('click', () => { BrowserAPI._emit('message', { type: 'toolbarClick', extId: ext.id }); }); toolbar.appendChild(btn); });
 }
 
 function renderExtensions() {
   const container = document.getElementById('sidebarContent');
-  
-  let html = `
-    <div class="ext-install-area">
-      <p style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">Установить расширение (JSON):</p>
-      <textarea id="extInstallInput" placeholder='{"id":"my-ext","name":"Моё расширение","version":"1.0","description":"Описание","permissions":["tabs"],"icon":"🌙","code":"BrowserAPI.onLoad(() => console.log(\\'Загружено!\\'));"}'></textarea>
-      <button class="ext-btn primary" id="extInstallBtn" style="margin-top:6px;width:100%;">⬇️ Установить</button>
-    </div>
-    <hr style="border:none;border-top:1px solid var(--border);margin:12px 0;">
-  `;
-  
-  if (state.extensions.length === 0) {
-    html += '<p style="text-align:center;color:var(--text-secondary);padding:10px;">Нет установленных расширений</p>';
-  } else {
-    state.extensions.forEach(ext => {
-      html += `
-        <div class="extension-item">
-          <div class="ext-header">
-            <span class="ext-name">${ext.icon} ${escapeHtml(ext.name)} <span class="ext-version">v${escapeHtml(ext.version)}</span></span>
-            <div class="toggle-switch ${ext.enabled ? 'on' : ''}" data-ext-id="${escapeHtml(ext.id)}"></div>
-          </div>
-          <div class="ext-desc">${escapeHtml(ext.description)}</div>
-          <div class="ext-actions">
-            <button class="ext-btn danger ext-remove" data-ext-id="${escapeHtml(ext.id)}">🗑️ Удалить</button>
-          </div>
-        </div>
-      `;
-    });
-  }
-  
+  let html = '<div class="ext-install-area"><p style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">Установить расширение (JSON):</p><textarea id="extInstallInput" placeholder=\'{\'id\':\'my-ext\',\'name\':\'Моё расширение\',\'version\':\'1.0\',\'description\':\'Описание\',\'permissions\':[\'tabs\'],\'icon\':\'\uD83C\uDF19\',\'code\':\'BrowserAPI.onLoad(function() { console.log(\'Загружено!\'); });\'}\'></textarea><button class="ext-btn primary" id="extInstallBtn" style="margin-top:6px;width:100%;">&#11015;&#65039; Установить</button></div><hr style="border:none;border-top:1px solid var(--border);margin:12px 0;">';
+  if (state.extensions.length === 0) html += '<p style="text-align:center;color:var(--text-secondary);padding:10px;">Нет установленных расширений</p>';
+  else state.extensions.forEach(ext => { html += '<div class="extension-item"><div class="ext-header"><span class="ext-name">' + ext.icon + ' ' + escapeHtml(ext.name) + ' <span class="ext-version">v' + escapeHtml(ext.version) + '</span></span><div class="toggle-switch ' + (ext.enabled ? 'on' : '') + '" data-ext-id="' + escapeHtml(ext.id) + '"></div></div><div class="ext-desc">' + escapeHtml(ext.description) + '</div><div class="ext-actions"><button class="ext-btn danger ext-remove" data-ext-id="' + escapeHtml(ext.id) + '">&#128465;&#65039; Удалить</button></div></div>'; });
   container.innerHTML = html;
-  
-  document.getElementById('extInstallBtn')?.addEventListener('click', () => {
-    const input = document.getElementById('extInstallInput');
-    if (input.value.trim()) {
-      installExtension(input.value);
-      input.value = '';
-      renderExtensions();
-    }
-  });
-  
-  container.querySelectorAll('.toggle-switch').forEach(el => {
-    el.addEventListener('click', () => toggleExtension(el.dataset.extId));
-  });
-  
-  container.querySelectorAll('.ext-remove').forEach(el => {
-    el.addEventListener('click', () => removeExtension(el.dataset.extId));
-  });
+  document.getElementById('extInstallBtn')?.addEventListener('click', () => { const input = document.getElementById('extInstallInput'); if (input.value.trim()) { installExtension(input.value); input.value = ''; renderExtensions(); } });
+  container.querySelectorAll('.toggle-switch').forEach(el => { el.addEventListener('click', () => toggleExtension(el.dataset.extId)); });
+  container.querySelectorAll('.ext-remove').forEach(el => { el.addEventListener('click', () => removeExtension(el.dataset.extId)); });
 }
 
-// ============================================
-// БАЗОВЫЕ РАСШИРЕНИЯ (встроенные)
-// ============================================
 function initBuiltinExtensions() {
-  const darkModeExt = {
-    id: 'builtin-darkmode',
-    name: 'Тёмная тема',
-    version: '1.0.0',
-    description: 'Принудительно применяет тёмную тему ко всем сайтам',
-    permissions: ['tabs', 'inject'],
-    icon: '🌙',
-    enabled: false,
-    code: `
-      BrowserAPI.onLoad(function(data) {
-        BrowserAPI.injectCSS(
-          'html, body { background-color: #1a1a1a !important; color: #e8e8e8 !important; }' +
-          'a { color: #60a5fa !important; }' +
-          'div, section, article, aside, nav, header, footer, main { background-color: transparent !important; }'
-        );
-      });
-    `
-  };
-  
-  const adBlockerExt = {
-    id: 'builtin-adblock',
-    name: 'Блокировщик рекламы',
-    version: '1.0.0',
-    description: 'Блокирует популярные рекламные домены',
-    permissions: ['tabs', 'beforeLoad'],
-    icon: '🛡️',
-    enabled: false,
-    code: `
-      var blockedDomains = ['doubleclick.net', 'googleadservices.com', 'googlesyndication.com', 'facebook.com/tr', 'adsystem.amazon.com'];
-      BrowserAPI.onBeforeLoad(function(data) {
-        var url = data.url;
-        for (var i = 0; i < blockedDomains.length; i++) {
-          if (url.indexOf(blockedDomains[i]) !== -1) {
-            console.log('[AdBlocker] Заблокировано:', url);
-            return { url: 'about:blank' };
-          }
-        }
-      });
-    `
-  };
-  
-  const hasDarkMode = state.extensions.some(e => e.id === darkModeExt.id);
-  const hasAdBlock = state.extensions.some(e => e.id === adBlockerExt.id);
-  
-  if (!hasDarkMode) state.extensions.push(darkModeExt);
-  if (!hasAdBlock) state.extensions.push(adBlockerExt);
-  
-  saveState();
+  const darkModeExt = { id: 'builtin-darkmode', name: 'Тёмная тема', version: '1.0.0', description: 'Принудительно применяет тёмную тему ко всем сайтам', permissions: ['tabs', 'inject'], icon: '\uD83C\uDF19', enabled: false, code: "BrowserAPI.onLoad(function(data) { BrowserAPI.injectCSS('html, body { background-color: #1a1a1a !important; color: #e8e8e8 !important; } a { color: #60a5fa !important; } div, section, article, aside, nav, header, footer, main { background-color: transparent !important; }'); });" };
+  const adBlockerExt = { id: 'builtin-adblock', name: 'Блокировщик рекламы', version: '1.0.0', description: 'Блокирует популярные рекламные домены', permissions: ['tabs', 'beforeLoad'], icon: '\uD83D\uDEE1\uFE0F', enabled: false, code: "var blockedDomains = ['doubleclick.net', 'googleadservices.com', 'googlesyndication.com', 'facebook.com/tr', 'adsystem.amazon.com']; BrowserAPI.onBeforeLoad(function(data) { var url = data.url; for (var i = 0; i < blockedDomains.length; i++) { if (url.indexOf(blockedDomains[i]) !== -1) { console.log('[AdBlocker] Заблокировано:', url); return { url: 'about:blank' }; } } });" };
+  const hasDarkMode = state.extensions.some(e => e.id === darkModeExt.id); const hasAdBlock = state.extensions.some(e => e.id === adBlockerExt.id);
+  if (!hasDarkMode) state.extensions.push(darkModeExt); if (!hasAdBlock) state.extensions.push(adBlockerExt); saveState();
 }
 
-// ============================================
-// КОНТЕКСТНОЕ МЕНЮ
-// ============================================
 const contextMenu = document.getElementById('contextMenu');
+function showContextMenu(x, y) { contextMenu.style.left = x + 'px'; contextMenu.style.top = y + 'px'; contextMenu.classList.add('visible'); }
+function hideContextMenu() { contextMenu.classList.remove('visible'); }
+document.addEventListener('contextmenu', (e) => { e.preventDefault(); showContextMenu(e.clientX, e.clientY); });
+document.addEventListener('click', (e) => { if (!contextMenu.contains(e.target)) hideContextMenu(); });
+document.getElementById('ctxNewTab').addEventListener('click', () => { createTab(); hideContextMenu(); });
+document.getElementById('ctxReload').addEventListener('click', () => { refresh(); hideContextMenu(); });
+document.getElementById('ctxBookmark').addEventListener('click', () => { const tab = state.tabs.find(t => t.id === state.activeTabId); if (tab) addBookmark(tab.url, tab.title); hideContextMenu(); });
+document.getElementById('ctxCopyUrl').addEventListener('click', () => { const tab = state.tabs.find(t => t.id === state.activeTabId); if (tab && navigator.clipboard) navigator.clipboard.writeText(tab.url); hideContextMenu(); });
+document.getElementById('ctxBack').addEventListener('click', () => { goBack(); hideContextMenu(); });
+document.getElementById('ctxForward').addEventListener('click', () => { goForward(); hideContextMenu(); });
 
-function showContextMenu(x, y) {
-  contextMenu.style.left = x + 'px';
-  contextMenu.style.top = y + 'px';
-  contextMenu.classList.add('visible');
-}
-
-function hideContextMenu() {
-  contextMenu.classList.remove('visible');
-}
-
-document.addEventListener('contextmenu', (e) => {
-  e.preventDefault();
-  showContextMenu(e.clientX, e.clientY);
-});
-
-document.addEventListener('click', (e) => {
-  if (!contextMenu.contains(e.target)) {
-    hideContextMenu();
-  }
-});
-
-document.getElementById('ctxNewTab').addEventListener('click', () => {
-  createTab();
-  hideContextMenu();
-});
-
-document.getElementById('ctxReload').addEventListener('click', () => {
-  refresh();
-  hideContextMenu();
-});
-
-document.getElementById('ctxBookmark').addEventListener('click', () => {
-  const tab = state.tabs.find(t => t.id === state.activeTabId);
-  if (tab) addBookmark(tab.url, tab.title);
-  hideContextMenu();
-});
-
-document.getElementById('ctxCopyUrl').addEventListener('click', () => {
-  const tab = state.tabs.find(t => t.id === state.activeTabId);
-  if (tab && navigator.clipboard) {
-    navigator.clipboard.writeText(tab.url);
-  }
-  hideContextMenu();
-});
-
-document.getElementById('ctxBack').addEventListener('click', () => {
-  goBack();
-  hideContextMenu();
-});
-
-document.getElementById('ctxForward').addEventListener('click', () => {
-  goForward();
-  hideContextMenu();
-});
-
-// ============================================
-// ОБРАБОТЧИКИ КНОПОК
-// ============================================
 document.getElementById('btnBack').addEventListener('click', goBack);
 document.getElementById('btnForward').addEventListener('click', goForward);
 document.getElementById('btnRefresh').addEventListener('click', refresh);
-document.getElementById('btnHome').addEventListener('click', () => {
-  if (state.tabs.length === 0) {
-    showStartPage();
-  } else {
-    navigateTo(CONFIG.homePage);
-  }
-});
-
+document.getElementById('btnHome').addEventListener('click', () => { if (state.tabs.length === 0) showStartPage(); else navigateTo(CONFIG.homePage); });
 document.getElementById('newTabBtn').addEventListener('click', () => createTab());
-
-document.getElementById('addressBar').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    const url = normalizeUrl(e.target.value);
-    if (state.tabs.length === 0) {
-      createTab(url);
-    } else {
-      navigateTo(url);
-    }
-  }
-});
-
-document.getElementById('btnBookmarks').addEventListener('click', () => {
-  const tab = state.tabs.find(t => t.id === state.activeTabId);
-  if (tab && tab.url !== 'about:blank') {
-    addBookmark(tab.url, tab.title);
-  }
-  toggleSidebar('bookmarks');
-});
-
+document.getElementById('addressBar').addEventListener('keydown', (e) => { if (e.key === 'Enter') { const url = normalizeUrl(e.target.value); if (state.tabs.length === 0) createTab(url); else navigateTo(url); } });
+document.getElementById('btnBookmarks').addEventListener('click', () => { const tab = state.tabs.find(t => t.id === state.activeTabId); if (tab && tab.url !== 'about:blank') addBookmark(tab.url, tab.title); toggleSidebar('bookmarks'); });
 document.getElementById('btnHistory').addEventListener('click', () => toggleSidebar('history'));
 document.getElementById('btnExtensions').addEventListener('click', () => toggleSidebar('extensions'));
 document.getElementById('btnTheme').addEventListener('click', toggleTheme);
 document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
 
-// ============================================
-// ГОРЯЧИЕ КЛАВИШИ
-// ============================================
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey || e.metaKey) {
-    if (e.key === 't') {
-      e.preventDefault();
-      createTab();
-    } else if (e.key === 'w') {
-      e.preventDefault();
-      if (state.activeTabId) closeTab(state.activeTabId);
-    } else if (e.key === 'l') {
-      e.preventDefault();
-      document.getElementById('addressBar').focus();
-      document.getElementById('addressBar').select();
-    }
+    if (e.key === 't') { e.preventDefault(); createTab(); }
+    else if (e.key === 'w') { e.preventDefault(); if (state.activeTabId) closeTab(state.activeTabId); }
+    else if (e.key === 'l') { e.preventDefault(); document.getElementById('addressBar').focus(); document.getElementById('addressBar').select(); }
   }
-  
-  if (e.key === 'F5') {
-    e.preventDefault();
-    refresh();
-  }
+  if (e.key === 'F5') { e.preventDefault(); refresh(); }
 });
 
-// ============================================
-// ИНИЦИАЛИЗАЦИЯ
-// ============================================
-function init() {
-  loadState();
-  applyTheme();
-  initBuiltinExtensions();
-  updateExtToolbar();
-  showStartPage();
-}
-
+function init() { loadState(); applyTheme(); initBuiltinExtensions(); updateExtToolbar(); showStartPage(); }
 init();
 </script>
 </body>
