@@ -1,1355 +1,2066 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Geometry Dash Clone</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body {
-            width: 100%; height: 100%;
-            background: #0a0a1a;
-            overflow: hidden;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            touch-action: none;
-        }
-        #gameContainer {
-            position: relative;
-            width: 100vw; height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-        }
-        canvas {
-            display: block;
-            max-width: 100%; max-height: 100%;
-        }
-        /* Меню */
-        #menuScreen, #levelSelectScreen, #gameOverScreen, #pauseScreen, #settingsScreen, #howToPlayScreen {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            background: rgba(5,5,15,0.97);
-            z-index: 10;
-        }
-        .hidden { display: none !important; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Минималистичный Браузер</title>
+<style>
+/* ============================================
+   БАЗОВЫЕ ПЕРЕМЕННЫЕ И СБРОС
+   ============================================ */
+:root {
+  --bg: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #eeeeee;
+  --text: #1a1a1a;
+  --text-secondary: #666666;
+  --border: #e0e0e0;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --error-bg: #fef2f2;
+  --error-text: #dc2626;
+  --tab-active-bg: #ffffff;
+  --tab-inactive-bg: #f0f0f0;
+  --sidebar-width: 280px;
+  --header-height: 48px;
+  --tab-height: 36px;
+}
 
-        /* Анимированный фон меню */
-        #menuScreen::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background:
-                radial-gradient(ellipse at 20% 80%, rgba(233,69,96,0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(0,212,255,0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(138,43,226,0.1) 0%, transparent 60%);
-            animation: bgPulse 4s ease-in-out infinite;
-        }
-        @keyframes bgPulse {
-            0%,100% { opacity: 0.8; }
-            50% { opacity: 1; }
-        }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0f0f;
+    --bg-secondary: #1a1a1a;
+    --bg-tertiary: #252525;
+    --text: #e8e8e8;
+    --text-secondary: #999999;
+    --border: #333333;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --error-bg: #2a1515;
+    --error-text: #ef4444;
+    --tab-active-bg: #1a1a1a;
+    --tab-inactive-bg: #141414;
+  }
+}
 
-        .menu-title {
-            font-size: clamp(28px, 8vw, 56px);
-            font-weight: 900;
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            text-shadow:
-                0 0 10px rgba(233,69,96,0.8),
-                0 0 40px rgba(233,69,96,0.4),
-                0 0 80px rgba(233,69,96,0.2);
-            margin-bottom: 10px;
-            position: relative; z-index: 1;
-            animation: titleFloat 3s ease-in-out infinite;
-        }
-        @keyframes titleFloat {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-        .menu-subtitle {
-            color: #888;
-            font-size: clamp(12px, 3vw, 16px);
-            margin-bottom: 40px;
-            position: relative; z-index: 1;
-        }
+[data-theme="dark"] {
+  --bg: #0f0f0f;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #252525;
+  --text: #e8e8e8;
+  --text-secondary: #999999;
+  --border: #333333;
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --error-bg: #2a1515;
+  --error-text: #ef4444;
+  --tab-active-bg: #1a1a1a;
+  --tab-inactive-bg: #141414;
+}
 
-        .menu-btn {
-            position: relative; z-index: 1;
-            background: transparent;
-            color: #fff;
-            border: 2px solid rgba(255,255,255,0.2);
-            padding: 14px 50px;
-            font-size: clamp(14px, 4vw, 18px);
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 8px 0;
-            min-width: 220px;
-            text-align: center;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-        .menu-btn:hover, .menu-btn:active {
-            background: rgba(233,69,96,0.2);
-            border-color: #e94560;
-            box-shadow: 0 0 30px rgba(233,69,96,0.3);
-            transform: scale(1.05);
-        }
-        .menu-btn.primary {
-            background: #e94560;
-            border-color: #e94560;
-        }
-        .menu-btn.primary:hover, .menu-btn.primary:active {
-            background: #ff6b81;
-            box-shadow: 0 0 40px rgba(233,69,96,0.5);
-        }
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #eeeeee;
+  --text: #1a1a1a;
+  --text-secondary: #666666;
+  --border: #e0e0e0;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --error-bg: #fef2f2;
+  --error-text: #dc2626;
+  --tab-active-bg: #ffffff;
+  --tab-inactive-bg: #f0f0f0;
+}
 
-        /* Экран выбора уровня */
-        .level-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-            max-width: 600px;
-            width: 90%;
-            padding: 20px;
-            position: relative; z-index: 1;
-        }
-        .level-card {
-            background: rgba(255,255,255,0.05);
-            border: 2px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 20px 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        .level-card:hover, .level-card:active {
-            transform: translateY(-5px) scale(1.03);
-            border-color: #e94560;
-            box-shadow: 0 10px 30px rgba(233,69,96,0.2);
-        }
-        .level-card.locked {
-            opacity: 0.4;
-            pointer-events: none;
-        }
-        .level-card .level-num {
-            font-size: 28px; font-weight: 900;
-            color: #fff;
-            margin-bottom: 5px;
-        }
-        .level-card .level-name {
-            font-size: 13px; color: #aaa;
-            margin-bottom: 8px;
-        }
-        .level-card .stars {
-            font-size: 16px;
-        }
-        .level-card .best {
-            font-size: 11px; color: #666;
-            margin-top: 5px;
-        }
-        .level-card.easy { border-top: 3px solid #4ade80; }
-        .level-card.normal { border-top: 3px solid #fbbf24; }
-        .level-card.hard { border-top: 3px solid #f97316; }
-        .level-card.harder { border-top: 3px solid #ef4444; }
-        .level-card.insane { border-top: 3px solid #a855f7; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-        .back-btn {
-            position: absolute; top: 20px; left: 20px;
-            background: rgba(255,255,255,0.1);
-            border: none; color: #fff;
-            padding: 10px 20px; border-radius: 20px;
-            cursor: pointer; font-size: 14px;
-            z-index: 2;
-        }
-        .back-btn:hover { background: rgba(255,255,255,0.2); }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
 
-        .screen-title {
-            font-size: clamp(24px, 6vw, 36px);
-            color: #fff; font-weight: 700;
-            margin-bottom: 20px;
-            position: relative; z-index: 1;
-        }
+/* ============================================
+   ШАПКА БРАУЗЕРА (НАВИГАЦИЯ)
+   ============================================ */
+.browser-header {
+  height: var(--header-height);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 4px;
+  flex-shrink: 0;
+}
 
-        /* Game Over */
-        .gameover-title {
-            font-size: clamp(28px, 7vw, 48px);
-            color: #e94560;
-            font-weight: 900;
-            text-shadow: 0 0 30px rgba(233,69,96,0.5);
-            margin-bottom: 10px;
-        }
-        .gameover-score {
-            font-size: clamp(18px, 5vw, 28px);
-            color: #fff;
-            margin-bottom: 5px;
-        }
-        .gameover-best {
-            font-size: 14px; color: #888;
-            margin-bottom: 30px;
-        }
+.nav-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: background 0.15s, color 0.15s;
+}
 
-        /* Пауза */
-        .pause-title {
-            font-size: clamp(24px, 6vw, 40px);
-            color: #fff;
-            font-weight: 700;
-            margin-bottom: 30px;
-        }
+.nav-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text);
+}
 
-        /* Настройки */
-        .setting-row {
-            display: flex; align-items: center;
-            justify-content: space-between;
-            width: 280px; max-width: 80%;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            color: #fff;
-            position: relative; z-index: 1;
-        }
-        .toggle {
-            width: 50px; height: 26px;
-            background: #333; border-radius: 13px;
-            position: relative; cursor: pointer;
-            transition: background 0.3s;
-        }
-        .toggle.on { background: #e94560; }
-        .toggle::after {
-            content: '';
-            position: absolute; top: 3px; left: 3px;
-            width: 20px; height: 20px;
-            background: #fff; border-radius: 50%;
-            transition: left 0.3s;
-        }
-        .toggle.on::after { left: 27px; }
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
 
-        /* UI во время игры */
-        #gameUI {
-            position: absolute; top: 0; left: 0; right: 0;
-            display: flex; justify-content: space-between;
-            align-items: flex-start;
-            padding: 10px 15px;
-            pointer-events: none;
-            z-index: 5;
-        }
-        #gameUI .ui-left, #gameUI .ui-right {
-            display: flex; flex-direction: column;
-            gap: 5px;
-        }
-        #gameUI .ui-text {
-            color: #fff;
-            font-size: clamp(12px, 3vw, 16px);
-            font-weight: 600;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-        }
-        #pauseBtn {
-            pointer-events: auto;
-            background: rgba(255,255,255,0.15);
-            border: 2px solid rgba(255,255,255,0.3);
-            color: #fff;
-            width: 44px; height: 44px;
-            border-radius: 50%;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-        #pauseBtn:hover { background: rgba(255,255,255,0.25); }
+.address-bar-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 8px;
+  height: 34px;
+  gap: 6px;
+  transition: border-color 0.2s;
+}
 
-        /* Прогресс-бар */
-        #progressBar {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            z-index: 5;
-        }
-        #progressFill {
-            height: 100%;
-            background: #e94560;
-            width: 0%;
-            transition: width 0.1s;
-            box-shadow: 0 0 10px rgba(233,69,96,0.5);
-        }
+.address-bar-container:focus-within {
+  border-color: var(--accent);
+}
 
-        /* Зона прыжка (невидимая, для мобильных) */
-        #jumpZone {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 3;
-            cursor: pointer;
-        }
+.address-bar {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+}
 
-        /* Анимация частиц меню */
-        .menu-particle {
-            position: absolute;
-            width: 4px; height: 4px;
-            background: rgba(233,69,96,0.6);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: floatUp 6s linear infinite;
-        }
-        @keyframes floatUp {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
-        }
+.address-bar::placeholder {
+  color: var(--text-secondary);
+}
 
-        /* Как играть */
-        .howto-content {
-            color: #ccc;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            line-height: 1.8;
-            position: relative; z-index: 1;
-        }
-        .howto-content h3 {
-            color: #e94560;
-            margin: 15px 0 5px;
-        }
-        .howto-content .key {
-            display: inline-block;
-            background: rgba(255,255,255,0.1);
-            padding: 2px 10px;
-            border-radius: 6px;
-            color: #fff;
-            font-weight: 600;
-            margin: 0 2px;
-        }
-    </style>
+.secure-icon {
+  color: #22c55e;
+  font-size: 12px;
+}
+
+/* ============================================
+   ВКЛАДКИ
+   ============================================ */
+.tabs-bar {
+  height: var(--tab-height);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  padding: 0 4px;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+
+.tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  min-width: 120px;
+  max-width: 200px;
+  height: 32px;
+  background: var(--tab-inactive-bg);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-secondary);
+  position: relative;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.tab:hover {
+  background: var(--bg-tertiary);
+}
+
+.tab.active {
+  background: var(--tab-active-bg);
+  color: var(--text);
+  border-bottom: 1px solid var(--tab-active-bg);
+  margin-bottom: -1px;
+  z-index: 1;
+}
+
+.tab-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-close {
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.tab:hover .tab-close,
+.tab.active .tab-close {
+  opacity: 1;
+}
+
+.tab-close:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.tab-loading {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  animation: loading-pulse 1s infinite;
+  display: none;
+}
+
+.tab.loading .tab-loading {
+  display: block;
+}
+
+@keyframes loading-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.new-tab-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 2px;
+  flex-shrink: 0;
+}
+
+.new-tab-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text);
+}
+
+/* ============================================
+   ОСНОВНОЙ КОНТЕНТ
+   ============================================ */
+.browser-body {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - var(--header-height) - var(--tab-height));
+  overflow: hidden;
+}
+
+.viewport {
+  flex: 1;
+  position: relative;
+  background: var(--bg);
+}
+
+.viewport iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: none;
+}
+
+.viewport iframe.active {
+  display: block;
+}
+
+.error-page {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px;
+  text-align: center;
+  background: var(--bg);
+}
+
+.error-page.visible {
+  display: flex;
+}
+
+.error-page h2 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: var(--error-text);
+}
+
+.error-page p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.error-retry {
+  padding: 8px 20px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.error-retry:hover {
+  background: var(--accent-hover);
+}
+
+/* ============================================
+   БОКОВАЯ ПАНЕЛЬ
+   ============================================ */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar.open {
+  display: flex;
+}
+
+.sidebar-header {
+  height: 40px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sidebar-close {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-close:hover {
+  background: var(--bg-tertiary);
+  color: var(--text);
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+/* ============================================
+   ЗАКЛАДКИ
+   ============================================ */
+.bookmark-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+
+.bookmark-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.bookmark-item .bookmark-favicon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.bookmark-item .bookmark-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bookmark-item .bookmark-delete {
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.bookmark-item:hover .bookmark-delete {
+  display: flex;
+}
+
+.bookmark-delete:hover {
+  background: var(--border);
+  color: var(--error-text);
+}
+
+/* ============================================
+   ИСТОРИЯ
+   ============================================ */
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+
+.history-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.history-item .history-url {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.history-item .history-time {
+  font-size: 11px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.history-clear-btn {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.history-clear-btn:hover {
+  background: var(--border);
+}
+
+/* ============================================
+   МЕНЕДЖЕР РАСШИРЕНИЙ
+   ============================================ */
+.extension-item {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  background: var(--bg);
+}
+
+.extension-item .ext-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.extension-item .ext-name {
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.extension-item .ext-version {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.extension-item .ext-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.extension-item .ext-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.ext-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.15s;
+}
+
+.ext-btn:hover {
+  background: var(--bg-tertiary);
+}
+
+.ext-btn.primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.ext-btn.primary:hover {
+  background: var(--accent-hover);
+}
+
+.ext-btn.danger {
+  color: var(--error-text);
+  border-color: var(--error-text);
+}
+
+.ext-btn.danger:hover {
+  background: var(--error-bg);
+}
+
+.toggle-switch {
+  width: 36px;
+  height: 20px;
+  background: var(--border);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle-switch.on {
+  background: var(--accent);
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s;
+}
+
+.toggle-switch.on::after {
+  transform: translateX(16px);
+}
+
+.ext-install-area {
+  margin-bottom: 12px;
+}
+
+.ext-install-area textarea {
+  width: 100%;
+  height: 120px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px;
+  color: var(--text);
+  font-family: monospace;
+  font-size: 12px;
+  resize: vertical;
+  outline: none;
+}
+
+.ext-install-area textarea:focus {
+  border-color: var(--accent);
+}
+
+/* ============================================
+   КОНТЕКСТНОЕ МЕНЮ
+   ============================================ */
+.context-menu {
+  position: fixed;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px;
+  min-width: 160px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 10000;
+  display: none;
+}
+
+.context-menu.visible {
+  display: block;
+}
+
+.context-menu-item {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s;
+}
+
+.context-menu-item:hover {
+  background: var(--bg-secondary);
+}
+
+.context-menu-separator {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+/* ============================================
+   ВСПЛЫВАЮЩИЕ ПАНЕЛИ РАСШИРЕНИЙ
+   ============================================ */
+.ext-panel {
+  position: fixed;
+  top: calc(var(--header-height) + var(--tab-height) + 8px);
+  right: 8px;
+  width: 320px;
+  max-height: 400px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+}
+
+.ext-panel.visible {
+  display: flex;
+}
+
+.ext-panel-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ext-panel-close {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ext-panel-close:hover {
+  background: var(--bg-tertiary);
+  color: var(--text);
+}
+
+.ext-panel-body {
+  padding: 12px;
+  overflow-y: auto;
+  font-size: 13px;
+}
+
+/* ============================================
+   ПАНЕЛЬ РАСШИРЕНИЙ В ШАПКЕ
+   ============================================ */
+.ext-toolbar {
+  display: flex;
+  gap: 2px;
+  margin-left: 4px;
+}
+
+.ext-toolbar-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.ext-toolbar-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text);
+}
+
+.ext-toolbar-btn.active {
+  background: var(--accent);
+  color: white;
+}
+
+/* ============================================
+   НАЧАЛЬНАЯ СТРАНИЦА
+   ============================================ */
+.start-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: var(--bg);
+  gap: 20px;
+}
+
+.start-page h1 {
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--text);
+}
+
+.start-page .start-search {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  text-align: center;
+}
+
+.start-page .start-search:focus {
+  border-color: var(--accent);
+}
+
+.start-shortcuts {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.start-shortcut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 80px;
+}
+
+.start-shortcut:hover {
+  background: var(--bg-secondary);
+}
+
+.start-shortcut-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.start-shortcut-title {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   АДАПТИВНОСТЬ
+   ============================================ */
+@media (max-width: 600px) {
+  .sidebar {
+    position: fixed;
+    top: calc(var(--header-height) + var(--tab-height));
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 9998;
+  }
+  
+  .ext-panel {
+    left: 8px;
+    right: 8px;
+    width: auto;
+  }
+}
+
+/* ============================================
+   СКРОЛЛБАР
+   ============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+</style>
 </head>
 <body>
-    <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
 
-        <!-- Зона прыжка -->
-        <div id="jumpZone"></div>
+<!-- ============================================
+     ШАПКА БРАУЗЕРА
+     ============================================ -->
+<div class="browser-header">
+  <button class="nav-btn" id="btnBack" title="Назад (Alt+Left)">←</button>
+  <button class="nav-btn" id="btnForward" title="Вперёд (Alt+Right)">→</button>
+  <button class="nav-btn" id="btnRefresh" title="Обновить (F5)">↻</button>
+  <button class="nav-btn" id="btnHome" title="Домой">⌂</button>
+  
+  <div class="address-bar-container">
+    <span class="secure-icon" id="secureIcon">🔒</span>
+    <input type="text" class="address-bar" id="addressBar" placeholder="Введите URL или поисковый запрос..." autocomplete="off">
+  </div>
+  
+  <div class="ext-toolbar" id="extToolbar"></div>
+  
+  <button class="nav-btn" id="btnBookmarks" title="Закладки">☆</button>
+  <button class="nav-btn" id="btnHistory" title="История">🕐</button>
+  <button class="nav-btn" id="btnExtensions" title="Расширения">🧩</button>
+  <button class="nav-btn" id="btnTheme" title="Тёмная тема">🌙</button>
+</div>
 
-        <!-- UI во время игры -->
-        <div id="gameUI" class="hidden">
-            <div class="ui-left">
-                <div class="ui-text" id="levelNameUI">Уровень 1</div>
-                <div class="ui-text">Попытка: <span id="attemptUI">1</span></div>
-            </div>
-            <div class="ui-right">
-                <button id="pauseBtn">⏸</button>
-                <div class="ui-text"><span id="percentUI">0</span>%</div>
-            </div>
-        </div>
-        <div id="progressBar" class="hidden"><div id="progressFill"></div></div>
+<!-- ============================================
+     ВКЛАДКИ
+     ============================================ -->
+<div class="tabs-bar" id="tabsBar">
+  <button class="new-tab-btn" id="newTabBtn" title="Новая вкладка (Ctrl+T)">+</button>
+</div>
 
-        <!-- Главное меню -->
-        <div id="menuScreen">
-            <div class="menu-title">GEOMETRY DASH</div>
-            <div class="menu-subtitle">Кликни в любом месте для прыжка</div>
-            <button class="menu-btn primary" id="btnPlay">▶ ИГРАТЬ</button>
-            <button class="menu-btn" id="btnHowTo">❓ КАК ИГРАТЬ</button>
-            <button class="menu-btn" id="btnSettings">⚙ НАСТРОЙКИ</button>
-        </div>
-
-        <!-- Выбор уровня -->
-        <div id="levelSelectScreen" class="hidden">
-            <button class="back-btn" id="btnBackFromLevels">← Назад</button>
-            <div class="screen-title">ВЫБЕРИТЕ УРОВЕНЬ</div>
-            <div class="level-grid" id="levelGrid"></div>
-        </div>
-
-        <!-- Game Over -->
-        <div id="gameOverScreen" class="hidden">
-            <div class="gameover-title">ИГРА ОКОНЧЕНА</div>
-            <div class="gameover-score"><span id="goPercent">0</span>%</div>
-            <div class="gameover-best">Лучший результат: <span id="goBest">0</span>%</div>
-            <button class="menu-btn primary" id="btnRetry">↻ ПОВТОРИТЬ</button>
-            <button class="menu-btn" id="btnMenuFromGO">☰ МЕНЮ</button>
-        </div>
-
-        <!-- Пауза -->
-        <div id="pauseScreen" class="hidden">
-            <div class="pause-title">ПАУЗА</div>
-            <button class="menu-btn primary" id="btnResume">▶ ПРОДОЛЖИТЬ</button>
-            <button class="menu-btn" id="btnRestart">↻ ЗАНОВО</button>
-            <button class="menu-btn" id="btnMenuFromPause">☰ В МЕНЮ</button>
-        </div>
-
-        <!-- Настройки -->
-        <div id="settingsScreen" class="hidden">
-            <button class="back-btn" id="btnBackFromSettings">← Назад</button>
-            <div class="screen-title">НАСТРОЙКИ</div>
-            <div class="setting-row">
-                <span>Звуковые эффекты</span>
-                <div class="toggle on" id="toggleSFX" data-key="sfx"></div>
-            </div>
-            <div class="setting-row">
-                <span>Музыка</span>
-                <div class="toggle on" id="toggleMusic" data-key="music"></div>
-            </div>
-            <div class="setting-row">
-                <span>Частицы</span>
-                <div class="toggle on" id="toggleParticles" data-key="particles"></div>
-            </div>
-            <div class="setting-row">
-                <span>Показывать процент</span>
-                <div class="toggle on" id="togglePercent" data-key="percent"></div>
-            </div>
-        </div>
-
-        <!-- Как играть -->
-        <div id="howToPlayScreen" class="hidden">
-            <button class="back-btn" id="btnBackFromHowTo">← Назад</button>
-            <div class="screen-title">КАК ИГРАТЬ</div>
-            <div class="howto-content">
-                <h3>🎮 Управление</h3>
-                <p>Нажмите <span class="key">Пробел</span>, <span class="key">↑</span>, <span class="key">W</span> или кликните/тапните в любом месте экрана, чтобы прыгнуть.</p>
-                <h3>⚡ Цель</h3>
-                <p>Пройдите уровень до конца, избегая шипов и препятствий. Кубик автоматически бежит вперёд!</p>
-                <h3>🔵 Зелёные орбы</h3>
-                <p>Прыгните в зелёный орб — он подбросит вас вверх!</p>
-                <h3>⭐ Уровни сложности</h3>
-                <p>5 уровней от Лёгкого до Безумного. Пройдите предыдущий, чтобы открыть следующий.</p>
-            </div>
-        </div>
+<!-- ============================================
+     ОСНОВНОЕ ТЕЛО
+     ============================================ -->
+<div class="browser-body">
+  <div class="viewport" id="viewport"></div>
+  
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span id="sidebarTitle">Панель</span>
+      <button class="sidebar-close" id="sidebarClose">✕</button>
     </div>
+    <div class="sidebar-content" id="sidebarContent"></div>
+  </div>
+</div>
+
+<!-- ============================================
+     КОНТЕКСТНОЕ МЕНЮ
+     ============================================ -->
+<div class="context-menu" id="contextMenu">
+  <div class="context-menu-item" id="ctxNewTab">🆕 Новая вкладка</div>
+  <div class="context-menu-item" id="ctxReload">🔄 Обновить</div>
+  <div class="context-menu-separator"></div>
+  <div class="context-menu-item" id="ctxBookmark">⭐ Добавить в закладки</div>
+  <div class="context-menu-item" id="ctxCopyUrl">📋 Копировать URL</div>
+  <div class="context-menu-separator"></div>
+  <div class="context-menu-item" id="ctxBack">⬅️ Назад</div>
+  <div class="context-menu-item" id="ctxForward">➡️ Вперёд</div>
+</div>
+
+<div id="extPanelsContainer"></div>
 
 <script>
-// ==================== КОНФИГУРАЦИЯ ====================
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-// Адаптивный размер canvas
-function resizeCanvas() {
-    const container = document.getElementById('gameContainer');
-    const aspect = 16 / 9;
-    let w = container.clientWidth;
-    let h = container.clientHeight;
-    if (w / h > aspect) {
-        w = h * aspect;
-    } else {
-        h = w / aspect;
-    }
-    canvas.width = 960;
-    canvas.height = 540;
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-
-// ==================== СОСТОЯНИЕ ИГРЫ ====================
-let gameState = 'menu'; // menu, levelSelect, playing, paused, gameover
-let currentLevel = 0;
-let attempts = 1;
-let cameraX = 0;
-let levelLength = 0;
-let speed = 4;
-let frameCount = 0;
-
-// Настройки
-const settings = {
-    sfx: true,
-    music: true,
-    particles: true,
-    percent: true
+// ============================================
+// КОНФИГУРАЦИЯ И СОСТОЯНИЕ
+// ============================================
+const CONFIG = {
+  searchEngine: 'https://duckduckgo.com/?q=',
+  homePage: 'about:blank',
+  maxHistory: 500,
+  maxTabs: 20
 };
 
-// Прогресс (открытые уровни и лучшие результаты)
-let progress = { unlocked: [true, false, false, false, false], best: [0, 0, 0, 0, 0] };
-
-// ==================== УРОВНИ ====================
-const LEVELS = [
-    {
-        name: "Первые Шаги",
-        difficulty: "easy",
-        stars: "⭐",
-        color: "#4ade80",
-        speed: 4,
-        floorY: 420,
-        gravity: 0.55,
-        jumpForce: -10.5,
-        patterns: [
-            ['spike', 1], ['spike', 1], ['gap', 1],
-            ['spike', 2], ['gap', 1],
-            ['block', 1], ['spike', 1], ['gap', 1],
-            ['spike', 3], ['gap', 1],
-            ['platform', 1], ['spike', 1], ['gap', 1],
-            ['spike', 1], ['block', 1], ['gap', 1],
-            ['spike', 2], ['spike', 2], ['gap', 1],
-            ['platform', 1], ['orb', 1], ['gap', 1],
-            ['spike', 1], ['block', 1], ['spike', 1], ['gap', 1],
-            ['spike', 3], ['gap', 1],
-        ]
-    },
-    {
-        name: "Восход",
-        difficulty: "normal",
-        stars: "⭐⭐",
-        color: "#fbbf24",
-        speed: 5,
-        floorY: 420,
-        gravity: 0.6,
-        jumpForce: -11,
-        patterns: [
-            ['spike', 2], ['spike', 1], ['gap', 1],
-            ['block', 1], ['spike', 1], ['gap', 1],
-            ['spike', 3], ['gap', 1],
-            ['platform', 1], ['spike', 1], ['orb', 1], ['gap', 1],
-            ['spike', 2], ['block', 1], ['gap', 1],
-            ['spike', 1], ['spike', 2], ['spike', 1], ['gap', 1],
-            ['platform', 1], ['spike', 2], ['gap', 1],
-            ['block', 1], ['spike', 1], ['block', 1], ['gap', 1],
-            ['spike', 4], ['gap', 1],
-            ['orb', 1], ['platform', 1], ['spike', 1], ['gap', 1],
-            ['spike', 2], ['spike', 2], ['block', 1], ['gap', 1],
-        ]
-    },
-    {
-        name: "Опасная Зона",
-        difficulty: "hard",
-        stars: "⭐⭐⭐",
-        color: "#f97316",
-        speed: 5.5,
-        floorY: 420,
-        gravity: 0.65,
-        jumpForce: -11.5,
-        patterns: [
-            ['spike', 2], ['spike', 2], ['gap', 1],
-            ['block', 1], ['spike', 1], ['spike', 1], ['gap', 1],
-            ['spike', 3], ['spike', 1], ['gap', 1],
-            ['platform', 1], ['spike', 2], ['orb', 1], ['gap', 1],
-            ['spike', 1], ['block', 1], ['spike', 2], ['gap', 1],
-            ['spike', 4], ['gap', 1],
-            ['platform', 1], ['spike', 1], ['platform', 1], ['gap', 1],
-            ['block', 1], ['spike', 1], ['block', 1], ['spike', 1], ['gap', 1],
-            ['spike', 3], ['spike', 2], ['gap', 1],
-            ['orb', 1], ['spike', 2], ['platform', 1], ['gap', 1],
-            ['spike', 2], ['block', 1], ['spike', 2], ['gap', 1],
-            ['spike', 5], ['gap', 1],
-        ]
-    },
-    {
-        name: "Кошмар",
-        difficulty: "harder",
-        stars: "⭐⭐⭐⭐",
-        color: "#ef4444",
-        speed: 6,
-        floorY: 420,
-        gravity: 0.7,
-        jumpForce: -12,
-        patterns: [
-            ['spike', 3], ['spike', 1], ['gap', 1],
-            ['block', 1], ['spike', 2], ['block', 1], ['gap', 1],
-            ['spike', 4], ['spike', 1], ['gap', 1],
-            ['platform', 1], ['spike', 2], ['orb', 1], ['spike', 1], ['gap', 1],
-            ['spike', 2], ['block', 1], ['spike', 3], ['gap', 1],
-            ['spike', 5], ['gap', 1],
-            ['platform', 1], ['spike', 1], ['platform', 1], ['spike', 1], ['gap', 1],
-            ['block', 1], ['spike', 2], ['block', 1], ['spike', 2], ['gap', 1],
-            ['spike', 3], ['spike', 3], ['gap', 1],
-            ['orb', 1], ['spike', 3], ['platform', 1], ['gap', 1],
-            ['spike', 2], ['block', 1], ['spike', 2], ['block', 1], ['gap', 1],
-            ['spike', 4], ['spike', 3], ['gap', 1],
-            ['platform', 1], ['spike', 2], ['orb', 1], ['spike', 2], ['gap', 1],
-        ]
-    },
-    {
-        name: "Безумие",
-        difficulty: "insane",
-        stars: "⭐⭐⭐⭐⭐",
-        color: "#a855f7",
-        speed: 7,
-        floorY: 420,
-        gravity: 0.75,
-        jumpForce: -12.5,
-        patterns: [
-            ['spike', 3], ['spike', 2], ['spike', 1], ['gap', 1],
-            ['block', 1], ['spike', 3], ['block', 1], ['gap', 1],
-            ['spike', 5], ['spike', 2], ['gap', 1],
-            ['platform', 1], ['spike', 3], ['orb', 1], ['spike', 2], ['gap', 1],
-            ['spike', 3], ['block', 1], ['spike', 4], ['gap', 1],
-            ['spike', 6], ['gap', 1],
-            ['platform', 1], ['spike', 2], ['platform', 1], ['spike', 2], ['platform', 1], ['gap', 1],
-            ['block', 1], ['spike', 3], ['block', 1], ['spike', 3], ['block', 1], ['gap', 1],
-            ['spike', 4], ['spike', 4], ['gap', 1],
-            ['orb', 1], ['spike', 4], ['platform', 1], ['spike', 2], ['gap', 1],
-            ['spike', 3], ['block', 1], ['spike', 3], ['block', 1], ['spike', 2], ['gap', 1],
-            ['spike', 5], ['spike', 4], ['gap', 1],
-            ['platform', 1], ['spike', 3], ['orb', 1], ['spike', 3], ['platform', 1], ['gap', 1],
-            ['block', 1], ['spike', 4], ['block', 1], ['spike', 4], ['gap', 1],
-        ]
-    }
-];
-
-// ==================== ИГРОК ====================
-const player = {
-    x: 120,
-    y: 0,
-    width: 28,
-    height: 28,
-    vy: 0,
-    gravity: 0.55,
-    jumpForce: -10.5,
-    grounded: false,
-    rotation: 0,
-    alive: true,
-    trail: [],
-    color: '#00d4ff'
+let state = {
+  tabs: [],
+  activeTabId: null,
+  tabCounter: 0,
+  history: [],
+  bookmarks: [],
+  extensions: [],
+  theme: 'auto',
+  sidebarOpen: false,
+  sidebarMode: null
 };
 
-// ==================== ПРЕПЯТСТВИЯ ====================
-let obstacles = [];
-let particles = [];
-let bgStars = [];
-
-// Генерация фоновых звёзд
-function generateBgStars() {
-    bgStars = [];
-    for (let i = 0; i < 80; i++) {
-        bgStars.push({
-            x: Math.random() * 3000,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 2 + 0.5,
-            speed: Math.random() * 0.3 + 0.1,
-            brightness: Math.random() * 0.5 + 0.3
-        });
-    }
+// ============================================
+// УТИЛИТЫ
+// ============================================
+function generateId() {
+  return 'tab_' + (++state.tabCounter) + '_' + Date.now();
 }
-generateBgStars();
 
-function generateLevel(levelIdx) {
-    const lvl = LEVELS[levelIdx];
-    obstacles = [];
-    let x = 300;
-    const floorY = lvl.floorY;
+function isValidUrl(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-    // Пол
-    obstacles.push({ type: 'floor', x: 0, y: floorY, w: 20000 });
+function normalizeUrl(url) {
+  if (!url) return CONFIG.homePage;
+  url = url.trim();
+  if (url === 'about:blank') return url;
+  if (isValidUrl(url)) {
+    const u = new URL(url);
+    return u.href;
+  }
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(url)) {
+    return url;
+  }
+  if (/^[a-zA-Z0-9][a-zA-Z0-9-]*(\.[a-zA-Z0-9][a-zA-Z0-9-]*)+/.test(url)) {
+    return 'https://' + url;
+  }
+  return CONFIG.searchEngine + encodeURIComponent(url);
+}
 
-    // Генерация паттернов
-    const patternMap = {
-        'spike': (count) => {
-            for (let i = 0; i < count; i++) {
-                obstacles.push({ type: 'spike', x: x + i * 35, y: floorY - 30, w: 30, h: 30 });
-            }
-            x += count * 35 + 20;
-        },
-        'block': (count) => {
-            for (let i = 0; i < count; i++) {
-                const h = 50 + Math.random() * 40;
-                obstacles.push({ type: 'block', x: x + i * 65, y: floorY - h, w: 55, h: h });
-            }
-            x += count * 65 + 30;
-        },
-        'platform': (count) => {
-            for (let i = 0; i < count; i++) {
-                const pw = 80 + Math.random() * 60;
-                const py = floorY - 90 - Math.random() * 50;
-                obstacles.push({ type: 'platform', x: x + i * 100, y: py, w: pw, h: 10 });
-            }
-            x += count * 100 + 40;
-        },
-        'orb': (count) => {
-            for (let i = 0; i < count; i++) {
-                obstacles.push({ type: 'orb', x: x + i * 50, y: floorY - 100 - Math.random() * 40, r: 14 });
-            }
-            x += count * 50 + 30;
-        },
-        'gap': () => {
-            x += 60 + Math.random() * 40;
-        }
+function getDomain(url) {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+}
+
+function formatTime(date) {
+  const d = new Date(date);
+  return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// ============================================
+// LOCALSTORAGE
+// ============================================
+function loadState() {
+  try {
+    const saved = localStorage.getItem('browser_state');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state.history = parsed.history || [];
+      state.bookmarks = parsed.bookmarks || [];
+      state.extensions = parsed.extensions || [];
+      state.theme = parsed.theme || 'auto';
+    }
+  } catch (e) {
+    console.error('Ошибка загрузки состояния:', e);
+  }
+}
+
+function saveState() {
+  try {
+    const toSave = {
+      history: state.history,
+      bookmarks: state.bookmarks,
+      extensions: state.extensions,
+      theme: state.theme
     };
-
-    for (const [ptype, pcount] of lvl.patterns) {
-        if (patternMap[ptype]) {
-            patternMap[ptype](pcount);
-        }
-    }
-
-    // Финиш
-    x += 200;
-    obstacles.push({ type: 'finish', x: x, y: floorY - 120, w: 50, h: 120 });
-    levelLength = x + 400;
+    localStorage.setItem('browser_state', JSON.stringify(toSave));
+  } catch (e) {
+    console.error('Ошибка сохранения состояния:', e);
+  }
 }
 
-// ==================== ЧАСТИЦЫ ====================
-function spawnParticles(x, y, color, count = 6) {
-    if (!settings.particles) return;
-    for (let i = 0; i < count; i++) {
-        particles.push({
-            x, y,
-            vx: (Math.random() - 0.5) * 10,
-            vy: (Math.random() - 0.5) * 10 - 3,
-            life: 1,
-            color,
-            size: Math.random() * 5 + 2,
-            gravity: 0.15
-        });
-    }
+// ============================================
+// ТЕМА
+// ============================================
+function applyTheme() {
+  const root = document.documentElement;
+  root.removeAttribute('data-theme');
+  if (state.theme === 'dark') {
+    root.setAttribute('data-theme', 'dark');
+  } else if (state.theme === 'light') {
+    root.setAttribute('data-theme', 'light');
+  }
+  document.getElementById('btnTheme').textContent = state.theme === 'dark' ? '☀️' : '🌙';
 }
 
-// ==================== ОБНОВЛЕНИЕ ====================
-let lastTime = 0;
+function toggleTheme() {
+  if (state.theme === 'auto') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    state.theme = prefersDark ? 'light' : 'dark';
+  } else if (state.theme === 'dark') {
+    state.theme = 'light';
+  } else {
+    state.theme = 'dark';
+  }
+  applyTheme();
+  saveState();
+}
 
-function update(dt) {
-    if (gameState !== 'playing') return;
+// ============================================
+// ВКЛАДКИ
+// ============================================
+function createTab(url = CONFIG.homePage, title = 'Новая вкладка') {
+  if (state.tabs.length >= CONFIG.maxTabs) {
+    alert('Достигнуто максимальное количество вкладок');
+    return null;
+  }
+  
+  const tabId = generateId();
+  const tab = {
+    id: tabId,
+    url: url,
+    title: title,
+    loading: false,
+    canGoBack: false,
+    canGoForward: false,
+    history: [url],
+    historyIndex: 0
+  };
+  
+  state.tabs.push(tab);
+  createTabDOM(tab);
+  createIframe(tab);
+  switchToTab(tabId);
+  return tab;
+}
 
-    frameCount++;
-
-    // Гравитация
-    player.vy += player.gravity;
-    player.y += player.vy;
-
-    // Вращение
-    if (!player.grounded) {
-        player.rotation += 9;
+function createTabDOM(tab) {
+  const tabEl = document.createElement('div');
+  tabEl.className = 'tab';
+  tabEl.dataset.tabId = tab.id;
+  tabEl.innerHTML = `
+    <span class="tab-title">${escapeHtml(tab.title)}</span>
+    <button class="tab-close" title="Закрыть вкладку">✕</button>
+    <div class="tab-loading"></div>
+  `;
+  
+  tabEl.addEventListener('click', (e) => {
+    if (e.target.classList.contains('tab-close')) {
+      closeTab(tab.id);
     } else {
-        const target = Math.round(player.rotation / 90) * 90;
-        player.rotation += (target - player.rotation) * 0.2;
+      switchToTab(tab.id);
     }
-
-    // Пол
-    player.grounded = false;
-    const floorY = LEVELS[currentLevel].floorY;
-    if (player.y + player.height >= floorY) {
-        player.y = floorY - player.height;
-        player.vy = 0;
-        player.grounded = true;
+  });
+  
+  tabEl.addEventListener('mousedown', (e) => {
+    if (e.button === 1) {
+      e.preventDefault();
+      closeTab(tab.id);
     }
+  });
+  
+  const tabsBar = document.getElementById('tabsBar');
+  tabsBar.insertBefore(tabEl, document.getElementById('newTabBtn'));
+}
 
-    // Коллизии
-    for (let obs of obstacles) {
-        const ox = obs.x - cameraX;
-        if (ox < -100 || ox > canvas.width + 100) continue;
+function createIframe(tab) {
+  const iframe = document.createElement('iframe');
+  iframe.id = 'iframe_' + tab.id;
+  iframe.sandbox = 'allow-scripts allow-same-origin allow-popups allow-forms allow-downloads';
+  iframe.src = tab.url;
+  
+  const viewport = document.getElementById('viewport');
+  viewport.appendChild(iframe);
+  
+  iframe.addEventListener('load', () => handleIframeLoad(tab.id));
+  iframe.addEventListener('error', () => handleIframeError(tab.id));
+}
 
-        if (obs.type === 'block') {
-            if (rectCollide(player.x, player.y, player.width, player.height, ox, obs.y, obs.w, obs.h)) {
-                if (player.vy > 0 && player.y + player.height - player.vy <= obs.y + 8) {
-                    player.y = obs.y - player.height;
-                    player.vy = 0;
-                    player.grounded = true;
-                } else if (player.vy < 0 && player.y - player.vy >= obs.y + obs.h - 8) {
-                    player.y = obs.y + obs.h;
-                    player.vy = 0;
-                } else {
-                    die();
-                }
-            }
-        } else if (obs.type === 'platform') {
-            if (rectCollide(player.x, player.y, player.width, player.height, ox, obs.y, obs.w, obs.h)) {
-                if (player.vy > 0 && player.y + player.height - player.vy <= obs.y + obs.h + 5) {
-                    player.y = obs.y - player.height;
-                    player.vy = 0;
-                    player.grounded = true;
-                }
-            }
-        } else if (obs.type === 'spike') {
-            if (spikeCollide(player.x, player.y, player.width, player.height, ox, obs.y, obs.w, obs.h)) {
-                die();
-            }
-        } else if (obs.type === 'orb') {
-            const dx = (player.x + player.width/2) - ox;
-            const dy = (player.y + player.height/2) - obs.y;
-            if (Math.sqrt(dx*dx + dy*dy) < obs.r + player.width/2 && !obs.used) {
-                player.vy = player.jumpForce * 1.3;
-                obs.used = true;
-                spawnParticles(ox + cameraX, obs.y, '#00ff88', 10);
-                if (settings.sfx) playSound('orb');
-            }
-        } else if (obs.type === 'finish') {
-            if (rectCollide(player.x, player.y, player.width, player.height, ox, obs.y, obs.w, obs.h)) {
-                win();
-            }
+function switchToTab(tabId) {
+  state.activeTabId = tabId;
+  
+  document.querySelectorAll('.tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.tabId === tabId);
+  });
+  
+  document.querySelectorAll('.viewport iframe').forEach(el => {
+    el.classList.toggle('active', el.id === 'iframe_' + tabId);
+  });
+  
+  const tab = state.tabs.find(t => t.id === tabId);
+  if (tab) {
+    updateAddressBar(tab.url);
+    updateNavButtons();
+    updateBookmarkButton();
+  }
+  
+  BrowserAPI._emit('tabActivated', { tabId });
+}
+
+function closeTab(tabId) {
+  const idx = state.tabs.findIndex(t => t.id === tabId);
+  if (idx === -1) return;
+  
+  state.tabs.splice(idx, 1);
+  
+  const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+  if (tabEl) tabEl.remove();
+  
+  const iframe = document.getElementById('iframe_' + tabId);
+  if (iframe) iframe.remove();
+  
+  if (state.activeTabId === tabId) {
+    if (state.tabs.length > 0) {
+      const newIdx = Math.min(idx, state.tabs.length - 1);
+      switchToTab(state.tabs[newIdx].id);
+    } else {
+      state.activeTabId = null;
+      updateAddressBar('');
+      showStartPage();
+    }
+  }
+  
+  saveState();
+}
+
+function updateTabTitle(tabId, title) {
+  const tab = state.tabs.find(t => t.id === tabId);
+  if (tab) {
+    tab.title = title || tab.url;
+    const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"] .tab-title`);
+    if (tabEl) tabEl.textContent = tab.title;
+  }
+}
+
+function updateTabLoading(tabId, loading) {
+  const tab = state.tabs.find(t => t.id === tabId);
+  if (tab) {
+    tab.loading = loading;
+    const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+    if (tabEl) tabEl.classList.toggle('loading', loading);
+  }
+}
+
+function showStartPage() {
+  const viewport = document.getElementById('viewport');
+  document.querySelectorAll('.viewport iframe').forEach(el => el.classList.remove('active'));
+  
+  let startPage = document.getElementById('startPage');
+  if (!startPage) {
+    startPage = document.createElement('div');
+    startPage.id = 'startPage';
+    startPage.className = 'start-page';
+    startPage.innerHTML = `
+      <h1>🌐 Браузер</h1>
+      <input type="text" class="start-search" placeholder="Введите поисковый запрос или URL..." id="startSearch">
+      <div class="start-shortcuts">
+        <div class="start-shortcut" data-url="https://duckduckgo.com">
+          <div class="start-shortcut-icon">🔍</div>
+          <span class="start-shortcut-title">DuckDuckGo</span>
+        </div>
+        <div class="start-shortcut" data-url="https://github.com">
+          <div class="start-shortcut-icon">🐙</div>
+          <span class="start-shortcut-title">GitHub</span>
+        </div>
+        <div class="start-shortcut" data-url="https://wikipedia.org">
+          <div class="start-shortcut-icon">📚</div>
+          <span class="start-shortcut-title">Wikipedia</span>
+        </div>
+        <div class="start-shortcut" data-url="https://news.ycombinator.com">
+          <div class="start-shortcut-icon">🗞️</div>
+          <span class="start-shortcut-title">Hacker News</span>
+        </div>
+      </div>
+    `;
+    viewport.appendChild(startPage);
+    
+    startPage.querySelector('#startSearch').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const url = normalizeUrl(e.target.value);
+        if (state.tabs.length === 0) {
+          createTab(url);
+        } else {
+          navigateTo(url);
         }
-    }
-
-    // Камера
-    cameraX += speed;
-    if (cameraX > levelLength - canvas.width) cameraX = levelLength - canvas.width;
-
-    // Процент
-    const pct = Math.min(100, Math.floor((cameraX / (levelLength - canvas.width)) * 100));
-    document.getElementById('percentUI').textContent = pct;
-    document.getElementById('progressFill').style.width = pct + '%';
-
-    // Частицы
-    particles = particles.filter(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += p.gravity;
-        p.life -= 0.025;
-        p.size *= 0.97;
-        return p.life > 0;
+        startPage.style.display = 'none';
+      }
     });
-
-    // Трейл
-    if (player.alive && frameCount % 3 === 0) {
-        player.trail.push({ x: player.x + cameraX, y: player.y + player.height/2, life: 1, size: player.width * 0.6 });
-    }
-    player.trail.forEach(t => t.life -= 0.06);
-    player.trail = player.trail.filter(t => t.life > 0);
-}
-
-function rectCollide(x1, y1, w1, h1, x2, y2, w2, h2) {
-    return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
-}
-
-function spikeCollide(px, py, pw, ph, tx, ty, tw, th) {
-    // Точная коллизия для треугольника (шипа)
-    const cx = px + pw/2, cy = py + ph/2;
-    // Вершины треугольника
-    const v1 = { x: tx + tw/2, y: ty };
-    const v2 = { x: tx + tw, y: ty + th };
-    const v3 = { x: tx, y: ty + th };
-    // Упрощённая: проверяем расстояние до центра треугольника
-    const tcx = (v1.x + v2.x + v3.x) / 3;
-    const tcy = (v1.y + v2.y + v3.y) / 3;
-    const dist = Math.sqrt((cx - tcx)**2 + (cy - tcy)**2);
-    return dist < (pw + tw) / 2.8;
-}
-
-function die() {
-    if (!player.alive) return;
-    player.alive = false;
-    spawnParticles(player.x + cameraX, player.y + player.height/2, '#e94560', 25);
-    if (settings.sfx) playSound('die');
-
-    const pct = parseInt(document.getElementById('percentUI').textContent);
-    if (pct > progress.best[currentLevel]) {
-        progress.best[currentLevel] = pct;
-    }
-
-    gameState = 'gameover';
-    document.getElementById('goPercent').textContent = pct;
-    document.getElementById('goBest').textContent = progress.best[currentLevel];
-    document.getElementById('gameOverScreen').classList.remove('hidden');
-    document.getElementById('gameUI').classList.add('hidden');
-    document.getElementById('progressBar').classList.add('hidden');
-}
-
-function win() {
-    const pct = 100;
-    if (pct > progress.best[currentLevel]) {
-        progress.best[currentLevel] = pct;
-    }
-    // Открываем следующий уровень
-    if (currentLevel < 4) {
-        progress.unlocked[currentLevel + 1] = true;
-    }
-    if (settings.sfx) playSound('win');
-
-    gameState = 'gameover';
-    document.getElementById('goPercent').textContent = '100 (ПОБЕДА!)';
-    document.getElementById('goBest').textContent = progress.best[currentLevel];
-    document.getElementById('gameOverScreen').classList.remove('hidden');
-    document.getElementById('gameUI').classList.add('hidden');
-    document.getElementById('progressBar').classList.add('hidden');
-}
-
-// ==================== ЗВУКИ (простые осцилляторы) ====================
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-function playSound(type) {
-    if (!settings.sfx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    if (type === 'jump') {
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.15);
-    } else if (type === 'die') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-    } else if (type === 'orb') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-    } else if (type === 'win') {
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(523, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.15);
-        osc.frequency.setValueAtTime(784, audioCtx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.6);
-    }
-}
-
-// ==================== ОТРИСОВКА ====================
-function draw() {
-    const lvl = LEVELS[currentLevel] || LEVELS[0];
-    const floorY = lvl ? lvl.floorY : 420;
-
-    // Фон
-    ctx.fillStyle = '#0a0a1a';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Градиентный фон
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    bgGrad.addColorStop(0, '#0a0a1a');
-    bgGrad.addColorStop(0.5, '#0d0d2a');
-    bgGrad.addColorStop(1, '#0a0a1a');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Звёзды
-    ctx.fillStyle = '#fff';
-    bgStars.forEach(star => {
-        const sx = (star.x - cameraX * star.speed * 0.3) % (canvas.width + 100);
-        const drawX = sx < 0 ? sx + canvas.width + 100 : sx;
-        ctx.globalAlpha = star.brightness * (0.5 + Math.sin(Date.now() * 0.002 + star.x) * 0.5);
-        ctx.fillRect(drawX, star.y, star.size, star.size);
-    });
-    ctx.globalAlpha = 1;
-
-    // Горизонтальные линии (параллакс)
-    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < canvas.height; i += 40) {
-        ctx.beginPath();
-        ctx.moveTo(0, i);
-        ctx.lineTo(canvas.width, i);
-        ctx.stroke();
-    }
-    for (let i = -(cameraX * 0.1) % 60; i < canvas.width; i += 60) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, canvas.height);
-        ctx.stroke();
-    }
-
-    // Препятствия
-    for (let obs of obstacles) {
-        const ox = obs.x - cameraX;
-        if (ox < -150 || ox > canvas.width + 150) continue;
-
-        if (obs.type === 'floor') {
-            // Пол с градиентом
-            const fGrad = ctx.createLinearGradient(0, obs.y, 0, canvas.height);
-            fGrad.addColorStop(0, '#1a1a3a');
-            fGrad.addColorStop(1, '#0d0d1a');
-            ctx.fillStyle = fGrad;
-            ctx.fillRect(ox, obs.y, obs.w, canvas.height - obs.y);
-            // Верхняя линия пола
-            ctx.fillStyle = lvl ? lvl.color : '#e94560';
-            ctx.fillRect(ox, obs.y, obs.w, 3);
-            // Текстура пола — точки
-            ctx.fillStyle = 'rgba(255,255,255,0.05)';
-            for (let dx = 0; dx < obs.w; dx += 30) {
-                ctx.fillRect(ox + dx + 10, obs.y + 10 + Math.sin((obs.x + dx) * 0.01) * 5, 4, 4);
-            }
-        } else if (obs.type === 'block') {
-            // Блок с 3D эффектом
-            const shade = 0.15;
-            ctx.fillStyle = `rgba(255,255,255,${shade})`;
-            ctx.fillRect(ox - 3, obs.y + 3, obs.w, obs.h);
-            ctx.fillStyle = '#2a2a4a';
-            ctx.fillRect(ox, obs.y, obs.w, obs.h);
-            // Обводка
-            ctx.strokeStyle = lvl ? lvl.color : '#e94560';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(ox, obs.y, obs.w, obs.h);
-            // Внутренний узор
-            ctx.fillStyle = 'rgba(255,255,255,0.05)';
-            ctx.fillRect(ox + 6, obs.y + 6, obs.w - 12, obs.h - 12);
-            // Уголки
-            ctx.fillStyle = lvl ? lvl.color : '#e94560';
-            ctx.fillRect(ox, obs.y, 6, 6);
-            ctx.fillRect(ox + obs.w - 6, obs.y, 6, 6);
-            ctx.fillRect(ox, obs.y + obs.h - 6, 6, 6);
-            ctx.fillRect(ox + obs.w - 6, obs.y + obs.h - 6, 6, 6);
-        } else if (obs.type === 'platform') {
-            // Платформа
-            ctx.fillStyle = '#1a4a2a';
-            ctx.fillRect(ox, obs.y, obs.w, obs.h);
-            ctx.fillStyle = '#2db868';
-            ctx.fillRect(ox + 2, obs.y + 2, obs.w - 4, obs.h - 4);
-            // Светящийся верх
-            ctx.fillStyle = '#4df0a0';
-            ctx.fillRect(ox + 2, obs.y + 1, obs.w - 4, 2);
-        } else if (obs.type === 'spike') {
-            // Шип с градиентом
-            const sGrad = ctx.createLinearGradient(ox, obs.y, ox + obs.w/2, obs.y + obs.h);
-            sGrad.addColorStop(0, '#ff6b81');
-            sGrad.addColorStop(1, '#c41e3a');
-            ctx.fillStyle = sGrad;
-            ctx.beginPath();
-            ctx.moveTo(ox + obs.w/2, obs.y);
-            ctx.lineTo(ox + obs.w, obs.y + obs.h);
-            ctx.lineTo(ox, obs.y + obs.h);
-            ctx.closePath();
-            ctx.fill();
-            // Обводка
-            ctx.strokeStyle = '#ff8fa3';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-            // Блик
-            ctx.fillStyle = 'rgba(255,255,255,0.3)';
-            ctx.beginPath();
-            ctx.moveTo(ox + obs.w/2, obs.y + 3);
-            ctx.lineTo(ox + obs.w/2 + 4, obs.y + obs.h - 3);
-            ctx.lineTo(ox + obs.w/2 - 2, obs.y + obs.h - 3);
-            ctx.closePath();
-            ctx.fill();
-        } else if (obs.type === 'orb') {
-            if (obs.used) continue;
-            // Орб с пульсацией
-            const pulse = 1 + Math.sin(Date.now() * 0.005 + obs.x * 0.01) * 0.15;
-            // Внешнее свечение
-            const oGrad = ctx.createRadialGradient(ox, obs.y, 0, ox, obs.y, obs.r * pulse * 2);
-            oGrad.addColorStop(0, 'rgba(0,255,136,0.3)');
-            oGrad.addColorStop(1, 'transparent');
-            ctx.fillStyle = oGrad;
-            ctx.beginPath();
-            ctx.arc(ox, obs.y, obs.r * pulse * 2, 0, Math.PI * 2);
-            ctx.fill();
-            // Сам орб
-            const orbGrad = ctx.createRadialGradient(ox - 3, obs.y - 3, 0, ox, obs.y, obs.r);
-            orbGrad.addColorStop(0, '#88ffcc');
-            orbGrad.addColorStop(1, '#00aa55');
-            ctx.fillStyle = orbGrad;
-            ctx.beginPath();
-            ctx.arc(ox, obs.y, obs.r, 0, Math.PI * 2);
-            ctx.fill();
-            // Обводка
-            ctx.strokeStyle = '#00ff88';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        } else if (obs.type === 'finish') {
-            // Финиш — колонны
-            ctx.fillStyle = '#ffd700';
-            ctx.fillRect(ox, obs.y, 8, obs.h);
-            ctx.fillRect(ox + obs.w - 8, obs.y, 8, obs.h);
-            // Полоски
-            ctx.fillStyle = '#ffed4a';
-            for (let fy = obs.y + 10; fy < obs.y + obs.h - 10; fy += 20) {
-                ctx.fillRect(ox + 8, fy, obs.w - 16, 4);
-            }
-            // Светящийся флаг
-            ctx.fillStyle = 'rgba(255,215,0,0.3)';
-            ctx.beginPath();
-            ctx.arc(ox + obs.w/2, obs.y + obs.h/2, 40, 0, Math.PI * 2);
-            ctx.fill();
+    
+    startPage.querySelectorAll('.start-shortcut').forEach(el => {
+      el.addEventListener('click', () => {
+        const url = el.dataset.url;
+        if (state.tabs.length === 0) {
+          createTab(url);
+        } else {
+          navigateTo(url);
         }
-    }
-
-    // Трейл
-    player.trail.forEach((t, i) => {
-        const alpha = t.life * 0.4;
-        const size = t.size * t.life;
-        ctx.fillStyle = `rgba(0,212,255,${alpha})`;
-        ctx.fillRect(t.x - cameraX - size/2, t.y - size/2, size, size);
+        startPage.style.display = 'none';
+      });
     });
+  }
+  startPage.style.display = 'flex';
+}
 
-    // Игрок
-    if (player.alive) {
-        ctx.save();
-        ctx.translate(player.x + player.width/2, player.y + player.height/2);
-        ctx.rotate(player.rotation * Math.PI / 180);
+// ============================================
+// НАВИГАЦИЯ
+// ============================================
+function navigateTo(url, tabId = null) {
+  const targetTabId = tabId || state.activeTabId;
+  if (!targetTabId) return;
+  
+  const tab = state.tabs.find(t => t.id === targetTabId);
+  if (!tab) return;
+  
+  const normalizedUrl = normalizeUrl(url);
+  
+  let finalUrl = normalizedUrl;
+  BrowserAPI._emit('beforeLoad', { url: normalizedUrl, tabId: targetTabId }, (result) => {
+    if (result && result.url) finalUrl = result.url;
+  });
+  
+  tab.url = finalUrl;
+  tab.loading = true;
+  tab.history = tab.history.slice(0, tab.historyIndex + 1);
+  tab.history.push(finalUrl);
+  tab.historyIndex = tab.history.length - 1;
+  
+  updateTabLoading(targetTabId, true);
+  updateAddressBar(finalUrl);
+  updateNavButtons();
+  
+  const iframe = document.getElementById('iframe_' + targetTabId);
+  if (iframe) {
+    iframe.src = finalUrl;
+  }
+  
+  addToHistory(finalUrl, tab.title || finalUrl);
+}
 
-        // Тень
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
-        ctx.fillRect(-player.width/2 + 3, -player.height/2 + 3, player.width, player.height);
+function handleIframeLoad(tabId) {
+  const tab = state.tabs.find(t => t.id === tabId);
+  if (!tab) return;
+  
+  updateTabLoading(tabId, false);
+  
+  const iframe = document.getElementById('iframe_' + tabId);
+  if (!iframe) return;
+  
+  try {
+    const title = iframe.contentDocument?.title || tab.url;
+    updateTabTitle(tabId, title);
+    
+    try {
+      const newUrl = iframe.contentWindow.location.href;
+      if (newUrl && newUrl !== 'about:blank' && newUrl !== tab.url) {
+        tab.url = newUrl;
+        updateAddressBar(newUrl);
+        addToHistory(newUrl, title);
+      }
+    } catch (e) {}
+    
+    tab.canGoBack = iframe.contentWindow.history.length > 1;
+    updateNavButtons();
+    
+  } catch (e) {}
+  
+  BrowserAPI._emit('load', { url: tab.url, tabId });
+}
 
-        // Тело
-        const bodyGrad = ctx.createLinearGradient(-player.width/2, -player.height/2, player.width/2, player.height/2);
-        bodyGrad.addColorStop(0, '#00e5ff');
-        bodyGrad.addColorStop(1, '#0099cc');
-        ctx.fillStyle = bodyGrad;
-        ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
+function handleIframeError(tabId) {
+  updateTabLoading(tabId, false);
+}
 
-        // Внутренний квадрат
-        ctx.fillStyle = 'rgba(255,255,255,0.15)';
-        ctx.fillRect(-player.width/2 + 4, -player.height/2 + 4, player.width - 8, player.height - 8);
+function goBack() {
+  const tab = state.tabs.find(t => t.id === state.activeTabId);
+  if (!tab || tab.historyIndex <= 0) return;
+  
+  tab.historyIndex--;
+  const url = tab.history[tab.historyIndex];
+  tab.url = url;
+  
+  const iframe = document.getElementById('iframe_' + state.activeTabId);
+  if (iframe) iframe.src = url;
+  
+  updateAddressBar(url);
+  updateNavButtons();
+}
 
-        // Глаза
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(-9, -8, 7, 7);
-        ctx.fillRect(2, -8, 7, 7);
-        ctx.fillStyle = '#000';
-        ctx.fillRect(-7, -6, 4, 4);
-        ctx.fillRect(4, -6, 4, 4);
-        // Блик в глазах
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(-6, -7, 2, 2);
-        ctx.fillRect(5, -7, 2, 2);
+function goForward() {
+  const tab = state.tabs.find(t => t.id === state.activeTabId);
+  if (!tab || tab.historyIndex >= tab.history.length - 1) return;
+  
+  tab.historyIndex++;
+  const url = tab.history[tab.historyIndex];
+  tab.url = url;
+  
+  const iframe = document.getElementById('iframe_' + state.activeTabId);
+  if (iframe) iframe.src = url;
+  
+  updateAddressBar(url);
+  updateNavButtons();
+}
 
-        // Обводка
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(-player.width/2, -player.height/2, player.width, player.height);
+function refresh() {
+  const tab = state.tabs.find(t => t.id === state.activeTabId);
+  if (!tab) return;
+  
+  const iframe = document.getElementById('iframe_' + state.activeTabId);
+  if (iframe) {
+    iframe.src = tab.url;
+    updateTabLoading(state.activeTabId, true);
+  }
+}
 
-        // Уголки свечения
-        ctx.fillStyle = 'rgba(0,212,255,0.5)';
-        ctx.fillRect(-player.width/2 - 2, -player.height/2 - 2, 6, 6);
-        ctx.fillRect(player.width/2 - 4, -player.height/2 - 2, 6, 6);
-        ctx.fillRect(-player.width/2 - 2, player.height/2 - 4, 6, 6);
-        ctx.fillRect(player.width/2 - 4, player.height/2 - 4, 6, 6);
+function updateAddressBar(url) {
+  const bar = document.getElementById('addressBar');
+  bar.value = url === 'about:blank' ? '' : url;
+  
+  const secureIcon = document.getElementById('secureIcon');
+  if (url.startsWith('https://')) {
+    secureIcon.textContent = '🔒';
+    secureIcon.style.color = '#22c55e';
+  } else if (url.startsWith('http://')) {
+    secureIcon.textContent = '⚠️';
+    secureIcon.style.color = '#f59e0b';
+  } else {
+    secureIcon.textContent = '🔒';
+    secureIcon.style.color = 'var(--text-secondary)';
+  }
+}
 
-        ctx.restore();
+function updateNavButtons() {
+  const tab = state.tabs.find(t => t.id === state.activeTabId);
+  document.getElementById('btnBack').disabled = !tab || tab.historyIndex <= 0;
+  document.getElementById('btnForward').disabled = !tab || tab.historyIndex >= tab.history.length - 1;
+}
 
-        // Свет вокруг игрока
-        const glowGrad = ctx.createRadialGradient(
-            player.x + player.width/2, player.y + player.height/2, 0,
-            player.x + player.width/2, player.y + player.height/2, 50
+// ============================================
+// ИСТОРИЯ
+// ============================================
+function addToHistory(url, title) {
+  if (url === 'about:blank') return;
+  
+  const entry = {
+    url: url,
+    title: title || url,
+    time: Date.now()
+  };
+  
+  if (state.history.length > 0 && state.history[0].url === url) {
+    state.history[0] = entry;
+  } else {
+    state.history.unshift(entry);
+  }
+  
+  if (state.history.length > CONFIG.maxHistory) {
+    state.history = state.history.slice(0, CONFIG.maxHistory);
+  }
+  
+  saveState();
+  
+  if (state.sidebarOpen && state.sidebarMode === 'history') {
+    renderHistory();
+  }
+}
+
+function clearHistory() {
+  state.history = [];
+  saveState();
+  renderHistory();
+}
+
+function renderHistory() {
+  const container = document.getElementById('sidebarContent');
+  if (state.history.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">История пуста</p>';
+    return;
+  }
+  
+  let html = '';
+  state.history.forEach(entry => {
+    html += `
+      <div class="history-item" data-url="${escapeHtml(entry.url)}">
+        <span class="history-url">${escapeHtml(entry.title || entry.url)}</span>
+        <span class="history-time">${formatTime(entry.time)}</span>
+      </div>
+    `;
+  });
+  
+  html += '<button class="history-clear-btn" id="clearHistoryBtn">🗑️ Очистить историю</button>';
+  container.innerHTML = html;
+  
+  container.querySelectorAll('.history-item').forEach(el => {
+    el.addEventListener('click', () => {
+      navigateTo(el.dataset.url);
+      closeSidebar();
+    });
+  });
+  
+  document.getElementById('clearHistoryBtn')?.addEventListener('click', clearHistory);
+}
+
+// ============================================
+// ЗАКЛАДКИ
+// ============================================
+function addBookmark(url, title) {
+  if (!url || url === 'about:blank') return;
+  
+  if (state.bookmarks.some(b => b.url === url)) {
+    removeBookmark(url);
+    return;
+  }
+  
+  state.bookmarks.push({
+    url: url,
+    title: title || url,
+    added: Date.now()
+  });
+  
+  saveState();
+  updateBookmarkButton();
+  
+  if (state.sidebarOpen && state.sidebarMode === 'bookmarks') {
+    renderBookmarks();
+  }
+}
+
+function removeBookmark(url) {
+  state.bookmarks = state.bookmarks.filter(b => b.url !== url);
+  saveState();
+  updateBookmarkButton();
+  
+  if (state.sidebarOpen && state.sidebarMode === 'bookmarks') {
+    renderBookmarks();
+  }
+}
+
+function updateBookmarkButton() {
+  const tab = state.tabs.find(t => t.id === state.activeTabId);
+  const isBookmarked = tab && state.bookmarks.some(b => b.url === tab.url);
+  const btn = document.getElementById('btnBookmarks');
+  btn.textContent = isBookmarked ? '★' : '☆';
+  btn.style.color = isBookmarked ? 'var(--accent)' : '';
+}
+
+function renderBookmarks() {
+  const container = document.getElementById('sidebarContent');
+  if (state.bookmarks.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">Закладок нет</p>';
+    return;
+  }
+  
+  let html = '';
+  state.bookmarks.forEach(bm => {
+    html += `
+      <div class="bookmark-item" data-url="${escapeHtml(bm.url)}">
+        <span class="bookmark-favicon">🌐</span>
+        <span class="bookmark-title">${escapeHtml(bm.title || bm.url)}</span>
+        <button class="bookmark-delete" data-url="${escapeHtml(bm.url)}">✕</button>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+  
+  container.querySelectorAll('.bookmark-item').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.classList.contains('bookmark-delete')) return;
+      navigateTo(el.dataset.url);
+      closeSidebar();
+    });
+  });
+  
+  container.querySelectorAll('.bookmark-delete').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeBookmark(el.dataset.url);
+    });
+  });
+}
+
+// ============================================
+// БОКОВАЯ ПАНЕЛЬ
+// ============================================
+function openSidebar(mode) {
+  state.sidebarOpen = true;
+  state.sidebarMode = mode;
+  
+  const sidebar = document.getElementById('sidebar');
+  const title = document.getElementById('sidebarTitle');
+  sidebar.classList.add('open');
+  
+  if (mode === 'bookmarks') {
+    title.textContent = '⭐ Закладки';
+    renderBookmarks();
+  } else if (mode === 'history') {
+    title.textContent = '🕐 История';
+    renderHistory();
+  } else if (mode === 'extensions') {
+    title.textContent = '🧩 Расширения';
+    renderExtensions();
+  }
+}
+
+function closeSidebar() {
+  state.sidebarOpen = false;
+  state.sidebarMode = null;
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar(mode) {
+  if (state.sidebarOpen && state.sidebarMode === mode) {
+    closeSidebar();
+  } else {
+    openSidebar(mode);
+  }
+}
+
+// ============================================
+// РАСШИРЕНИЯ — API
+// ============================================
+const BrowserAPI = {
+  _listeners: {
+    beforeLoad: [],
+    load: [],
+    tabActivated: [],
+    message: []
+  },
+  
+  onBeforeLoad(callback) {
+    this._listeners.beforeLoad.push(callback);
+    return () => {
+      this._listeners.beforeLoad = this._listeners.beforeLoad.filter(cb => cb !== callback);
+    };
+  },
+  
+  onLoad(callback) {
+    this._listeners.load.push(callback);
+    return () => {
+      this._listeners.load = this._listeners.load.filter(cb => cb !== callback);
+    };
+  },
+  
+  injectCSS(css, tabId = null) {
+    const targetId = tabId || state.activeTabId;
+    const iframe = document.getElementById('iframe_' + targetId);
+    if (!iframe) return false;
+    
+    try {
+      const doc = iframe.contentDocument;
+      const style = doc.createElement('style');
+      style.textContent = css;
+      doc.head.appendChild(style);
+      return true;
+    } catch (e) {
+      console.error('injectCSS ошибка:', e);
+      return false;
+    }
+  },
+  
+  injectJS(script, tabId = null) {
+    const targetId = tabId || state.activeTabId;
+    const iframe = document.getElementById('iframe_' + targetId);
+    if (!iframe) return false;
+    
+    try {
+      const doc = iframe.contentDocument;
+      const scr = doc.createElement('script');
+      scr.textContent = script;
+      doc.body.appendChild(scr);
+      return true;
+    } catch (e) {
+      console.error('injectJS ошибка:', e);
+      return false;
+    }
+  },
+  
+  getCurrentURL() {
+    const tab = state.tabs.find(t => t.id === state.activeTabId);
+    return tab ? tab.url : null;
+  },
+  
+  getTabInfo(tabId = null) {
+    const id = tabId || state.activeTabId;
+    const tab = state.tabs.find(t => t.id === id);
+    if (!tab) return null;
+    return {
+      id: tab.id,
+      url: tab.url,
+      title: tab.title,
+      loading: tab.loading
+    };
+  },
+  
+  createPanel(html, title = 'Панель расширения') {
+    const panelId = 'ext_panel_' + Date.now();
+    const panel = document.createElement('div');
+    panel.className = 'ext-panel';
+    panel.id = panelId;
+    panel.innerHTML = `
+      <div class="ext-panel-header">
+        <span>${escapeHtml(title)}</span>
+        <button class="ext-panel-close" onclick="document.getElementById('${panelId}').classList.remove('visible')">✕</button>
+      </div>
+      <div class="ext-panel-body">${html}</div>
+    `;
+    document.getElementById('extPanelsContainer').appendChild(panel);
+    
+    return {
+      show: () => panel.classList.add('visible'),
+      hide: () => panel.classList.remove('visible'),
+      destroy: () => panel.remove(),
+      id: panelId
+    };
+  },
+  
+  sendMessage(type, data) {
+    this._emit('message', { type, data, from: 'extension' });
+  },
+  
+  storage: {
+    local: {
+      get(key) {
+        try {
+          const all = JSON.parse(localStorage.getItem('ext_storage') || '{}');
+          return key ? all[key] : all;
+        } catch (e) {
+          return key ? undefined : {};
+        }
+      },
+      set(key, value) {
+        try {
+          const all = JSON.parse(localStorage.getItem('ext_storage') || '{}');
+          all[key] = value;
+          localStorage.setItem('ext_storage', JSON.stringify(all));
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }
+  },
+  
+  _emit(event, data, modifier = null) {
+    const listeners = this._listeners[event] || [];
+    let result = data;
+    listeners.forEach(cb => {
+      try {
+        const r = cb(data);
+        if (modifier && r) result = modifier(r) || result;
+      } catch (e) {
+        console.error('Ошибка в обработчике расширения:', e);
+      }
+    });
+    return result;
+  }
+};
+
+window.BrowserAPI = BrowserAPI;
+
+// ============================================
+// МЕНЕДЖЕР РАСШИРЕНИЙ
+// ============================================
+function installExtension(config) {
+  try {
+    const ext = typeof config === 'string' ? JSON.parse(config) : config;
+    
+    if (!ext.id || !ext.name) {
+      throw new Error('Расширение должно иметь id и name');
+    }
+    
+    if (state.extensions.some(e => e.id === ext.id)) {
+      throw new Error('Расширение с таким ID уже установлено');
+    }
+    
+    const extension = {
+      id: ext.id,
+      name: ext.name,
+      version: ext.version || '1.0.0',
+      description: ext.description || '',
+      permissions: ext.permissions || [],
+      enabled: true,
+      code: ext.code || '',
+      icon: ext.icon || '🧩',
+      installed: Date.now()
+    };
+    
+    state.extensions.push(extension);
+    saveState();
+    
+    if (extension.enabled && extension.code) {
+      executeExtension(extension);
+    }
+    
+    updateExtToolbar();
+    return extension;
+  } catch (e) {
+    alert('Ошибка установки расширения: ' + e.message);
+    return null;
+  }
+}
+
+function executeExtension(ext) {
+  try {
+    const fn = new Function('BrowserAPI', ext.code);
+    fn(BrowserAPI);
+  } catch (e) {
+    console.error('Ошибка выполнения расширения ' + ext.id + ':', e);
+  }
+}
+
+function toggleExtension(extId) {
+  const ext = state.extensions.find(e => e.id === extId);
+  if (!ext) return;
+  
+  ext.enabled = !ext.enabled;
+  saveState();
+  
+  if (ext.enabled && ext.code) {
+    executeExtension(ext);
+  }
+  
+  renderExtensions();
+  updateExtToolbar();
+}
+
+function removeExtension(extId) {
+  state.extensions = state.extensions.filter(e => e.id !== extId);
+  saveState();
+  renderExtensions();
+  updateExtToolbar();
+}
+
+function updateExtToolbar() {
+  const toolbar = document.getElementById('extToolbar');
+  toolbar.innerHTML = '';
+  
+  state.extensions.filter(e => e.enabled).forEach(ext => {
+    const btn = document.createElement('button');
+    btn.className = 'ext-toolbar-btn';
+    btn.textContent = ext.icon;
+    btn.title = ext.name;
+    btn.addEventListener('click', () => {
+      BrowserAPI._emit('message', { type: 'toolbarClick', extId: ext.id });
+    });
+    toolbar.appendChild(btn);
+  });
+}
+
+function renderExtensions() {
+  const container = document.getElementById('sidebarContent');
+  
+  let html = `
+    <div class="ext-install-area">
+      <p style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">Установить расширение (JSON):</p>
+      <textarea id="extInstallInput" placeholder='{"id":"my-ext","name":"Моё расширение","version":"1.0","description":"Описание","permissions":["tabs"],"icon":"🌙","code":"BrowserAPI.onLoad(() => console.log(\\'Загружено!\\'));"}'></textarea>
+      <button class="ext-btn primary" id="extInstallBtn" style="margin-top:6px;width:100%;">⬇️ Установить</button>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:12px 0;">
+  `;
+  
+  if (state.extensions.length === 0) {
+    html += '<p style="text-align:center;color:var(--text-secondary);padding:10px;">Нет установленных расширений</p>';
+  } else {
+    state.extensions.forEach(ext => {
+      html += `
+        <div class="extension-item">
+          <div class="ext-header">
+            <span class="ext-name">${ext.icon} ${escapeHtml(ext.name)} <span class="ext-version">v${escapeHtml(ext.version)}</span></span>
+            <div class="toggle-switch ${ext.enabled ? 'on' : ''}" data-ext-id="${escapeHtml(ext.id)}"></div>
+          </div>
+          <div class="ext-desc">${escapeHtml(ext.description)}</div>
+          <div class="ext-actions">
+            <button class="ext-btn danger ext-remove" data-ext-id="${escapeHtml(ext.id)}">🗑️ Удалить</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+  
+  container.innerHTML = html;
+  
+  document.getElementById('extInstallBtn')?.addEventListener('click', () => {
+    const input = document.getElementById('extInstallInput');
+    if (input.value.trim()) {
+      installExtension(input.value);
+      input.value = '';
+      renderExtensions();
+    }
+  });
+  
+  container.querySelectorAll('.toggle-switch').forEach(el => {
+    el.addEventListener('click', () => toggleExtension(el.dataset.extId));
+  });
+  
+  container.querySelectorAll('.ext-remove').forEach(el => {
+    el.addEventListener('click', () => removeExtension(el.dataset.extId));
+  });
+}
+
+// ============================================
+// БАЗОВЫЕ РАСШИРЕНИЯ (встроенные)
+// ============================================
+function initBuiltinExtensions() {
+  const darkModeExt = {
+    id: 'builtin-darkmode',
+    name: 'Тёмная тема',
+    version: '1.0.0',
+    description: 'Принудительно применяет тёмную тему ко всем сайтам',
+    permissions: ['tabs', 'inject'],
+    icon: '🌙',
+    enabled: false,
+    code: `
+      BrowserAPI.onLoad(function(data) {
+        BrowserAPI.injectCSS(
+          'html, body { background-color: #1a1a1a !important; color: #e8e8e8 !important; }' +
+          'a { color: #60a5fa !important; }' +
+          'div, section, article, aside, nav, header, footer, main { background-color: transparent !important; }'
         );
-        glowGrad.addColorStop(0, 'rgba(0,212,255,0.15)');
-        glowGrad.addColorStop(1, 'transparent');
-        ctx.fillStyle = glowGrad;
-        ctx.beginPath();
-        ctx.arc(player.x + player.width/2, player.y + player.height/2, 50, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    // Частицы
-    particles.forEach(p => {
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.life;
-        ctx.fillRect(p.x - cameraX - p.size/2, p.y - p.size/2, p.size, p.size);
-    });
-    ctx.globalAlpha = 1;
-
-    // Виньетка
-    const vigGrad = ctx.createRadialGradient(canvas.width/2, canvas.height/2, canvas.width * 0.3, canvas.width/2, canvas.height/2, canvas.width * 0.7);
-    vigGrad.addColorStop(0, 'transparent');
-    vigGrad.addColorStop(1, 'rgba(0,0,0,0.4)');
-    ctx.fillStyle = vigGrad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-// ==================== УПРАВЛЕНИЕ ====================
-function jump() {
-    if (gameState === 'menu') {
-        showScreen('levelSelect');
-    } else if (gameState === 'levelSelect') {
-        // Ничего
-    } else if (gameState === 'playing') {
-        if (player.grounded) {
-            player.vy = player.jumpForce;
-            player.grounded = false;
-            spawnParticles(player.x + cameraX, player.y + player.height, '#00d4ff', 6);
-            if (settings.sfx) playSound('jump');
+      });
+    `
+  };
+  
+  const adBlockerExt = {
+    id: 'builtin-adblock',
+    name: 'Блокировщик рекламы',
+    version: '1.0.0',
+    description: 'Блокирует популярные рекламные домены',
+    permissions: ['tabs', 'beforeLoad'],
+    icon: '🛡️',
+    enabled: false,
+    code: `
+      var blockedDomains = ['doubleclick.net', 'googleadservices.com', 'googlesyndication.com', 'facebook.com/tr', 'adsystem.amazon.com'];
+      BrowserAPI.onBeforeLoad(function(data) {
+        var url = data.url;
+        for (var i = 0; i < blockedDomains.length; i++) {
+          if (url.indexOf(blockedDomains[i]) !== -1) {
+            console.log('[AdBlocker] Заблокировано:', url);
+            return { url: 'about:blank' };
+          }
         }
-    } else if (gameState === 'paused') {
-        resumeGame();
-    } else if (gameState === 'gameover') {
-        restartLevel();
-    }
+      });
+    `
+  };
+  
+  const hasDarkMode = state.extensions.some(e => e.id === darkModeExt.id);
+  const hasAdBlock = state.extensions.some(e => e.id === adBlockerExt.id);
+  
+  if (!hasDarkMode) state.extensions.push(darkModeExt);
+  if (!hasAdBlock) state.extensions.push(adBlockerExt);
+  
+  saveState();
 }
 
-function startLevel(levelIdx) {
-    if (!progress.unlocked[levelIdx]) return;
-    currentLevel = levelIdx;
-    const lvl = LEVELS[levelIdx];
-    speed = lvl.speed;
-    player.gravity = lvl.gravity;
-    player.jumpForce = lvl.jumpForce;
-    player.color = lvl.color;
+// ============================================
+// КОНТЕКСТНОЕ МЕНЮ
+// ============================================
+const contextMenu = document.getElementById('contextMenu');
 
-    resetPlayer(lvl.floorY);
-    generateLevel(levelIdx);
-    cameraX = 0;
-    attempts = 1;
-    particles = [];
-    player.trail = [];
-    frameCount = 0;
-
-    document.getElementById('levelNameUI').textContent = lvl.name;
-    document.getElementById('attemptUI').textContent = attempts;
-    document.getElementById('percentUI').textContent = '0';
-    document.getElementById('progressFill').style.width = '0%';
-
-    gameState = 'playing';
-    hideAllScreens();
-    document.getElementById('gameUI').classList.remove('hidden');
-    document.getElementById('progressBar').classList.remove('hidden');
+function showContextMenu(x, y) {
+  contextMenu.style.left = x + 'px';
+  contextMenu.style.top = y + 'px';
+  contextMenu.classList.add('visible');
 }
 
-function restartLevel() {
-    const lvl = LEVELS[currentLevel];
-    resetPlayer(lvl.floorY);
-    generateLevel(currentLevel);
-    cameraX = 0;
-    attempts++;
-    particles = [];
-    player.trail = [];
-    frameCount = 0;
-
-    document.getElementById('attemptUI').textContent = attempts;
-    document.getElementById('percentUI').textContent = '0';
-    document.getElementById('progressFill').style.width = '0%';
-
-    gameState = 'playing';
-    hideAllScreens();
-    document.getElementById('gameUI').classList.remove('hidden');
-    document.getElementById('progressBar').classList.remove('hidden');
+function hideContextMenu() {
+  contextMenu.classList.remove('visible');
 }
 
-function pauseGame() {
-    if (gameState !== 'playing') return;
-    gameState = 'paused';
-    document.getElementById('pauseScreen').classList.remove('hidden');
-}
-
-function resumeGame() {
-    if (gameState !== 'paused') return;
-    gameState = 'playing';
-    document.getElementById('pauseScreen').classList.add('hidden');
-}
-
-function resetPlayer(floorY) {
-    player.x = 120;
-    player.y = floorY - player.height;
-    player.vy = 0;
-    player.rotation = 0;
-    player.grounded = true;
-    player.alive = true;
-    player.trail = [];
-}
-
-// ==================== UI НАВИГАЦИЯ ====================
-function hideAllScreens() {
-    document.getElementById('menuScreen').classList.add('hidden');
-    document.getElementById('levelSelectScreen').classList.add('hidden');
-    document.getElementById('gameOverScreen').classList.add('hidden');
-    document.getElementById('pauseScreen').classList.add('hidden');
-    document.getElementById('settingsScreen').classList.add('hidden');
-    document.getElementById('howToPlayScreen').classList.add('hidden');
-    document.getElementById('gameUI').classList.add('hidden');
-    document.getElementById('progressBar').classList.add('hidden');
-}
-
-function showScreen(screen) {
-    hideAllScreens();
-    if (screen === 'menu') {
-        document.getElementById('menuScreen').classList.remove('hidden');
-        gameState = 'menu';
-    } else if (screen === 'levelSelect') {
-        renderLevelSelect();
-        document.getElementById('levelSelectScreen').classList.remove('hidden');
-        gameState = 'levelSelect';
-    } else if (screen === 'settings') {
-        document.getElementById('settingsScreen').classList.remove('hidden');
-    } else if (screen === 'howToPlay') {
-        document.getElementById('howToPlayScreen').classList.remove('hidden');
-    }
-}
-
-function renderLevelSelect() {
-    const grid = document.getElementById('levelGrid');
-    grid.innerHTML = '';
-    LEVELS.forEach((lvl, i) => {
-        const card = document.createElement('div');
-        card.className = `level-card ${lvl.difficulty} ${progress.unlocked[i] ? '' : 'locked'}`;
-        card.innerHTML = `
-            <div class="level-num">${i + 1}</div>
-            <div class="level-name">${lvl.name}</div>
-            <div class="stars">${lvl.stars}</div>
-            <div class="best">Лучший: ${progress.best[i]}%</div>
-        `;
-        if (progress.unlocked[i]) {
-            card.addEventListener('click', () => startLevel(i));
-        }
-        grid.appendChild(card);
-    });
-}
-
-// ==================== СОБЫТИЯ ====================
-// Клавиатура
-window.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
-        e.preventDefault();
-        jump();
-    }
-    if (e.code === 'Escape' && gameState === 'playing') {
-        pauseGame();
-    }
+document.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  showContextMenu(e.clientX, e.clientY);
 });
 
-// Мышь / тач по всему экрану (jump zone)
-const jumpZone = document.getElementById('jumpZone');
+document.addEventListener('click', (e) => {
+  if (!contextMenu.contains(e.target)) {
+    hideContextMenu();
+  }
+});
 
-function handleJumpInput(e) {
-    if (e.target.closest('#pauseBtn')) return;
-    if (e.target.closest('.menu-btn') || e.target.closest('.back-btn') || e.target.closest('.level-card') || e.target.closest('.toggle')) return;
+document.getElementById('ctxNewTab').addEventListener('click', () => {
+  createTab();
+  hideContextMenu();
+});
+
+document.getElementById('ctxReload').addEventListener('click', () => {
+  refresh();
+  hideContextMenu();
+});
+
+document.getElementById('ctxBookmark').addEventListener('click', () => {
+  const tab = state.tabs.find(t => t.id === state.activeTabId);
+  if (tab) addBookmark(tab.url, tab.title);
+  hideContextMenu();
+});
+
+document.getElementById('ctxCopyUrl').addEventListener('click', () => {
+  const tab = state.tabs.find(t => t.id === state.activeTabId);
+  if (tab && navigator.clipboard) {
+    navigator.clipboard.writeText(tab.url);
+  }
+  hideContextMenu();
+});
+
+document.getElementById('ctxBack').addEventListener('click', () => {
+  goBack();
+  hideContextMenu();
+});
+
+document.getElementById('ctxForward').addEventListener('click', () => {
+  goForward();
+  hideContextMenu();
+});
+
+// ============================================
+// ОБРАБОТЧИКИ КНОПОК
+// ============================================
+document.getElementById('btnBack').addEventListener('click', goBack);
+document.getElementById('btnForward').addEventListener('click', goForward);
+document.getElementById('btnRefresh').addEventListener('click', refresh);
+document.getElementById('btnHome').addEventListener('click', () => {
+  if (state.tabs.length === 0) {
+    showStartPage();
+  } else {
+    navigateTo(CONFIG.homePage);
+  }
+});
+
+document.getElementById('newTabBtn').addEventListener('click', () => createTab());
+
+document.getElementById('addressBar').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const url = normalizeUrl(e.target.value);
+    if (state.tabs.length === 0) {
+      createTab(url);
+    } else {
+      navigateTo(url);
+    }
+  }
+});
+
+document.getElementById('btnBookmarks').addEventListener('click', () => {
+  const tab = state.tabs.find(t => t.id === state.activeTabId);
+  if (tab && tab.url !== 'about:blank') {
+    addBookmark(tab.url, tab.title);
+  }
+  toggleSidebar('bookmarks');
+});
+
+document.getElementById('btnHistory').addEventListener('click', () => toggleSidebar('history'));
+document.getElementById('btnExtensions').addEventListener('click', () => toggleSidebar('extensions'));
+document.getElementById('btnTheme').addEventListener('click', toggleTheme);
+document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+
+// ============================================
+// ГОРЯЧИЕ КЛАВИШИ
+// ============================================
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === 't') {
+      e.preventDefault();
+      createTab();
+    } else if (e.key === 'w') {
+      e.preventDefault();
+      if (state.activeTabId) closeTab(state.activeTabId);
+    } else if (e.key === 'l') {
+      e.preventDefault();
+      document.getElementById('addressBar').focus();
+      document.getElementById('addressBar').select();
+    }
+  }
+  
+  if (e.key === 'F5') {
     e.preventDefault();
-    jump();
-}
-
-jumpZone.addEventListener('mousedown', handleJumpInput);
-jumpZone.addEventListener('touchstart', (e) => {
-    handleJumpInput(e);
-}, { passive: false });
-
-// Кнопки меню
-document.getElementById('btnPlay').addEventListener('click', () => showScreen('levelSelect'));
-document.getElementById('btnHowTo').addEventListener('click', () => showScreen('howToPlay'));
-document.getElementById('btnSettings').addEventListener('click', () => showScreen('settings'));
-document.getElementById('btnBackFromLevels').addEventListener('click', () => showScreen('menu'));
-document.getElementById('btnBackFromSettings').addEventListener('click', () => showScreen('menu'));
-document.getElementById('btnBackFromHowTo').addEventListener('click', () => showScreen('menu'));
-
-document.getElementById('btnRetry').addEventListener('click', restartLevel);
-document.getElementById('btnMenuFromGO').addEventListener('click', () => showScreen('levelSelect'));
-document.getElementById('btnResume').addEventListener('click', resumeGame);
-document.getElementById('btnRestart').addEventListener('click', restartLevel);
-document.getElementById('btnMenuFromPause').addEventListener('click', () => showScreen('levelSelect'));
-document.getElementById('pauseBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    pauseGame();
+    refresh();
+  }
 });
 
-// Тогглы настроек
-document.querySelectorAll('.toggle').forEach(toggle => {
-    toggle.addEventListener('click', () => {
-        toggle.classList.toggle('on');
-        const key = toggle.dataset.key;
-        settings[key] = toggle.classList.contains('on');
-    });
-});
-
-// ==================== ГЛАВНЫЙ ЦИКЛ ====================
-function gameLoop(timestamp) {
-    const dt = timestamp - lastTime;
-    lastTime = timestamp;
-
-    update(dt);
-    draw();
-    requestAnimationFrame(gameLoop);
+// ============================================
+// ИНИЦИАЛИЗАЦИЯ
+// ============================================
+function init() {
+  loadState();
+  applyTheme();
+  initBuiltinExtensions();
+  updateExtToolbar();
+  showStartPage();
 }
 
-// Инициализация
-resetPlayer(420);
-generateLevel(0);
-requestAnimationFrame(gameLoop);
-
-// Частицы меню
-function spawnMenuParticles() {
-    const menu = document.getElementById('menuScreen');
-    for (let i = 0; i < 15; i++) {
-        const p = document.createElement('div');
-        p.className = 'menu-particle';
-        p.style.left = Math.random() * 100 + '%';
-        p.style.animationDelay = Math.random() * 6 + 's';
-        p.style.animationDuration = (4 + Math.random() * 4) + 's';
-        const colors = ['rgba(233,69,96,0.6)', 'rgba(0,212,255,0.6)', 'rgba(138,43,226,0.6)'];
-        p.style.background = colors[Math.floor(Math.random() * colors.length)];
-        menu.appendChild(p);
-    }
-}
-spawnMenuParticles();
+init();
 </script>
 </body>
 </html>
