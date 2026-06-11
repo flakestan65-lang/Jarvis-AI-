@@ -346,7 +346,7 @@
     <div class="menu-screen active" id="menu-screen">
         <div class="menu-title">САПЁР</div>
         <div class="menu-mine">💣</div>
-        <button class="menu-btn" onclick="startGame()">▶ НОВАЯ ИГРА</button>
+        <button class="menu-btn" id="menu-start-btn">▶ НОВАЯ ИГРА</button>
         <div class="menu-best">
             <div class="menu-best-title">🏆 ЛУЧШИЙ РЕЗУЛЬТАТ</div>
             <div class="menu-best-time" id="menu-best-time">
@@ -369,8 +369,8 @@
             <div class="result-overlay" id="result-overlay">
                 <div class="result-title" id="result-title"></div>
                 <div class="result-records" id="result-records"></div>
-                <button class="result-btn primary" onclick="startGame()">🔄 НАЧАТЬ СНОВА</button>
-                <button class="result-btn" onclick="goToMenu()">🏠 МЕНЮ</button>
+                <button class="result-btn primary" id="btn-restart">🔄 НАЧАТЬ СНОВА</button>
+                <button class="result-btn" id="btn-menu">🏠 МЕНЮ</button>
             </div>
         </div>
     </div>
@@ -404,10 +404,29 @@
         const resultRecords = document.getElementById('result-records');
         const menuBestTime = document.getElementById('menu-best-time');
         
+        // ===== ХРАНИЛИЩЕ =====
+        function saveBestTime(time) {
+            try {
+                localStorage.setItem(STORAGE_KEY, String(time));
+            } catch (e) {
+                console.log('localStorage error:', e);
+            }
+        }
+        
+        function loadBestTime() {
+            try {
+                const val = localStorage.getItem(STORAGE_KEY);
+                return val ? parseInt(val, 10) : null;
+            } catch (e) {
+                console.log('localStorage error:', e);
+                return null;
+            }
+        }
+        
         // ===== МЕНЮ =====
         function updateMenuBest() {
-            const best = localStorage.getItem(STORAGE_KEY);
-            if (best) {
+            const best = loadBestTime();
+            if (best !== null && !isNaN(best)) {
                 menuBestTime.innerHTML = String(best).padStart(3, '0') + ' <span style="font-size:14px;color:#808080;">сек</span>';
             } else {
                 menuBestTime.innerHTML = '<span class="menu-best-none">—</span>';
@@ -655,7 +674,7 @@
         function showResult() {
             resultOverlay.classList.add('active');
             
-            const best = localStorage.getItem(STORAGE_KEY);
+            const best = loadBestTime();
             let recordsHTML = '';
             
             if (isWin) {
@@ -663,10 +682,10 @@
                 resultTitle.className = 'result-title win';
                 
                 const current = seconds;
-                if (!best || current < parseInt(best)) {
-                    localStorage.setItem(STORAGE_KEY, current);
+                if (best === null || current < best) {
+                    saveBestTime(current);
                     recordsHTML += '<div class="record-new">🏆 НОВЫЙ РЕКОРД! ' + String(current).padStart(3, '0') + ' сек</div>';
-                    if (best) {
+                    if (best !== null) {
                         recordsHTML += '<div class="record-old">Прошлый рекорд: ' + String(best).padStart(3, '0') + ' сек</div>';
                     }
                 } else {
@@ -677,7 +696,7 @@
                 resultTitle.textContent = '💥 ВЫ ПРОИГРАЛИ!';
                 resultTitle.className = 'result-title lose';
                 
-                if (best) {
+                if (best !== null) {
                     recordsHTML += '<div class="record-old">Рекорд: ' + String(best).padStart(3, '0') + ' сек</div>';
                 } else {
                     recordsHTML += '<div class="record-old">Рекорд ещё не установлен</div>';
@@ -757,6 +776,11 @@
         function updateMineCounter() {
             mineCounter.textContent = String(Math.max(0, minesLeft)).padStart(3, '0');
         }
+        
+        // ===== ОБРАБОТЧИКИ КНОПОК =====
+        document.getElementById('menu-start-btn').addEventListener('click', startGame);
+        document.getElementById('btn-restart').addEventListener('click', startGame);
+        document.getElementById('btn-menu').addEventListener('click', goToMenu);
         
         // ===== ИНИЦИАЛИЗАЦИЯ =====
         updateMenuBest();
