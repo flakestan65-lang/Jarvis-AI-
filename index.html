@@ -168,11 +168,7 @@
             -webkit-tap-highlight-color: transparent;
         }
         
-        .face-btn:active {
-            border-color: #808080 #fff #fff #808080;
-        }
-        
-        .face-btn.pressed {
+        .face-btn:active, .face-btn.pressed {
             border-color: #808080 #fff #fff #808080;
             background: #b0b0b0;
         }
@@ -220,10 +216,11 @@
         }
         
         .cell.mine {
-            background: #ff0000;
+            background: #c0c0c0;
             color: #000;
         }
         
+        /* FIX: ячейка, на которую кликнули и взорвались — красный фон */
         .cell.mine-hit {
             background: #ff0000;
             color: #000;
@@ -255,12 +252,13 @@
         }
         
         .cell.wrong-flag {
-            background: #ff0000;
+            background: #c0c0c0;
         }
         
-        .cell.wrong-flag .flag-icon {
-            color: #000;
-            text-decoration: line-through;
+        .cell.wrong-flag::after {
+            content: '❌';
+            position: absolute;
+            font-size: 14px;
         }
         
         /* ===== ЭКРАН РЕЗУЛЬТАТА ===== */
@@ -359,7 +357,8 @@
         <div class="game-container">
             <div class="game-header">
                 <div class="counter" id="mine-counter">040</div>
-                <button class="face-btn" id="face-btn">🙂</button>
+                <!-- FIX: добавлен обработчик клика на face-btn для рестарта -->
+                <button class="face-btn" id="face-btn" title="Новая игра">🙂</button>
                 <div class="timer" id="timer">000</div>
             </div>
             <div class="grid-container" id="grid"></div>
@@ -390,6 +389,8 @@
         let longPressTimer = null;
         let isLongPress = false;
         let isWin = false;
+        // FIX: отслеживаем, зажата ли левая кнопка мыши
+        let mouseIsDown = false;
         
         const menuScreen = document.getElementById('menu-screen');
         const gameScreen = document.getElementById('game-screen');
@@ -432,6 +433,9 @@
         }
         
         function goToMenu() {
+            // FIX: останавливаем таймер при переходе в меню
+            clearInterval(timerInterval);
+            timerInterval = null;
             gameScreen.classList.remove('active');
             menuScreen.classList.add('active');
             updateMenuBest();
@@ -453,6 +457,7 @@
             seconds = 0;
             minesLeft = MINES;
             isWin = false;
+            mouseIsDown = false;
             
             clearInterval(timerInterval);
             timerInterval = null;
@@ -481,7 +486,14 @@
                     
                     cell.addEventListener('mousedown', handleMouseDown);
                     cell.addEventListener('mouseup', handleMouseUp);
-                    cell.addEventListener('contextmenu', (e) => e.preventDefault());
+                    // FIX: предотвращаем контекстное меню на ячейках
+                    cell.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        if (!gameOver) {
+                            const t = e.target.closest('.cell');
+                            if (t) toggleFlag(parseInt(t.dataset.row), parseInt(t.dataset.col));
+                        }
+                    });
                     
                     cell.addEventListener('touchstart', handleTouchStart, { passive: false });
                     cell.addEventListener('touchend', handleTouchEnd, { passive: false });
@@ -540,9 +552,10 @@
             const cell = getCell(r, c);
             cell.classList.add('revealed');
             
+            // FIX: эта ветка теперь не нужна внутри revealCell —
+            // мина обрабатывается в handleClick до вызова revealCell.
+            // Но на случай рекурсивного вызова оставляем защиту:
             if (board[r][c] === -1) {
-                cell.classList.add('mine-hit');
-                cell.innerHTML = '<span class="mine-icon">💣</span>';
                 return;
             }
             
@@ -579,40 +592,92 @@
             
             updateMineCounter();
         }
+
+        // FIX: chord click — открыть соседей, если флагов вокруг достаточно
+        function chordClick(r, c) {
+            if (!revealed[r][c] || board[r][c] <= 0) return;
+            let flagCount = 0;
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    const nr = r + dr, nc = c + dc;
+                    if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && flagged[nr][nc]) {
+                        flagCount++;
+                    }
+                }
+            }
+            if (flagCount !== board[r][c]) return;
+
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    const nr = r + dr, nc = c + dc;
+                    if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && !flagged[nr][nc] && !revealed[nr][nc]) {
+                        if (board[nr][nc] === -1) {
+                            gameLost(nr, nc);
+                            return;
+                        }
+                        revealCell(nr, nc);
+                    }
+                }
+            }
+            checkWin();
+        }
+        
+        // FIX: глобальный mousedown/mouseup для корректного сброса pressed-состояния face-кнопки
+        document.addEventListener('mousedown', (e) => {
+            if (e.button === 0 && e.target.closest('.cell') && !gameOver) {
+                mouseIsDown = true;
+                faceBtn.classList.add('pressed');
+            }
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (e.button === 0) {
+                mouseIsDown = false;
+                faceBtn.classList.remove('pressed');
+            }
+        });
         
         function handleMouseDown(e) {
-            if (gameOver) return;
-            if (e.button === 0) {
-                faceBtn.classList.add('pressed');
+            // Обработка правой кнопки — флаг
+            if (e.button === 2) {
+                e.preventDefault();
+                if (gameOver) return;
+                const cellEl = e.target.closest('.cell');
+                if (!cellEl) return;
+                toggleFlag(parseInt(cellEl.dataset.row), parseInt(cellEl.dataset.col));
             }
         }
         
         function handleMouseUp(e) {
-            faceBtn.classList.remove('pressed');
             if (gameOver) return;
+            if (e.button !== 0) return;
             
             const cellEl = e.target.closest('.cell');
             if (!cellEl) return;
             const r = parseInt(cellEl.dataset.row);
             const c = parseInt(cellEl.dataset.col);
             
-            if (e.button === 0) {
-                if (flagged[r][c]) return;
-                
-                if (firstClick) {
-                    firstClick = false;
-                    placeMines(r, c);
-                    startTimer();
-                }
-                
-                if (board[r][c] === -1) {
-                    gameLost();
-                } else {
-                    revealCell(r, c);
-                    checkWin();
-                }
-            } else if (e.button === 2) {
-                toggleFlag(r, c);
+            // FIX: chord click на открытой цифровой ячейке
+            if (revealed[r][c]) {
+                chordClick(r, c);
+                return;
+            }
+
+            if (flagged[r][c]) return;
+            
+            if (firstClick) {
+                firstClick = false;
+                placeMines(r, c);
+                startTimer();
+            }
+            
+            if (board[r][c] === -1) {
+                gameLost(r, c);
+            } else {
+                revealCell(r, c);
+                checkWin();
             }
         }
         
@@ -637,6 +702,7 @@
             e.preventDefault();
             
             clearTimeout(longPressTimer);
+            longPressTimer = null;
             
             if (isLongPress) return;
             if (gameOver) return;
@@ -646,6 +712,12 @@
             
             const r = parseInt(cell.dataset.row);
             const c = parseInt(cell.dataset.col);
+
+            // FIX: chord на тач-устройствах
+            if (revealed[r][c]) {
+                chordClick(r, c);
+                return;
+            }
             
             if (flagged[r][c]) return;
             
@@ -656,7 +728,7 @@
             }
             
             if (board[r][c] === -1) {
-                gameLost();
+                gameLost(r, c);
             } else {
                 revealCell(r, c);
                 checkWin();
@@ -664,7 +736,9 @@
         }
         
         function handleTouchMove(e) {
+            // FIX: сбрасываем longPress при движении пальца
             clearTimeout(longPressTimer);
+            longPressTimer = null;
             isLongPress = false;
         }
         
@@ -704,10 +778,12 @@
             resultRecords.innerHTML = recordsHTML;
         }
         
-        function gameLost() {
+        // FIX: gameLost теперь принимает координаты взорванной ячейки
+        function gameLost(hitR, hitC) {
             gameOver = true;
             isWin = false;
             clearInterval(timerInterval);
+            timerInterval = null;
             faceBtn.textContent = '😵';
             
             for (let r = 0; r < ROWS; r++) {
@@ -715,11 +791,18 @@
                     const cell = getCell(r, c);
                     
                     if (board[r][c] === -1) {
-                        if (!flagged[r][c]) {
+                        if (r === hitR && c === hitC) {
+                            // FIX: ячейка, на которую кликнули — красный фон
+                            revealed[r][c] = true;
+                            cell.classList.add('revealed', 'mine-hit');
+                            cell.innerHTML = '<span class="mine-icon">💣</span>';
+                        } else if (!flagged[r][c]) {
+                            // Остальные мины — показываем без красного фона
                             cell.classList.add('mine');
                             cell.innerHTML = '<span class="mine-icon">💣</span>';
                         }
                     } else if (flagged[r][c]) {
+                        // FIX: неправильно поставленный флаг
                         cell.classList.add('wrong-flag');
                     }
                 }
@@ -740,6 +823,7 @@
                 gameOver = true;
                 isWin = true;
                 clearInterval(timerInterval);
+                timerInterval = null;
                 faceBtn.textContent = '😎';
                 
                 for (let r = 0; r < ROWS; r++) {
@@ -760,6 +844,8 @@
         }
         
         function startTimer() {
+            // FIX: защита от двойного запуска таймера
+            if (timerInterval !== null) return;
             timerInterval = setInterval(() => {
                 seconds++;
                 if (seconds > 999) seconds = 999;
@@ -772,13 +858,37 @@
         }
         
         function updateMineCounter() {
-            mineCounter.textContent = String(Math.max(0, minesLeft)).padStart(3, '0');
+            // FIX: показываем отрицательные значения (как в оригинальном сапёре)
+            const display = Math.max(-99, minesLeft);
+            mineCounter.textContent = display < 0
+                ? '-' + String(Math.abs(display)).padStart(2, '0')
+                : String(display).padStart(3, '0');
         }
         
         // ===== ОБРАБОТЧИКИ КНОПОК =====
         document.getElementById('menu-start-btn').addEventListener('click', startGame);
         document.getElementById('btn-restart').addEventListener('click', startGame);
         document.getElementById('btn-menu').addEventListener('click', goToMenu);
+        // FIX: клик по смайлу перезапускает игру
+        faceBtn.addEventListener('click', () => {
+            if (gameScreen.classList.contains('active')) {
+                initBoard();
+            }
+        });
+
+        // FIX: пауза таймера при сворачивании вкладки
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (timerInterval !== null && !gameOver) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            } else {
+                if (!gameOver && !firstClick && timerInterval === null) {
+                    startTimer();
+                }
+            }
+        });
         
         // ===== ИНИЦИАЛИЗАЦИЯ =====
         updateMenuBest();
