@@ -1,989 +1,502 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Браузер</title>
-<style>
-:root {
-  --bg: #1c1c1e;
-  --bg-secondary: #2c2c2e;
-  --bg-tertiary: #3a3a3c;
-  --text: #ffffff;
-  --text-secondary: #8e8e93;
-  --border: #38383a;
-  --accent: #0a84ff;
-  --accent-hover: #409cff;
-  --error-bg: #2a1515;
-  --error-text: #ff453a;
-  --tab-active-bg: #1c1c1e;
-  --tab-inactive-bg: #2c2c2e;
-  --input-bg: #2c2c2e;
-  --bottom-bar-height: 80px;
-  --top-bar-height: 56px;
-  --shortcut-size: 64px;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background: var(--bg); color: var(--text);
-  overflow: hidden; height: 100vh; width: 100vw;
-  display: flex; flex-direction: column;
-}
-
-/* ============================================
-   ВЕРХНЯЯ ПАНЕЛЬ (ВКЛАДКИ)
-   ============================================ */
-.top-bar {
-  height: var(--top-bar-height);
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center;
-  padding: 0 12px; gap: 8px;
-  flex-shrink: 0;
-}
-
-.tabs-scroll {
-  flex: 1; display: flex; align-items: center;
-  gap: 6px; overflow-x: auto; scrollbar-width: none;
-}
-.tabs-scroll::-webkit-scrollbar { display: none; }
-
-.tab-chip {
-  height: 36px; min-width: 100px; max-width: 160px;
-  background: var(--bg-secondary); border: 1px solid var(--border);
-  border-radius: 18px; display: flex; align-items: center;
-  padding: 0 12px; gap: 6px; cursor: pointer;
-  font-size: 13px; color: var(--text-secondary);
-  position: relative; user-select: none;
-  transition: all 0.2s; flex-shrink: 0;
-}
-.tab-chip:hover { background: var(--bg-tertiary); }
-.tab-chip.active {
-  background: var(--accent); color: white; border-color: var(--accent);
-}
-.tab-chip-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tab-chip-close {
-  width: 18px; height: 18px; border: none; background: transparent;
-  color: inherit; cursor: pointer; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; opacity: 0.7; transition: opacity 0.15s;
-}
-.tab-chip-close:hover { opacity: 1; background: rgba(255,255,255,0.2); }
-
-.new-tab-chip {
-  width: 36px; height: 36px; border: 1px solid var(--border);
-  background: var(--bg-secondary); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text-secondary); cursor: pointer; font-size: 18px;
-  flex-shrink: 0; transition: all 0.2s;
-}
-.new-tab-chip:hover { background: var(--bg-tertiary); color: var(--text); }
-
-/* ============================================
-   ОСНОВНОЙ КОНТЕНТ
-   ============================================ */
-.main-content {
-  flex: 1; position: relative; overflow: hidden;
-  background: var(--bg);
-}
-
-.viewport {
-  width: 100%; height: 100%; position: relative;
-}
-
-.viewport iframe {
-  width: 100%; height: 100%; border: none; display: none;
-  background: var(--bg);
-}
-.viewport iframe.active { display: block; }
-
-/* ============================================
-   НИЖНЯЯ ПАНЕЛЬ (АДРЕС + НАВИГАЦИЯ)
-   ============================================ */
-.bottom-bar {
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border);
-  padding: 8px 16px 16px;
-  flex-shrink: 0;
-}
-
-.address-row {
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 12px;
-}
-
-.address-input-wrapper {
-  flex: 1; display: flex; align-items: center;
-  background: var(--input-bg); border: 1px solid var(--border);
-  border-radius: 12px; padding: 0 12px; height: 42px; gap: 8px;
-}
-
-.address-input {
-  flex: 1; border: none; background: transparent;
-  color: var(--text); font-size: 15px; outline: none;
-  font-family: inherit;
-}
-.address-input::placeholder { color: var(--text-secondary); }
-
-.lock-icon { font-size: 14px; color: var(--text-secondary); }
-
-.refresh-btn {
-  width: 36px; height: 36px; border: none; background: transparent;
-  color: var(--text-secondary); cursor: pointer; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; transition: all 0.15s;
-}
-.refresh-btn:hover { background: var(--bg-tertiary); color: var(--text); }
-
-.nav-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 8px;
-}
-
-.nav-btn-bottom {
-  width: 48px; height: 48px; border: none; background: transparent;
-  color: var(--text); cursor: pointer; border-radius: 14px;
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: 2px; font-size: 20px;
-  transition: all 0.15s; position: relative;
-}
-.nav-btn-bottom:hover { background: var(--bg-tertiary); }
-.nav-btn-bottom:disabled { opacity: 0.3; cursor: not-allowed; }
-
-.nav-btn-label {
-  font-size: 9px; color: var(--text-secondary);
-  font-family: inherit;
-}
-
-.tabs-count-badge {
-  position: absolute; top: 2px; right: 2px;
-  min-width: 18px; height: 18px; background: var(--accent);
-  color: white; border-radius: 9px; font-size: 11px;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 600; padding: 0 5px;
-}
-
-/* ============================================
-   НАЧАЛЬНАЯ СТРАНИЦА
-   ============================================ */
-.start-page {
-  display: flex; flex-direction: column; align-items: center;
-  height: 100%; padding: 40px 24px; overflow-y: auto;
-}
-
-.start-search-wrapper {
-  width: 100%; max-width: 400px; display: flex; align-items: center;
-  background: var(--input-bg); border: 1px solid var(--border);
-  border-radius: 16px; padding: 0 16px; height: 48px; gap: 10px;
-  margin-bottom: 32px;
-}
-.start-search-wrapper:focus-within { border-color: var(--accent); }
-
-.start-search-icon { font-size: 18px; color: var(--text-secondary); }
-
-.start-search-input {
-  flex: 1; border: none; background: transparent;
-  color: var(--text); font-size: 16px; outline: none;
-  font-family: inherit;
-}
-.start-search-input::placeholder { color: var(--text-secondary); }
-
-.shortcuts-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 20px; width: 100%; max-width: 400px;
-}
-
-.shortcut-item {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 8px; cursor: pointer; transition: transform 0.15s;
-}
-.shortcut-item:hover { transform: scale(1.05); }
-.shortcut-item:active { transform: scale(0.95); }
-
-.shortcut-icon {
-  width: var(--shortcut-size); height: var(--shortcut-size);
-  background: var(--bg-secondary); border: 1px solid var(--border);
-  border-radius: 18px; display: flex; align-items: center;
-  justify-content: center; font-size: 26px;
-  transition: background 0.15s;
-}
-.shortcut-item:hover .shortcut-icon { background: var(--bg-tertiary); }
-
-.shortcut-label {
-  font-size: 12px; color: var(--text-secondary);
-  text-align: center;
-}
-
-/* ============================================
-   СТРАНИЦА ОШИБКИ / БЛОКИРОВКИ
-   ============================================ */
-.error-page {
-  display: none; flex-direction: column; align-items: center;
-  justify-content: center; height: 100%; padding: 32px;
-  text-align: center; background: var(--bg);
-}
-.error-page.visible { display: flex; }
-.error-page-icon { font-size: 48px; margin-bottom: 16px; }
-.error-page h2 { font-size: 18px; margin-bottom: 8px; color: var(--text); font-weight: 600; }
-.error-page p { color: var(--text-secondary); font-size: 14px; margin-bottom: 16px; line-height: 1.5; }
-.error-page-url {
-  font-family: monospace; background: var(--bg-secondary);
-  padding: 8px 12px; border-radius: 8px; font-size: 12px;
-  color: var(--text-secondary); margin-bottom: 20px;
-  word-break: break-all; max-width: 100%;
-}
-.error-btn {
-  padding: 12px 24px; background: var(--accent); color: white;
-  border: none; border-radius: 12px; cursor: pointer;
-  font-size: 15px; font-weight: 500; margin: 4px;
-  transition: background 0.15s; font-family: inherit;
-}
-.error-btn:hover { background: var(--accent-hover); }
-.error-btn-secondary {
-  padding: 12px 24px; background: var(--bg-tertiary); color: var(--text);
-  border: 1px solid var(--border); border-radius: 12px;
-  cursor: pointer; font-size: 15px; margin: 4px;
-  transition: background 0.15s; font-family: inherit;
-}
-.error-btn-secondary:hover { background: var(--bg-secondary); }
-
-/* ============================================
-   БОКОВАЯ ПАНЕЛЬ (СНИЗУ)
-   ============================================ */
-.sidebar-overlay {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.6); z-index: 9997;
-  display: none; opacity: 0; transition: opacity 0.3s;
-}
-.sidebar-overlay.open { display: block; opacity: 1; }
-
-.sidebar {
-  position: fixed; left: 0; right: 0; bottom: 0;
-  max-height: 70vh; background: var(--bg-secondary);
-  border-top: 1px solid var(--border); border-radius: 20px 20px 0 0;
-  display: none; flex-direction: column; overflow: hidden;
-  z-index: 9998; transform: translateY(100%);
-  transition: transform 0.3s ease-out;
-}
-.sidebar.open { display: flex; transform: translateY(0); }
-
-.sidebar-handle {
-  width: 36px; height: 4px; background: var(--text-secondary);
-  border-radius: 2px; margin: 8px auto; opacity: 0.5;
-}
-
-.sidebar-header {
-  padding: 8px 16px 12px; display: flex;
-  align-items: center; justify-content: space-between;
-  border-bottom: 1px solid var(--border);
-}
-.sidebar-title { font-size: 17px; font-weight: 600; }
-.sidebar-close {
-  width: 32px; height: 32px; border: none; background: transparent;
-  color: var(--text-secondary); cursor: pointer; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-}
-.sidebar-close:hover { background: var(--bg-tertiary); color: var(--text); }
-.sidebar-content { flex: 1; overflow-y: auto; padding: 8px 16px 16px; }
-
-/* ============================================
-   ЗАКЛАДКИ / ИСТОРИЯ
-   ============================================ */
-.list-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px; border-radius: 12px; cursor: pointer;
-  font-size: 15px; transition: background 0.15s;
-}
-.list-item:hover { background: var(--bg-tertiary); }
-.list-item-icon { width: 32px; height: 32px; background: var(--bg);
-  border-radius: 8px; display: flex; align-items: center;
-  justify-content: center; font-size: 16px; flex-shrink: 0;
-}
-.list-item-text { flex: 1; overflow: hidden; }
-.list-item-title { color: var(--text); font-size: 15px; margin-bottom: 2px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.list-item-subtitle { color: var(--text-secondary); font-size: 13px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.list-item-delete {
-  width: 28px; height: 28px; border: none; background: transparent;
-  color: var(--text-secondary); cursor: pointer; border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; opacity: 0; transition: opacity 0.15s;
-}
-.list-item:hover .list-item-delete { opacity: 1; }
-.list-item-delete:hover { background: var(--bg); color: var(--error-text); }
-
-.clear-btn {
-  width: 100%; padding: 12px; margin-top: 8px;
-  background: var(--bg-tertiary); border: 1px solid var(--border);
-  border-radius: 12px; color: var(--text); cursor: pointer;
-  font-size: 15px; transition: background 0.15s; font-family: inherit;
-}
-.clear-btn:hover { background: var(--bg); }
-
-.empty-state {
-  text-align: center; padding: 40px 20px; color: var(--text-secondary);
-  font-size: 15px;
-}
-
-/* ============================================
-   РАСШИРЕНИЯ
-   ============================================ */
-.ext-card {
-  padding: 14px; border: 1px solid var(--border); border-radius: 12px;
-  margin-bottom: 10px; background: var(--bg);
-}
-.ext-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-.ext-card-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
-.ext-card-version { font-size: 12px; color: var(--text-secondary); }
-.ext-card-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
-.ext-card-actions { display: flex; gap: 8px; }
-
-.ext-toggle {
-  width: 50px; height: 30px; background: var(--bg-tertiary);
-  border-radius: 15px; position: relative; cursor: pointer;
-  transition: background 0.2s; flex-shrink: 0;
-}
-.ext-toggle.on { background: #34c759; }
-.ext-toggle::after {
-  content: ''; position: absolute; width: 26px; height: 26px;
-  background: white; border-radius: 50%; top: 2px; left: 2px;
-  transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}
-.ext-toggle.on::after { transform: translateX(20px); }
-
-.ext-btn {
-  padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px;
-  background: var(--bg-secondary); color: var(--text); cursor: pointer;
-  font-size: 13px; transition: background 0.15s; font-family: inherit;
-}
-.ext-btn:hover { background: var(--bg-tertiary); }
-.ext-btn.danger { color: var(--error-text); border-color: var(--error-text); }
-.ext-btn.danger:hover { background: var(--error-bg); }
-.ext-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
-.ext-btn.primary:hover { background: var(--accent-hover); }
-
-.ext-install-box {
-  margin-bottom: 16px;
-}
-.ext-install-box textarea {
-  width: 100%; height: 120px; background: var(--bg);
-  border: 1px solid var(--border); border-radius: 12px;
-  padding: 10px; color: var(--text); font-family: monospace;
-  font-size: 11px; resize: vertical; outline: none;
-}
-.ext-install-box textarea:focus { border-color: var(--accent); }
-
-/* ============================================
-   КОНТЕКСТНОЕ МЕНЮ
-   ============================================ */
-.context-menu {
-  position: fixed; background: var(--bg-secondary);
-  border: 1px solid var(--border); border-radius: 14px;
-  padding: 6px; min-width: 200px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 10000;
-  display: none; backdrop-filter: blur(20px);
-}
-.context-menu.visible { display: block; }
-.context-menu-item {
-  padding: 12px 16px; border-radius: 10px; cursor: pointer;
-  font-size: 15px; display: flex; align-items: center;
-  gap: 12px; transition: background 0.15s; color: var(--text);
-}
-.context-menu-item:hover { background: var(--bg-tertiary); }
-.context-menu-separator { height: 1px; background: var(--border); margin: 6px 0; }
-
-/* ============================================
-   ПАНЕЛИ РАСШИРЕНИЙ
-   ============================================ */
-.ext-panel {
-  position: fixed; top: var(--top-bar-height); right: 8px;
-  left: 8px; max-width: 360px; margin: 0 auto;
-  background: var(--bg-secondary); border: 1px solid var(--border);
-  border-radius: 16px; overflow: hidden; z-index: 9999;
-  display: none; flex-direction: column;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-}
-.ext-panel.visible { display: flex; }
-.ext-panel-header {
-  padding: 14px 16px; border-bottom: 1px solid var(--border);
-  font-weight: 600; font-size: 15px; display: flex;
-  justify-content: space-between; align-items: center;
-}
-.ext-panel-close {
-  width: 28px; height: 28px; border: none; background: transparent;
-  color: var(--text-secondary); cursor: pointer; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-}
-.ext-panel-close:hover { background: var(--bg-tertiary); color: var(--text); }
-.ext-panel-body { padding: 16px; overflow-y: auto; font-size: 14px; }
-
-.ext-toolbar-btn {
-  width: 32px; height: 32px; border: none; background: transparent;
-  color: var(--text-secondary); cursor: pointer; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; transition: all 0.15s;
-}
-.ext-toolbar-btn:hover { background: var(--bg-tertiary); color: var(--text); }
-
-/* ============================================
-   АДАПТИВНОСТЬ
-   ============================================ */
-@media (min-width: 768px) {
-  .shortcuts-grid { grid-template-columns: repeat(6, 1fr); max-width: 600px; }
-  .sidebar { left: auto; right: 20px; bottom: auto; top: var(--top-bar-height);
-    width: 360px; max-height: 80vh; border-radius: 16px;
-    transform: translateY(10px); opacity: 0;
-  }
-  .sidebar.open { transform: translateY(0); opacity: 1; }
-  .sidebar-overlay { display: none !important; }
-}
-
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Сапёр</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #008080;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .game-container {
+            background: #c0c0c0;
+            border: 3px solid;
+            border-color: #fff #808080 #808080 #fff;
+            padding: 6px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #808080 #fff #fff #808080;
+        }
+        
+        .counter, .timer {
+            background: #000;
+            color: #ff0000;
+            font-family: 'Courier New', monospace;
+            font-size: 22px;
+            font-weight: bold;
+            padding: 2px 6px;
+            min-width: 54px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+        
+        .face-btn {
+            width: 36px;
+            height: 36px;
+            font-size: 22px;
+            background: #c0c0c0;
+            border: 3px solid;
+            border-color: #fff #808080 #808080 #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        
+        .face-btn:active {
+            border-color: #808080 #fff #fff #808080;
+        }
+        
+        .face-btn.pressed {
+            border-color: #808080 #fff #fff #808080;
+            background: #b0b0b0;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            border: 3px solid;
+            border-color: #808080 #fff #fff #808080;
+            background: #c0c0c0;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1;
+        }
+        
+        .cell {
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #fff #808080 #808080 #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            position: relative;
+        }
+        
+        .cell.revealed {
+            border: 1px solid #b0b0b0;
+            background: #c0c0c0;
+            cursor: default;
+        }
+        
+        .cell.flagged {
+            color: #ff0000;
+        }
+        
+        .cell.mine {
+            background: #ff0000;
+            color: #000;
+        }
+        
+        .cell.mine-hit {
+            background: #ff0000;
+            color: #000;
+        }
+        
+        .cell .flag-icon {
+            color: #ff0000;
+            font-size: 16px;
+        }
+        
+        .cell .mine-icon {
+            font-size: 16px;
+        }
+        
+        .cell[data-number="1"] { color: #0000ff; }
+        .cell[data-number="2"] { color: #008000; }
+        .cell[data-number="3"] { color: #ff0000; }
+        .cell[data-number="4"] { color: #000080; }
+        .cell[data-number="5"] { color: #800000; }
+        .cell[data-number="6"] { color: #008080; }
+        .cell[data-number="7"] { color: #000; }
+        .cell[data-number="8"] { color: #808080; }
+        
+        .cell.revealed[data-number="0"] {
+            background: #c0c0c0;
+            border: 1px solid #b0b0b0;
+        }
+        
+        .cell.wrong-flag {
+            background: #ff0000;
+        }
+        
+        .cell.wrong-flag .flag-icon {
+            color: #000;
+            text-decoration: line-through;
+        }
+        
+        @media (max-width: 420px) {
+            .game-container {
+                padding: 3px;
+            }
+            .grid-container {
+                max-width: 100%;
+            }
+            .cell {
+                font-size: 12px;
+            }
+            .counter, .timer {
+                font-size: 18px;
+                min-width: 44px;
+            }
+            .face-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 18px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<!-- ============================================
-     ВЕРХНЯЯ ПАНЕЛЬ — ВКЛАДКИ
-     ============================================ -->
-<div class="top-bar">
-  <div class="tabs-scroll" id="tabsScroll"></div>
-  <button class="new-tab-chip" id="newTabBtn" title="Новая вкладка">+</button>
-</div>
-
-<!-- ============================================
-     ОСНОВНОЙ КОНТЕНТ
-     ============================================ -->
-<div class="main-content" id="mainContent">
-  <div class="viewport" id="viewport"></div>
-</div>
-
-<!-- ============================================
-     НИЖНЯЯ ПАНЕЛЬ — АДРЕС + НАВИГАЦИЯ
-     ============================================ -->
-<div class="bottom-bar" id="bottomBar">
-  <div class="address-row">
-    <div class="address-input-wrapper">
-      <span class="lock-icon" id="lockIcon">&#128270;</span>
-      <input type="text" class="address-input" id="addressInput" placeholder="Поиск или адрес сайта" autocomplete="off">
+    <div class="game-container">
+        <div class="game-header">
+            <div class="counter" id="mine-counter">040</div>
+            <button class="face-btn" id="face-btn" onclick="newGame()">🙂</button>
+            <div class="timer" id="timer">000</div>
+        </div>
+        <div class="grid-container" id="grid"></div>
     </div>
-    <button class="refresh-btn" id="refreshBtn" title="Обновить">&#8635;</button>
-  </div>
-  
-  <div class="nav-row">
-    <button class="nav-btn-bottom" id="btnBack" title="Назад">
-      <span>&#8592;</span>
-      <span class="nav-btn-label">Назад</span>
-    </button>
-    <button class="nav-btn-bottom" id="btnForward" title="Вперёд">
-      <span>&#8594;</span>
-      <span class="nav-btn-label">Вперёд</span>
-    </button>
-    <button class="nav-btn-bottom" id="btnShare" title="Поделиться">
-      <span>&#128279;</span>
-      <span class="nav-btn-label">Поделиться</span>
-    </button>
-    <button class="nav-btn-bottom" id="btnTabs" title="Вкладки">
-      <span style="position:relative;">&#128463;&#65039;<span class="tabs-count-badge" id="tabsBadge">0</span></span>
-      <span class="nav-btn-label">Вкладки</span>
-    </button>
-    <button class="nav-btn-bottom" id="btnMenu" title="Меню">
-      <span>&#9776;</span>
-      <span class="nav-btn-label">Меню</span>
-    </button>
-  </div>
-</div>
 
-<!-- ============================================
-     БОКОВАЯ ПАНЕЛЬ (МЕНЮ)
-     ============================================ -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-handle"></div>
-  <div class="sidebar-header">
-    <span class="sidebar-title" id="sidebarTitle">Меню</span>
-    <button class="sidebar-close" id="sidebarClose">&#10005;</button>
-  </div>
-  <div class="sidebar-content" id="sidebarContent"></div>
-</div>
-
-<!-- ============================================
-     КОНТЕКСТНОЕ МЕНЮ
-     ============================================ -->
-<div class="context-menu" id="contextMenu">
-  <div class="context-menu-item" id="ctxNewTab">&#127381; Новая вкладка</div>
-  <div class="context-menu-item" id="ctxReload">&#128260; Обновить</div>
-  <div class="context-menu-separator"></div>
-  <div class="context-menu-item" id="ctxBookmark">&#11088; В закладки</div>
-  <div class="context-menu-item" id="ctxCopyUrl">&#128203; Копировать ссылку</div>
-  <div class="context-menu-separator"></div>
-  <div class="context-menu-item" id="ctxBack">&#11013;&#65039; Назад</div>
-  <div class="context-menu-item" id="ctxForward">&#10145;&#65039; Вперёд</div>
-</div>
-
-<div id="extPanelsContainer"></div>
-
-<script>
-// ============================================
-// КОНФИГУРАЦИЯ
-// ============================================
-const CONFIG = {
-  searchEngine: 'https://duckduckgo.com/html/?q=',
-  homePage: 'about:blank',
-  maxHistory: 500,
-  maxTabs: 20,
-  embeddableSites: ['wikipedia.org','wikimedia.org','archive.org','duckduckgo.com','github.com','stackoverflow.com','old.reddit.com','news.ycombinator.com'],
-  blockedSites: ['google.com','youtube.com','facebook.com','twitter.com','x.com','instagram.com','linkedin.com','amazon.com','netflix.com','tiktok.com']
-};
-
-let state = {
-  tabs: [], activeTabId: null, tabCounter: 0,
-  history: [], bookmarks: [], extensions: [],
-  sidebarOpen: false, sidebarMode: null
-};
-
-// ============================================
-// УТИЛИТЫ
-// ============================================
-function generateId() { return 'tab_' + (++state.tabCounter) + '_' + Date.now(); }
-
-function isValidUrl(string) { try { new URL(string); return true; } catch { return false; } }
-
-function normalizeUrl(url) {
-  if (!url) return CONFIG.homePage;
-  url = url.trim();
-  if (url === 'about:blank') return url;
-  if (isValidUrl(url)) return new URL(url).href;
-  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(url)) return url;
-  if (/^[a-zA-Z0-9][a-zA-Z0-9-]*(\.[a-zA-Z0-9][a-zA-Z0-9-]*)+/.test(url)) return 'https://' + url;
-  return null;
-}
-
-function getSearchUrl(query) { return CONFIG.searchEngine + encodeURIComponent(query); }
-
-function formatTime(date) { return new Date(date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }); }
-
-function escapeHtml(text) { if (!text) return ''; const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
-
-function isEmbeddable(url) {
-  try {
-    const h = new URL(url).hostname.toLowerCase();
-    for (const s of CONFIG.embeddableSites) if (h === s || h.endsWith('.' + s)) return true;
-    for (const s of CONFIG.blockedSites) if (h === s || h.endsWith('.' + s)) return false;
-    return null;
-  } catch { return null; }
-}
-
-// ============================================
-// LOCALSTORAGE
-// ============================================
-function loadState() {
-  try {
-    const saved = localStorage.getItem('browser_state_v2');
-    if (saved) {
-      const p = JSON.parse(saved);
-      state.history = p.history || []; state.bookmarks = p.bookmarks || [];
-      state.extensions = p.extensions || [];
-    }
-  } catch (e) { console.error('Ошибка загрузки:', e); }
-}
-
-function saveState() {
-  try {
-    localStorage.setItem('browser_state_v2', JSON.stringify({
-      history: state.history, bookmarks: state.bookmarks, extensions: state.extensions
-    }));
-  } catch (e) { console.error('Ошибка сохранения:', e); }
-}
-
-// ============================================
-// ВКЛАДКИ
-// ============================================
-function createTab(url = CONFIG.homePage, title = 'Новая вкладка') {
-  if (state.tabs.length >= CONFIG.maxTabs) { alert('Максимум вкладок'); return null; }
-  const tabId = generateId();
-  const tab = { id: tabId, url: url, title: title, loading: false, history: [url], historyIndex: 0 };
-  state.tabs.push(tab);
-  createTabChip(tab); createIframe(tab); switchToTab(tabId); updateTabsBadge(); return tab;
-}
-
-function createTabChip(tab) {
-  const chip = document.createElement('div');
-  chip.className = 'tab-chip'; chip.dataset.tabId = tab.id;
-  chip.innerHTML = '<span class="tab-chip-title">' + escapeHtml(tab.title) + '</span><button class="tab-chip-close">&#10005;</button>';
-  chip.addEventListener('click', (e) => { if (e.target.classList.contains('tab-chip-close')) closeTab(tab.id); else switchToTab(tab.id); });
-  document.getElementById('tabsScroll').appendChild(chip);
-}
-
-function createIframe(tab) {
-  const iframe = document.createElement('iframe');
-  iframe.id = 'iframe_' + tab.id;
-  iframe.sandbox = 'allow-scripts allow-same-origin allow-popups allow-forms';
-  iframe.src = tab.url;
-  document.getElementById('viewport').appendChild(iframe);
-  iframe.addEventListener('load', () => handleIframeLoad(tab.id));
-  iframe.addEventListener('error', () => handleIframeError(tab.id));
-}
-
-function switchToTab(tabId) {
-  state.activeTabId = tabId;
-  document.querySelectorAll('.tab-chip').forEach(el => el.classList.toggle('active', el.dataset.tabId === tabId));
-  document.querySelectorAll('.viewport iframe').forEach(el => el.classList.toggle('active', el.id === 'iframe_' + tabId));
-  const tab = state.tabs.find(t => t.id === tabId);
-  if (tab) { updateAddressInput(tab.url); updateNavButtons(); updateBookmarkIcon(); }
-  hideErrorPage(); hideStartPage();
-}
-
-function closeTab(tabId) {
-  const idx = state.tabs.findIndex(t => t.id === tabId); if (idx === -1) return;
-  state.tabs.splice(idx, 1);
-  const chip = document.querySelector('.tab-chip[data-tab-id="' + tabId + '"]'); if (chip) chip.remove();
-  const iframe = document.getElementById('iframe_' + tabId); if (iframe) iframe.remove();
-  if (state.activeTabId === tabId) {
-    if (state.tabs.length > 0) { const n = Math.min(idx, state.tabs.length - 1); switchToTab(state.tabs[n].id); }
-    else { state.activeTabId = null; updateAddressInput(''); showStartPage(); }
-  }
-  updateTabsBadge(); saveState();
-}
-
-function updateTabTitle(tabId, title) {
-  const tab = state.tabs.find(t => t.id === tabId);
-  if (tab) { tab.title = title || tab.url; const el = document.querySelector('.tab-chip[data-tab-id="' + tabId + '"] .tab-chip-title'); if (el) el.textContent = tab.title; }
-}
-
-function updateTabLoading(tabId, loading) {
-  const tab = state.tabs.find(t => t.id === tabId);
-  if (tab) { tab.loading = loading; const chip = document.querySelector('.tab-chip[data-tab-id="' + tabId + '"]'); if (chip) chip.style.opacity = loading ? '0.7' : ''; }
-}
-
-function updateTabsBadge() {
-  const badge = document.getElementById('tabsBadge');
-  badge.textContent = state.tabs.length;
-  badge.style.display = state.tabs.length > 0 ? 'flex' : 'none';
-}
-
-// ============================================
-// НАЧАЛЬНАЯ СТРАНИЦА
-// ============================================
-function showStartPage() {
-  hideAllContent();
-  let sp = document.getElementById('startPage');
-  if (!sp) {
-    sp = document.createElement('div'); sp.id = 'startPage'; sp.className = 'start-page';
-    sp.innerHTML = '<div class="start-search-wrapper"><span class="start-search-icon">&#128269;</span><input type="text" class="start-search-input" placeholder="Поиск или адрес сайта" id="startSearch"></div><div class="shortcuts-grid"><div class="shortcut-item" data-url="https://youtube.com"><div class="shortcut-icon">&#9654;</div><span class="shortcut-label">YouTube</span></div><div class="shortcut-item" data-url="https://instagram.com"><div class="shortcut-icon">&#128247;</div><span class="shortcut-label">Instagram</span></div><div class="shortcut-item" data-url="https://gmail.com"><div class="shortcut-icon">&#9993;</div><span class="shortcut-label">Почта</span></div><div class="shortcut-item" data-url="https://web.telegram.org"><div class="shortcut-icon">&#128172;</div><span class="shortcut-label">Чаты</span></div><div class="shortcut-item" data-url="https://duckduckgo.com"><div class="shortcut-icon">&#128269;</div><span class="shortcut-label">Поиск</span></div><div class="shortcut-item" data-url="https://wikipedia.org"><div class="shortcut-icon">&#128218;</div><span class="shortcut-label">Wiki</span></div><div class="shortcut-item" data-url="https://github.com"><div class="shortcut-icon">&#128025;</div><span class="shortcut-label">GitHub</span></div><div class="shortcut-item" data-url="https://news.ycombinator.com"><div class="shortcut-icon">&#128478;&#65039;</div><span class="shortcut-label">News</span></div></div>';
-    document.getElementById('viewport').appendChild(sp);
-    sp.querySelector('#startSearch').addEventListener('keydown', (e) => { if (e.key === 'Enter') { handleInput(e.target.value); } });
-    sp.querySelectorAll('.shortcut-item').forEach(el => { el.addEventListener('click', () => { handleInput(el.dataset.url); }); });
-  }
-  sp.style.display = 'flex';
-}
-
-function hideStartPage() { const sp = document.getElementById('startPage'); if (sp) sp.style.display = 'none'; }
-function hideAllContent() { document.querySelectorAll('.viewport iframe').forEach(el => el.classList.remove('active')); hideStartPage(); hideErrorPage(); }
-function hideErrorPage() { const ep = document.getElementById('errorPage'); if (ep) ep.classList.remove('visible'); }
-
-// ============================================
-// НАВИГАЦИЯ
-// ============================================
-function handleInput(input) {
-  const normalized = normalizeUrl(input);
-  if (normalized === null) navigateToSearch(input);
-  else navigateTo(normalized);
-}
-
-function navigateTo(url, tabId = null) {
-  const tid = tabId || state.activeTabId; if (!tid) { createTab(url); return; }
-  const tab = state.tabs.find(t => t.id === tid); if (!tab) return;
-  
-  const embeddable = isEmbeddable(url);
-  if (embeddable === false) { showBlockedPage(url, tid); return; }
-  
-  let finalUrl = url;
-  BrowserAPI._emit('beforeLoad', { url: url, tabId: tid }, (r) => { if (r && r.url) finalUrl = r.url; });
-  
-  tab.url = finalUrl; tab.loading = true;
-  tab.history = tab.history.slice(0, tab.historyIndex + 1);
-  tab.history.push(finalUrl); tab.historyIndex = tab.history.length - 1;
-  
-  updateTabLoading(tid, true); updateAddressInput(finalUrl); updateNavButtons(); hideAllContent();
-  const iframe = document.getElementById('iframe_' + tid);
-  if (iframe) { iframe.src = finalUrl; iframe.classList.add('active'); }
-  addToHistory(finalUrl, tab.title || finalUrl);
-  if (embeddable === null) setTimeout(() => checkIframeLoaded(tid, finalUrl), 4000);
-}
-
-function navigateToSearch(query, tabId = null) {
-  const tid = tabId || state.activeTabId; if (!tid) { createTab(getSearchUrl(query)); return; }
-  const tab = state.tabs.find(t => t.id === tid); if (!tab) return;
-  const url = getSearchUrl(query);
-  tab.url = url; tab.loading = true;
-  tab.history = tab.history.slice(0, tab.historyIndex + 1);
-  tab.history.push(url); tab.historyIndex = tab.history.length - 1;
-  updateTabLoading(tid, true); updateAddressInput(query); updateNavButtons(); hideAllContent();
-  const iframe = document.getElementById('iframe_' + tid);
-  if (iframe) { iframe.src = url; iframe.classList.add('active'); }
-  addToHistory(url, 'Поиск: ' + query); updateTabTitle(tid, 'Поиск: ' + query);
-  setTimeout(() => checkIframeLoaded(tid, url), 5000);
-}
-
-function checkIframeLoaded(tabId, originalUrl) {
-  const tab = state.tabs.find(t => t.id === tabId); if (!tab || !tab.loading) return;
-  updateTabLoading(tabId, false); showBlockedPage(originalUrl, tabId);
-}
-
-function showBlockedPage(url, tabId) {
-  const tab = state.tabs.find(t => t.id === tabId); if (!tab) return;
-  hideAllContent();
-  let ep = document.getElementById('errorPage');
-  if (!ep) { ep = document.createElement('div'); ep.id = 'errorPage'; ep.className = 'error-page'; document.getElementById('viewport').appendChild(ep); }
-  const isSearch = url.includes('duckduckgo.com');
-  ep.innerHTML = '<div class="error-page-icon">&#128683;</div><h2>Сайт недоступен</h2><p>Этот сайт блокирует отображение в iframe для защиты от атак. Откройте в системном браузере.</p><div class="error-page-url">' + escapeHtml(isSearch ? 'DuckDuckGo Search' : url) + '</div><button class="error-btn" onclick="openExternal(\'' + url + '\')">&#127760; Открыть в браузере</button><button class="error-btn-secondary" onclick="retryNav()">&#8635; Повторить</button>';
-  ep.classList.add('visible'); updateTabTitle(tabId, isSearch ? 'Поиск' : 'Недоступен');
-}
-
-function openExternal(url) { window.open(url, '_blank'); }
-function retryNav() { const tab = state.tabs.find(t => t.id === state.activeTabId); if (tab) navigateTo(tab.url); }
-
-function handleIframeLoad(tabId) {
-  const tab = state.tabs.find(t => t.id === tabId); if (!tab) return;
-  updateTabLoading(tabId, false);
-  const iframe = document.getElementById('iframe_' + tabId); if (!iframe) return;
-  try {
-    const title = iframe.contentDocument?.title || tab.url; updateTabTitle(tabId, title);
-    try { const nu = iframe.contentWindow.location.href; if (nu && nu !== 'about:blank' && nu !== tab.url) { tab.url = nu; updateAddressInput(nu); addToHistory(nu, title); } } catch (e) {}
-    tab.canGoBack = iframe.contentWindow.history.length > 1; updateNavButtons(); hideErrorPage();
-  } catch (e) {}
-  BrowserAPI._emit('load', { url: tab.url, tabId });
-}
-
-function handleIframeError(tabId) { updateTabLoading(tabId, false); const tab = state.tabs.find(t => t.id === tabId); if (tab) showBlockedPage(tab.url, tabId); }
-
-function goBack() {
-  const tab = state.tabs.find(t => t.id === state.activeTabId); if (!tab || tab.historyIndex <= 0) return;
-  tab.historyIndex--; const url = tab.history[tab.historyIndex]; tab.url = url;
-  const iframe = document.getElementById('iframe_' + state.activeTabId); if (iframe) iframe.src = url;
-  updateAddressInput(url); updateNavButtons(); hideErrorPage();
-}
-
-function goForward() {
-  const tab = state.tabs.find(t => t.id === state.activeTabId); if (!tab || tab.historyIndex >= tab.history.length - 1) return;
-  tab.historyIndex++; const url = tab.history[tab.historyIndex]; tab.url = url;
-  const iframe = document.getElementById('iframe_' + state.activeTabId); if (iframe) iframe.src = url;
-  updateAddressInput(url); updateNavButtons(); hideErrorPage();
-}
-
-function refresh() {
-  const tab = state.tabs.find(t => t.id === state.activeTabId); if (!tab) return;
-  const iframe = document.getElementById('iframe_' + state.activeTabId); if (iframe) { iframe.src = tab.url; updateTabLoading(state.activeTabId, true); } hideErrorPage();
-}
-
-function updateAddressInput(url) {
-  const input = document.getElementById('addressInput');
-  if (url === 'about:blank') input.value = '';
-  else if (url.includes('duckduckgo.com')) input.value = decodeURIComponent(url.split('q=')[1] || '');
-  else input.value = url;
-  const lock = document.getElementById('lockIcon');
-  if (url.startsWith('https://')) { lock.textContent = '\uD83D\uDD12'; lock.style.color = '#34c759'; }
-  else if (url.startsWith('http://')) { lock.textContent = '\u26A0\uFE0F'; lock.style.color = '#ff9500'; }
-  else { lock.textContent = '\uD83D\uDD0D'; lock.style.color = 'var(--text-secondary)'; }
-}
-
-function updateNavButtons() {
-  const tab = state.tabs.find(t => t.id === state.activeTabId);
-  document.getElementById('btnBack').disabled = !tab || tab.historyIndex <= 0;
-  document.getElementById('btnForward').disabled = !tab || tab.historyIndex >= tab.history.length - 1;
-}
-
-function updateBookmarkIcon() {
-  const tab = state.tabs.find(t => t.id === state.activeTabId);
-  const isBm = tab && state.bookmarks.some(b => b.url === tab.url);
-  // Можно добавить визуальный индикатор если нужно
-}
-
-// ============================================
-// ИСТОРИЯ
-// ============================================
-function addToHistory(url, title) {
-  if (url === 'about:blank') return;
-  const entry = { url: url, title: title || url, time: Date.now() };
-  if (state.history.length > 0 && state.history[0].url === url) state.history[0] = entry; else state.history.unshift(entry);
-  if (state.history.length > CONFIG.maxHistory) state.history = state.history.slice(0, CONFIG.maxHistory);
-  saveState(); if (state.sidebarOpen && state.sidebarMode === 'history') renderHistory();
-}
-
-function clearHistory() { state.history = []; saveState(); renderHistory(); }
-
-function renderHistory() {
-  const c = document.getElementById('sidebarContent');
-  if (state.history.length === 0) { c.innerHTML = '<div class="empty-state">История пуста</div>'; return; }
-  let html = '';
-  state.history.forEach(e => { html += '<div class="list-item" data-url="' + escapeHtml(e.url) + '"><div class="list-item-icon">&#127760;</div><div class="list-item-text"><div class="list-item-title">' + escapeHtml(e.title || e.url) + '</div><div class="list-item-subtitle">' + escapeHtml(e.url) + ' &middot; ' + formatTime(e.time) + '</div></div></div>'; });
-  html += '<button class="clear-btn" id="clearHistoryBtn">&#128465;&#65039; Очистить историю</button>';
-  c.innerHTML = html;
-  c.querySelectorAll('.list-item').forEach(el => { el.addEventListener('click', () => { handleInput(el.dataset.url); closeSidebar(); }); });
-  document.getElementById('clearHistoryBtn')?.addEventListener('click', clearHistory);
-}
-
-// ============================================
-// ЗАКЛАДКИ
-// ============================================
-function addBookmark(url, title) {
-  if (!url || url === 'about:blank') return;
-  if (state.bookmarks.some(b => b.url === url)) { removeBookmark(url); return; }
-  state.bookmarks.push({ url: url, title: title || url, added: Date.now() });
-  saveState(); updateBookmarkIcon(); if (state.sidebarOpen && state.sidebarMode === 'bookmarks') renderBookmarks();
-}
-
-function removeBookmark(url) {
-  state.bookmarks = state.bookmarks.filter(b => b.url !== url);
-  saveState(); updateBookmarkIcon(); if (state.sidebarOpen && state.sidebarMode === 'bookmarks') renderBookmarks();
-}
-
-function renderBookmarks() {
-  const c = document.getElementById('sidebarContent');
-  if (state.bookmarks.length === 0) { c.innerHTML = '<div class="empty-state">Закладок нет</div>'; return; }
-  let html = '';
-  state.bookmarks.forEach(bm => { html += '<div class="list-item" data-url="' + escapeHtml(bm.url) + '"><div class="list-item-icon">&#11088;</div><div class="list-item-text"><div class="list-item-title">' + escapeHtml(bm.title || bm.url) + '</div><div class="list-item-subtitle">' + escapeHtml(bm.url) + '</div></div><button class="list-item-delete" data-url="' + escapeHtml(bm.url) + '">&#128465;&#65039;</button></div>'; });
-  c.innerHTML = html;
-  c.querySelectorAll('.list-item').forEach(el => { el.addEventListener('click', (e) => { if (e.target.classList.contains('list-item-delete')) return; handleInput(el.dataset.url); closeSidebar(); }); });
-  c.querySelectorAll('.list-item-delete').forEach(el => { el.addEventListener('click', (e) => { e.stopPropagation(); removeBookmark(el.dataset.url); }); });
-}
-
-// ============================================
-// БОКОВАЯ ПАНЕЛЬ
-// ============================================
-function openSidebar(mode) {
-  state.sidebarOpen = true; state.sidebarMode = mode;
-  document.getElementById('sidebarOverlay').classList.add('open');
-  document.getElementById('sidebar').classList.add('open');
-  const title = document.getElementById('sidebarTitle');
-  if (mode === 'bookmarks') { title.textContent = '\u2B50 Закладки'; renderBookmarks(); }
-  else if (mode === 'history') { title.textContent = '\uD83D\uDD50 История'; renderHistory(); }
-  else if (mode === 'extensions') { title.textContent = '\uD83E\uDDE9 Расширения'; renderExtensions(); }
-  else if (mode === 'menu') { title.textContent = '\u2630 Меню'; renderMenu(); }
-}
-
-function closeSidebar() {
-  state.sidebarOpen = false; state.sidebarMode = null;
-  document.getElementById('sidebarOverlay').classList.remove('open');
-  document.getElementById('sidebar').classList.remove('open');
-}
-
-function toggleSidebar(mode) { if (state.sidebarOpen && state.sidebarMode === mode) closeSidebar(); else openSidebar(mode); }
-
-function renderMenu() {
-  const c = document.getElementById('sidebarContent');
-  c.innerHTML = '<div class="list-item" id="menuBookmarks"><div class="list-item-icon">&#11088;</div><div class="list-item-text"><div class="list-item-title">Закладки</div></div></div><div class="list-item" id="menuHistory"><div class="list-item-icon">&#128336;</div><div class="list-item-text"><div class="list-item-title">История</div></div></div><div class="list-item" id="menuExtensions"><div class="list-item-icon">&#129513;</div><div class="list-item-text"><div class="list-item-title">Расширения</div></div></div><div class="list-item" id="menuNewTab"><div class="list-item-icon">&#127381;</div><div class="list-item-text"><div class="list-item-title">Новая вкладка</div></div></div>';
-  document.getElementById('menuBookmarks').addEventListener('click', () => { openSidebar('bookmarks'); });
-  document.getElementById('menuHistory').addEventListener('click', () => { openSidebar('history'); });
-  document.getElementById('menuExtensions').addEventListener('click', () => { openSidebar('extensions'); });
-  document.getElementById('menuNewTab').addEventListener('click', () => { createTab(); closeSidebar(); });
-}
-
-// ============================================
-// РАСШИРЕНИЯ API
-// ============================================
-const BrowserAPI = {
-  _listeners: { beforeLoad: [], load: [], tabActivated: [], message: [] },
-  onBeforeLoad(cb) { this._listeners.beforeLoad.push(cb); return () => { this._listeners.beforeLoad = this._listeners.beforeLoad.filter(c => c !== cb); }; },
-  onLoad(cb) { this._listeners.load.push(cb); return () => { this._listeners.load = this._listeners.load.filter(c => c !== cb); }; },
-  injectCSS(css, tabId = null) { const tid = tabId || state.activeTabId; const iframe = document.getElementById('iframe_' + tid); if (!iframe) return false; try { const doc = iframe.contentDocument; const s = doc.createElement('style'); s.textContent = css; doc.head.appendChild(s); return true; } catch (e) { return false; } },
-  injectJS(script, tabId = null) { const tid = tabId || state.activeTabId; const iframe = document.getElementById('iframe_' + tid); if (!iframe) return false; try { const doc = iframe.contentDocument; const s = doc.createElement('script'); s.textContent = script; doc.body.appendChild(s); return true; } catch (e) { return false; } },
-  getCurrentURL() { const tab = state.tabs.find(t => t.id === state.activeTabId); return tab ? tab.url : null; },
-  getTabInfo(tabId = null) { const id = tabId || state.activeTabId; const tab = state.tabs.find(t => t.id === id); if (!tab) return null; return { id: tab.id, url: tab.url, title: tab.title, loading: tab.loading }; },
-  createPanel(html, title = 'Панель') { const pid = 'ext_panel_' + Date.now(); const panel = document.createElement('div'); panel.className = 'ext-panel'; panel.id = pid; panel.innerHTML = '<div class="ext-panel-header"><span>' + escapeHtml(title) + '</span><button class="ext-panel-close" onclick="document.getElementById(\'' + pid + '\').classList.remove(\'visible\')">&#10005;</button></div><div class="ext-panel-body">' + html + '</div>'; document.getElementById('extPanelsContainer').appendChild(panel); return { show: () => panel.classList.add('visible'), hide: () => panel.classList.remove('visible'), destroy: () => panel.remove(), id: pid }; },
-  sendMessage(type, data) { this._emit('message', { type, data, from: 'extension' }); },
-  storage: { local: { get(key) { try { const all = JSON.parse(localStorage.getItem('ext_storage') || '{}'); return key ? all[key] : all; } catch (e) { return key ? undefined : {}; } }, set(key, value) { try { const all = JSON.parse(localStorage.getItem('ext_storage') || '{}'); all[key] = value; localStorage.setItem('ext_storage', JSON.stringify(all)); return true; } catch (e) { return false; } } } },
-  _emit(event, data, modifier = null) { const listeners = this._listeners[event] || []; let result = data; listeners.forEach(cb => { try { const r = cb(data); if (modifier && r) result = modifier(r) || result; } catch (e) {} }); return result; }
-};
-window.BrowserAPI = BrowserAPI;
-
-function installExtension(config) {
-  try {
-    const ext = typeof config === 'string' ? JSON.parse(config) : config;
-    if (!ext.id || !ext.name) throw new Error('id и name обязательны');
-    if (state.extensions.some(e => e.id === ext.id)) throw new Error('Уже установлено');
-    const extension = { id: ext.id, name: ext.name, version: ext.version || '1.0.0', description: ext.description || '', permissions: ext.permissions || [], enabled: true, code: ext.code || '', icon: ext.icon || '\uD83E\uDDE9', installed: Date.now() };
-    state.extensions.push(extension); saveState();
-    if (extension.enabled && extension.code) executeExtension(extension);
-    updateExtToolbar(); return extension;
-  } catch (e) { alert('Ошибка: ' + e.message); return null; }
-}
-function executeExtension(ext) { try { const fn = new Function('BrowserAPI', ext.code); fn(BrowserAPI); } catch (e) { console.error('Ошибка расширения:', e); } }
-function toggleExtension(extId) { const ext = state.extensions.find(e => e.id === extId); if (!ext) return; ext.enabled = !ext.enabled; saveState(); if (ext.enabled && ext.code) executeExtension(ext); renderExtensions(); updateExtToolbar(); }
-function removeExtension(extId) { state.extensions = state.extensions.filter(e => e.id !== extId); saveState(); renderExtensions(); updateExtToolbar(); }
-function updateExtToolbar() { const toolbar = document.getElementById('extToolbar'); if (!toolbar) return; toolbar.innerHTML = ''; state.extensions.filter(e => e.enabled).forEach(ext => { const btn = document.createElement('button'); btn.className = 'ext-toolbar-btn'; btn.textContent = ext.icon; btn.title = ext.name; btn.addEventListener('click', () => { BrowserAPI._emit('message', { type: 'toolbarClick', extId: ext.id }); }); toolbar.appendChild(btn); }); }
-
-function renderExtensions() {
-  const c = document.getElementById('sidebarContent');
-  let html = '<div class="ext-install-box"><p style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">Установить расширение (JSON):</p><textarea id="extInstallInput" placeholder=\'{"id":"my-ext","name":"Моё расширение","version":"1.0","description":"Описание","permissions":["tabs"],"icon":"\uD83C\uDF19","code":"BrowserAPI.onLoad(function() { console.log(\'Загружено!\'); });"}\'></textarea><button class="ext-btn primary" id="extInstallBtn" style="margin-top:8px;width:100%;">&#11015;&#65039; Установить</button></div>';
-  if (state.extensions.length === 0) html += '<div class="empty-state">Нет расширений</div>';
-  else state.extensions.forEach(ext => { html += '<div class="ext-card"><div class="ext-card-header"><span class="ext-card-name">' + ext.icon + ' ' + escapeHtml(ext.name) + ' <span class="ext-card-version">v' + escapeHtml(ext.version) + '</span></span><div class="ext-toggle ' + (ext.enabled ? 'on' : '') + '" data-ext-id="' + escapeHtml(ext.id) + '"></div></div><div class="ext-card-desc">' + escapeHtml(ext.description) + '</div><div class="ext-card-actions"><button class="ext-btn danger ext-remove" data-ext-id="' + escapeHtml(ext.id) + '">&#128465;&#65039; Удалить</button></div></div>'; });
-  c.innerHTML = html;
-  document.getElementById('extInstallBtn')?.addEventListener('click', () => { const input = document.getElementById('extInstallInput'); if (input.value.trim()) { installExtension(input.value); input.value = ''; renderExtensions(); } });
-  c.querySelectorAll('.ext-toggle').forEach(el => { el.addEventListener('click', () => toggleExtension(el.dataset.extId)); });
-  c.querySelectorAll('.ext-remove').forEach(el => { el.addEventListener('click', () => removeExtension(el.dataset.extId)); });
-}
-
-function initBuiltinExtensions() {
-  const darkModeExt = { id: 'builtin-darkmode', name: 'Тёмная тема', version: '1.0.0', description: 'Принудительно тёмная тема', permissions: ['tabs', 'inject'], icon: '\uD83C\uDF19', enabled: false, code: "BrowserAPI.onLoad(function() { BrowserAPI.injectCSS('html, body { background-color: #1a1a1a !important; color: #e8e8e8 !important; } a { color: #60a5fa !important; }'); });" };
-  const adBlockerExt = { id: 'builtin-adblock', name: 'Блокировщик', version: '1.0.0', description: 'Блокирует рекламные домены', permissions: ['tabs', 'beforeLoad'], icon: '\uD83D\uDEE1\uFE0F', enabled: false, code: "var blockedDomains = ['doubleclick.net', 'googleadservices.com', 'googlesyndication.com']; BrowserAPI.onBeforeLoad(function(data) { var url = data.url; for (var i = 0; i < blockedDomains.length; i++) { if (url.indexOf(blockedDomains[i]) !== -1) { return { url: 'about:blank' }; } } });" };
-  if (!state.extensions.some(e => e.id === darkModeExt.id)) state.extensions.push(darkModeExt);
-  if (!state.extensions.some(e => e.id === adBlockerExt.id)) state.extensions.push(adBlockerExt);
-  saveState();
-}
-
-// ============================================
-// КОНТЕКСТНОЕ МЕНЮ
-// ============================================
-const contextMenu = document.getElementById('contextMenu');
-function showContextMenu(x, y) { contextMenu.style.left = Math.min(x, window.innerWidth - 200) + 'px'; contextMenu.style.top = Math.min(y, window.innerHeight - 200) + 'px'; contextMenu.classList.add('visible'); }
-function hideContextMenu() { contextMenu.classList.remove('visible'); }
-document.addEventListener('contextmenu', (e) => { e.preventDefault(); showContextMenu(e.clientX, e.clientY); });
-document.addEventListener('click', (e) => { if (!contextMenu.contains(e.target)) hideContextMenu(); });
-document.getElementById('ctxNewTab').addEventListener('click', () => { createTab(); hideContextMenu(); });
-document.getElementById('ctxReload').addEventListener('click', () => { refresh(); hideContextMenu(); });
-document.getElementById('ctxBookmark').addEventListener('click', () => { const tab = state.tabs.find(t => t.id === state.activeTabId); if (tab) addBookmark(tab.url, tab.title); hideContextMenu(); });
-document.getElementById('ctxCopyUrl').addEventListener('click', () => { const tab = state.tabs.find(t => t.id === state.activeTabId); if (tab && navigator.clipboard) navigator.clipboard.writeText(tab.url); hideContextMenu(); });
-document.getElementById('ctxBack').addEventListener('click', () => { goBack(); hideContextMenu(); });
-document.getElementById('ctxForward').addEventListener('click', () => { goForward(); hideContextMenu(); });
-
-// ============================================
-// ОБРАБОТЧИКИ
-// ============================================
-document.getElementById('btnBack').addEventListener('click', goBack);
-document.getElementById('btnForward').addEventListener('click', goForward);
-document.getElementById('btnRefresh').addEventListener('click', refresh);
-document.getElementById('addressInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleInput(e.target.value); });
-document.getElementById('newTabBtn').addEventListener('click', () => createTab());
-document.getElementById('btnShare').addEventListener('click', () => {
-  const tab = state.tabs.find(t => t.id === state.activeTabId);
-  if (tab && navigator.share) { navigator.share({ title: tab.title, url: tab.url }); }
-  else if (tab && navigator.clipboard) { navigator.clipboard.writeText(tab.url); alert('Ссылка скопирована'); }
-});
-document.getElementById('btnTabs').addEventListener('click', () => { /* Прокрутка к вкладкам */ document.querySelector('.top-bar').scrollIntoView({ behavior: 'smooth' }); });
-document.getElementById('btnMenu').addEventListener('click', () => toggleSidebar('menu'));
-document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
-document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
-
-// Свайп для закрытия боковой панели
-let touchStartY = 0;
-document.getElementById('sidebar').addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; });
-document.getElementById('sidebar').addEventListener('touchend', (e) => { const diff = e.changedTouches[0].clientY - touchStartY; if (diff > 80) closeSidebar(); });
-
-// ============================================
-// ИНИЦИАЛИЗАЦИЯ
-// ============================================
-function init() { loadState(); initBuiltinExtensions(); updateExtToolbar(); showStartPage(); updateTabsBadge(); }
-init();
-</script>
+    <script>
+        const ROWS = 16;
+        const COLS = 16;
+        const MINES = 40;
+        
+        let board = [];
+        let revealed = [];
+        let flagged = [];
+        let gameOver = false;
+        let firstClick = true;
+        let timerInterval = null;
+        let seconds = 0;
+        let minesLeft = MINES;
+        let longPressTimer = null;
+        let isLongPress = false;
+        
+        const grid = document.getElementById('grid');
+        const mineCounter = document.getElementById('mine-counter');
+        const timerDisplay = document.getElementById('timer');
+        const faceBtn = document.getElementById('face-btn');
+        
+        function initBoard() {
+            board = [];
+            revealed = [];
+            flagged = [];
+            gameOver = false;
+            firstClick = true;
+            seconds = 0;
+            minesLeft = MINES;
+            
+            clearInterval(timerInterval);
+            timerInterval = null;
+            
+            updateMineCounter();
+            updateTimer();
+            faceBtn.textContent = '🙂';
+            faceBtn.classList.remove('pressed');
+            
+            grid.innerHTML = '';
+            
+            for (let r = 0; r < ROWS; r++) {
+                board[r] = [];
+                revealed[r] = [];
+                flagged[r] = [];
+                for (let c = 0; c < COLS; c++) {
+                    board[r][c] = 0;
+                    revealed[r][c] = false;
+                    flagged[r][c] = false;
+                    
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    
+                    cell.addEventListener('mousedown', handleMouseDown);
+                    cell.addEventListener('mouseup', handleMouseUp);
+                    cell.addEventListener('contextmenu', (e) => e.preventDefault());
+                    
+                    cell.addEventListener('touchstart', handleTouchStart, { passive: false });
+                    cell.addEventListener('touchend', handleTouchEnd, { passive: false });
+                    cell.addEventListener('touchmove', handleTouchMove, { passive: false });
+                    
+                    grid.appendChild(cell);
+                }
+            }
+        }
+        
+        function placeMines(firstR, firstC) {
+            let minesPlaced = 0;
+            const safeCells = new Set();
+            
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    const nr = firstR + dr;
+                    const nc = firstC + dc;
+                    if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+                        safeCells.add(nr + ',' + nc);
+                    }
+                }
+            }
+            
+            while (minesPlaced < MINES) {
+                const r = Math.floor(Math.random() * ROWS);
+                const c = Math.floor(Math.random() * COLS);
+                
+                if (safeCells.has(r + ',' + c)) continue;
+                if (board[r][c] === -1) continue;
+                
+                board[r][c] = -1;
+                minesPlaced++;
+                
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        const nr = r + dr;
+                        const nc = c + dc;
+                        if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && board[nr][nc] !== -1) {
+                            board[nr][nc]++;
+                        }
+                    }
+                }
+            }
+        }
+        
+        function getCell(r, c) {
+            return grid.children[r * COLS + c];
+        }
+        
+        function revealCell(r, c) {
+            if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+            if (revealed[r][c] || flagged[r][c]) return;
+            
+            revealed[r][c] = true;
+            const cell = getCell(r, c);
+            cell.classList.add('revealed');
+            
+            if (board[r][c] === -1) {
+                cell.classList.add('mine-hit');
+                cell.innerHTML = '<span class="mine-icon">💣</span>';
+                return;
+            }
+            
+            if (board[r][c] > 0) {
+                cell.textContent = board[r][c];
+                cell.dataset.number = board[r][c];
+            } else {
+                cell.dataset.number = '0';
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        if (dr === 0 && dc === 0) continue;
+                        revealCell(r + dr, c + dc);
+                    }
+                }
+            }
+        }
+        
+        function toggleFlag(r, c) {
+            if (revealed[r][c] || gameOver) return;
+            
+            const cell = getCell(r, c);
+            
+            if (flagged[r][c]) {
+                flagged[r][c] = false;
+                cell.classList.remove('flagged');
+                cell.innerHTML = '';
+                minesLeft++;
+            } else {
+                flagged[r][c] = true;
+                cell.classList.add('flagged');
+                cell.innerHTML = '<span class="flag-icon">🚩</span>';
+                minesLeft--;
+            }
+            
+            updateMineCounter();
+        }
+        
+        function handleMouseDown(e) {
+            if (gameOver) return;
+            if (e.button === 0) {
+                faceBtn.classList.add('pressed');
+            }
+        }
+        
+        function handleMouseUp(e) {
+            faceBtn.classList.remove('pressed');
+            if (gameOver) return;
+            
+            const r = parseInt(e.target.closest('.cell').dataset.row);
+            const c = parseInt(e.target.closest('.cell').dataset.col);
+            
+            if (e.button === 0) {
+                if (flagged[r][c]) return;
+                
+                if (firstClick) {
+                    firstClick = false;
+                    placeMines(r, c);
+                    startTimer();
+                }
+                
+                if (board[r][c] === -1) {
+                    gameLost();
+                } else {
+                    revealCell(r, c);
+                    checkWin();
+                }
+            } else if (e.button === 2) {
+                toggleFlag(r, c);
+            }
+        }
+        
+        function handleTouchStart(e) {
+            if (gameOver) return;
+            e.preventDefault();
+            
+            const cell = e.target.closest('.cell');
+            if (!cell) return;
+            
+            const r = parseInt(cell.dataset.row);
+            const c = parseInt(cell.dataset.col);
+            
+            isLongPress = false;
+            longPressTimer = setTimeout(() => {
+                isLongPress = true;
+                toggleFlag(r, c);
+            }, 500);
+        }
+        
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            
+            clearTimeout(longPressTimer);
+            
+            if (isLongPress) return;
+            
+            const cell = e.target.closest('.cell');
+            if (!cell) return;
+            
+            const r = parseInt(cell.dataset.row);
+            const c = parseInt(cell.dataset.col);
+            
+            if (flagged[r][c]) return;
+            
+            if (firstClick) {
+                firstClick = false;
+                placeMines(r, c);
+                startTimer();
+            }
+            
+            if (board[r][c] === -1) {
+                gameLost();
+            } else {
+                revealCell(r, c);
+                checkWin();
+            }
+        }
+        
+        function handleTouchMove(e) {
+            clearTimeout(longPressTimer);
+            isLongPress = false;
+        }
+        
+        function gameLost() {
+            gameOver = true;
+            clearInterval(timerInterval);
+            faceBtn.textContent = '😵';
+            
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = getCell(r, c);
+                    
+                    if (board[r][c] === -1) {
+                        if (!flagged[r][c]) {
+                            cell.classList.add('mine');
+                            cell.innerHTML = '<span class="mine-icon">💣</span>';
+                        }
+                    } else if (flagged[r][c]) {
+                        cell.classList.add('wrong-flag');
+                    }
+                }
+            }
+        }
+        
+        function checkWin() {
+            let revealedCount = 0;
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (revealed[r][c]) revealedCount++;
+                }
+            }
+            
+            if (revealedCount === ROWS * COLS - MINES) {
+                gameOver = true;
+                clearInterval(timerInterval);
+                faceBtn.textContent = '😎';
+                
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        if (board[r][c] === -1 && !flagged[r][c]) {
+                            const cell = getCell(r, c);
+                            cell.classList.add('flagged');
+                            cell.innerHTML = '<span class="flag-icon">🚩</span>';
+                        }
+                    }
+                }
+                
+                minesLeft = 0;
+                updateMineCounter();
+            }
+        }
+        
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                seconds++;
+                if (seconds > 999) seconds = 999;
+                updateTimer();
+            }, 1000);
+        }
+        
+        function updateTimer() {
+            timerDisplay.textContent = String(seconds).padStart(3, '0');
+        }
+        
+        function updateMineCounter() {
+            mineCounter.textContent = String(Math.max(0, minesLeft)).padStart(3, '0');
+        }
+        
+        function newGame() {
+            initBoard();
+        }
+        
+        initBoard();
+    </script>
 </body>
 </html>
