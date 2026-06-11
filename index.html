@@ -391,6 +391,9 @@
         let isWin = false;
         // FIX: отслеживаем, зажата ли левая кнопка мыши
         let mouseIsDown = false;
+        // FIX: точный отсчёт времени через Date.now()
+        let timerStartTime = null;
+        let timerElapsedOnHide = 0;
         
         const menuScreen = document.getElementById('menu-screen');
         const gameScreen = document.getElementById('game-screen');
@@ -433,9 +436,11 @@
         }
         
         function goToMenu() {
-            // FIX: останавливаем таймер при переходе в меню
+            // FIX: корректно останавливаем таймер при переходе в меню
             clearInterval(timerInterval);
             timerInterval = null;
+            timerStartTime = null;
+            timerElapsedOnHide = 0;
             gameScreen.classList.remove('active');
             menuScreen.classList.add('active');
             updateMenuBest();
@@ -461,6 +466,8 @@
             
             clearInterval(timerInterval);
             timerInterval = null;
+            timerStartTime = null;
+            timerElapsedOnHide = 0;
             
             updateMineCounter();
             updateTimer();
@@ -753,6 +760,7 @@
                 resultTitle.textContent = '✅ ВЫ ВЫИГРАЛИ!';
                 resultTitle.className = 'result-title win';
                 
+                // FIX: seconds уже зафиксирован в stopTimer(), минимум 1
                 const current = seconds;
                 if (best === null || current < best) {
                     saveBestTime(current);
@@ -782,8 +790,7 @@
         function gameLost(hitR, hitC) {
             gameOver = true;
             isWin = false;
-            clearInterval(timerInterval);
-            timerInterval = null;
+            stopTimer();
             faceBtn.textContent = '😵';
             
             for (let r = 0; r < ROWS; r++) {
@@ -822,8 +829,7 @@
             if (revealedCount === ROWS * COLS - MINES) {
                 gameOver = true;
                 isWin = true;
-                clearInterval(timerInterval);
-                timerInterval = null;
+                stopTimer();
                 faceBtn.textContent = '😎';
                 
                 for (let r = 0; r < ROWS; r++) {
@@ -844,13 +850,28 @@
         }
         
         function startTimer() {
-            // FIX: защита от двойного запуска таймера
+            // FIX: точный отсчёт — фиксируем момент старта, тикаем каждые 100мс
             if (timerInterval !== null) return;
+            timerStartTime = Date.now();
             timerInterval = setInterval(() => {
-                seconds++;
-                if (seconds > 999) seconds = 999;
+                const elapsed = timerElapsedOnHide + Math.floor((Date.now() - timerStartTime) / 1000);
+                seconds = Math.min(elapsed, 999);
                 updateTimer();
-            }, 1000);
+            }, 100);
+        }
+
+        function stopTimer() {
+            // FIX: при остановке фиксируем итоговое время
+            if (timerInterval !== null) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                if (timerStartTime !== null) {
+                    const elapsed = timerElapsedOnHide + Math.floor((Date.now() - timerStartTime) / 1000);
+                    seconds = Math.min(Math.max(elapsed, 1), 999);
+                    timerStartTime = null;
+                    updateTimer();
+                }
+            }
         }
         
         function updateTimer() {
@@ -876,16 +897,24 @@
             }
         });
 
-        // FIX: пауза таймера при сворачивании вкладки
+        // FIX: пауза таймера при сворачивании вкладки с сохранением точного прошедшего времени
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 if (timerInterval !== null && !gameOver) {
+                    // Сохраняем накопленное время перед паузой
+                    timerElapsedOnHide += Math.floor((Date.now() - timerStartTime) / 1000);
                     clearInterval(timerInterval);
                     timerInterval = null;
+                    timerStartTime = null;
                 }
             } else {
                 if (!gameOver && !firstClick && timerInterval === null) {
-                    startTimer();
+                    timerStartTime = Date.now();
+                    timerInterval = setInterval(() => {
+                        const elapsed = timerElapsedOnHide + Math.floor((Date.now() - timerStartTime) / 1000);
+                        seconds = Math.min(elapsed, 999);
+                        updateTimer();
+                    }, 100);
                 }
             }
         });
