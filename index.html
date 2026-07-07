@@ -35,10 +35,11 @@
   }
   .icon-svg { width: 1em; height: 1em; display: inline-block; vertical-align: -0.15em; }
 
-  /* forge floor texture - simplified */
+  /* forge floor texture */
   #forge-floor {
     position: fixed; left:0; right:0; bottom:0; height: 45%;
-    background: repeating-linear-gradient(0deg, rgba(255,120,50,0.04) 0px, transparent 20px);
+    background: repeating-linear-gradient(0deg, rgba(255,120,50,0.05) 0px, rgba(255,120,50,0.05) 1px, transparent 1px, transparent 26px),
+                repeating-linear-gradient(90deg, rgba(255,120,50,0.05) 0px, rgba(255,120,50,0.05) 1px, transparent 1px, transparent 26px);
     -webkit-mask-image: linear-gradient(to top, black, transparent);
     mask-image: linear-gradient(to top, black, transparent);
     pointer-events: none; z-index: 0;
@@ -86,13 +87,13 @@
   #app { width: 100%; height: 100%; display: none; flex-direction: column; position: relative; z-index:1; }
   #app.visible { display: flex; }
 
-  /* HEADER - simplified */
+  /* HEADER */
   #header { padding: 10px 15px 4px; text-align: center; z-index: 5; position:relative; }
   #currency {
     font-size: 2.1em; font-weight: 700;
     background: linear-gradient(90deg, var(--gold-prestige), var(--ember-glow));
     -webkit-background-clip:text; background-clip:text; color:transparent;
-    filter: drop-shadow(0 0 8px rgba(255,140,50,0.5));
+    filter: drop-shadow(0 0 12px rgba(255,140,50,0.5));
     letter-spacing: 1px;
   }
   #stats-row {
@@ -106,7 +107,7 @@
   #ascend-row.show { display:block; }
   #ascend-row .icon-svg { margin-right: 3px; }
 
-  /* CLICK AREA - simplified particles */
+  /* CLICK AREA */
   #click-area { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
 
   #ember-field { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:1; }
@@ -144,7 +145,7 @@
     color: var(--text-dim);
     display:flex; align-items:center; gap:6px;
     backdrop-filter: blur(3px);
-    box-shadow: 0 0 8px rgba(0,0,0,0.4);
+    box-shadow: 0 0 12px rgba(0,0,0,0.4);
   }
   .stat-capsule b { color: var(--text-main); font-size: 1.15em; font-weight:700; }
   .stat-capsule .icon-svg { font-size: 1.3em; }
@@ -159,7 +160,7 @@
     border: none; cursor: pointer;
     clip-path: polygon(50% 2%, 95% 26%, 95% 74%, 50% 98%, 5% 74%, 5% 26%);
     background: radial-gradient(circle at 38% 28%, #ffd48a, var(--ember-hot) 40%, var(--molten-core) 78%, #5c0f00 100%);
-    box-shadow: 0 0 40px rgba(255,90,30,0.75), inset 0 -14px 34px rgba(0,0,0,0.4);
+    box-shadow: 0 0 50px rgba(255,90,30,0.75), 0 0 100px rgba(255,50,10,0.4), inset 0 -14px 34px rgba(0,0,0,0.4);
     position: relative;
     transition: transform 0.08s ease;
     display: flex; align-items: center; justify-content: center;
@@ -176,12 +177,12 @@
   @keyframes floatUp { 0%{transform:translate(-50%,0) scale(0.6);opacity:1} 100%{transform:translate(-50%,-110px) scale(1.3);opacity:0} }
 
   .particle {
-    position: absolute; width: 6px; height: 6px; border-radius: 50%;
+    position: absolute; width: 7px; height: 7px; border-radius: 50%;
     pointer-events: none; z-index: 9; animation: particleFly 0.6s ease-out forwards;
   }
   @keyframes particleFly { 0%{transform:translate(0,0) scale(1);opacity:1} 100%{transform:translate(var(--dx),var(--dy)) scale(0.2);opacity:0} }
 
-  /* BOTTOM NAV - simplified */
+  /* BOTTOM NAV */
   #tabs {
     display: flex; gap: 4px; padding: 6px 6px; z-index: 5;
     overflow-x: auto; background: rgba(20,16,24,0.85);
@@ -210,7 +211,7 @@
     border-color: transparent;
   }
 
-  /* PANELS - simplified */
+  /* PANELS */
   #panels {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(11, 10, 16, 0.98); z-index: 20;
@@ -234,7 +235,7 @@
     display: flex; align-items: center; gap: 11px;
     transition: transform 0.1s, box-shadow 0.15s;
   }
-  .shop-item.affordable { border-color: rgba(255,140,50,0.6); box-shadow: 0 0 8px rgba(255,120,40,0.2); }
+  .shop-item.affordable { border-color: rgba(255,140,50,0.6); box-shadow: 0 0 10px rgba(255,120,40,0.2); }
   .shop-item.bought-flash { animation: flashBuy 0.4s ease; }
   @keyframes flashBuy { 0%{background:rgba(255,140,50,0.35)} 100%{background:rgba(255,255,255,0.03)} }
   .shop-icon { font-size: 2.1em; width: 48px; text-align: center; color: var(--ember-glow); filter: drop-shadow(0 0 6px currentColor); }
@@ -451,10 +452,10 @@
     });
   })();
 
-  // ember particles background - fewer particles for simpler design
+  // ember particles background
   (function(){
     var field = document.getElementById("ember-field");
-    for (var i=0;i<10;i++){
+    for (var i=0;i<16;i++){
       var e = document.createElement("div");
       e.className = "ember-particle";
       var size = 2 + Math.random()*4;
@@ -472,14 +473,14 @@
     "Совет: Фермы дают пассивный доход без кликов!",
     "Совет: Копите на перерождение ради постоянных бонусов.",
     "Совет: Ускоритель может дать временный x3 буст.",
-    "Совет: Улучшения теперь дороже — планируйте покупки!",
+    "Совет: Улучшения дешевле в начале — берите их скорее!",
     "Совет: Автосохранение работает каждую секунду.",
     "Совет: Загляните в FAQ в профиле, если что-то непонятно.",
     "Совет: Батарея усиливает вообще все ваши бонусы.",
     "Совет: Достижения дают постоянные бонусы ко всему доходу.",
     "Совет: Форсаж добавляет ещё один слой множителя.",
     "Совет: После 40 звёзд перерождения откроется Вознесение.",
-    "Совет: Реликвии и Звёздный магазин — ключ к прогрессу.",
+    "Совет: Реликвии покупаются за кристаллы вознесения и остаются навсегда.",
     "Совет: Заходите каждый день — за серию входов дают бонус!",
     "Загрузка неоновых частиц...",
     "Разогрев кнопки клика...",
@@ -520,7 +521,7 @@
   requestAnimationFrame(loadTick);
 
   /* ================= STATE ================= */
-  const SAVE_KEY = "forge_clicker_save_v2"; // updated key for safety
+  const SAVE_KEY = "forge_clicker_save_v1";
 
   const defaultState = {
     currency: 0,
@@ -546,13 +547,12 @@
     loginStreak: 0,
     lastLoginDay: null,
     lastSeen: Date.now(),
-    createdAt: Date.now(),
-    starShopBought: {} // new for star spending
+    createdAt: Date.now()
   };
 
   let state = JSON.parse(JSON.stringify(defaultState));
 
-  /* ================= DEFINITIONS - PRICES INCREASED x4.25 ================= */
+  /* ================= DEFINITIONS ================= */
 
   function costFor(base, growth, level) {
     return Math.ceil(base * Math.pow(growth, level));
@@ -561,101 +561,101 @@
   const clickUpgrade = {
     name: "Усиление удара",
     icon: "sword",
-    baseCost: 64, // 15*4.25
+    baseCost: 15,
     growth: 1.15,
     powerMult: 1.15,
     desc: (lvl) => `Урон за клик x1.15 (сейчас x${Math.pow(1.15, lvl).toFixed(2)} от базы). Ур. ${lvl}`
   };
 
   const clickTierUpgrades = [
-    { id:"ct1", name:"Стальные перчатки", icon:"glove", cost:425, req:5, powerAdd:2, desc:"Плоский +2 к урону за клик" },
-    { id:"ct2", name:"Огненный кулак", icon:"flame", cost:3400, req:15, powerAdd:10, desc:"Плоский +10 к урону за клик" },
-    { id:"ct3", name:"Ледяной удар", icon:"snow", cost:21250, req:30, powerAdd:50, desc:"Плоский +50 к урону за клик" },
-    { id:"ct4", name:"Громовой молот", icon:"hammer", cost:127500, req:50, powerAdd:250, desc:"Плоский +250 к урону за клик" },
-    { id:"ct5", name:"Клинок пустоты", icon:"dagger", cost:850000, req:80, powerAdd:1200, desc:"Плоский +1200 к урону за клик" },
-    { id:"ct6", name:"Кристальный клинок", icon:"crystal", cost:6375000, req:120, powerAdd:6000, desc:"Плоский +6000 к урону за клик" },
-    { id:"ct7", name:"Клинок бездны", icon:"blackhole", cost:51000000, req:180, powerAdd:30000, desc:"Плоский +30000 к урону за клик" },
-    { id:"ct8", name:"Клинок сингулярности", icon:"galaxy", cost:425000000, req:260, powerAdd:150000, desc:"Плоский +150000 к урону за клик" },
-    { id:"ct9", name:"Клинок вечности", icon:"crystal", cost:3400000000, req:350, powerAdd:750000, desc:"Плоский +750000 к урону за клик" },
-    { id:"ct10", name:"Клинок хаоса", icon:"volcano", cost:25500000000, req:500, powerAdd:4000000, desc:"Плоский +4000000 к урону за клик" },
-    { id:"ct11", name:"Клинок абсолюта", icon:"gem", cost:212500000000, req:700, powerAdd:20000000, desc:"Плоский +20000000 к урону за клик" },
-    { id:"ct12", name:"Клинок бесконечности", icon:"portal", cost:1700000000000, req:1000, powerAdd:100000000, desc:"Плоский +100000000 к урону за клик" }
+    { id:"ct1", name:"Стальные перчатки", icon:"glove", cost:100, req:5, powerAdd:2, desc:"Плоский +2 к урону за клик" },
+    { id:"ct2", name:"Огненный кулак", icon:"flame", cost:800, req:15, powerAdd:10, desc:"Плоский +10 к урону за клик" },
+    { id:"ct3", name:"Ледяной удар", icon:"snow", cost:5000, req:30, powerAdd:50, desc:"Плоский +50 к урону за клик" },
+    { id:"ct4", name:"Громовой молот", icon:"hammer", cost:30000, req:50, powerAdd:250, desc:"Плоский +250 к урону за клик" },
+    { id:"ct5", name:"Клинок пустоты", icon:"dagger", cost:200000, req:80, powerAdd:1200, desc:"Плоский +1200 к урону за клик" },
+    { id:"ct6", name:"Кристальный клинок", icon:"crystal", cost:1500000, req:120, powerAdd:6000, desc:"Плоский +6000 к урону за клик" },
+    { id:"ct7", name:"Клинок бездны", icon:"blackhole", cost:12000000, req:180, powerAdd:30000, desc:"Плоский +30000 к урону за клик" },
+    { id:"ct8", name:"Клинок сингулярности", icon:"galaxy", cost:100000000, req:260, powerAdd:150000, desc:"Плоский +150000 к урону за клик" },
+    { id:"ct9", name:"Клинок вечности", icon:"crystal", cost:800000000, req:350, powerAdd:750000, desc:"Плоский +750000 к урону за клик" },
+    { id:"ct10", name:"Клинок хаоса", icon:"volcano", cost:6000000000, req:500, powerAdd:4000000, desc:"Плоский +4000000 к урону за клик" },
+    { id:"ct11", name:"Клинок абсолюта", icon:"gem", cost:50000000000, req:700, powerAdd:20000000, desc:"Плоский +20000000 к урону за клик" },
+    { id:"ct12", name:"Клинок бесконечности", icon:"portal", cost:400000000000, req:1000, powerAdd:100000000, desc:"Плоский +100000000 к урону за клик" }
   ];
 
   const autoUpgrade = {
     name: "Автокликер",
     icon: "robot",
-    baseCost: 170, // 40*4.25
+    baseCost: 40,
     growth: 1.16,
     gain: 1,
     desc: (lvl) => `+1 авто-клик/сек. Ур. ${lvl}`
   };
 
   const autoTierUpgrades = [
-    { id:"at1", name:"Механическая рука", icon:"arm", cost:1275, req:8, dpsAdd:5, desc:"Плоский +5 к доходу/сек" },
-    { id:"at2", name:"Робот-помощник", icon:"robot", cost:10625, req:20, dpsAdd:25, desc:"Плоский +25 к доходу/сек" },
-    { id:"at3", name:"ИИ-ферма", icon:"brain", cost:63750, req:35, dpsAdd:120, desc:"Плоский +120 к доходу/сек" },
-    { id:"at4", name:"Квантовый процессор", icon:"chip", cost:510000, req:60, dpsAdd:600, desc:"Плоский +600 к доходу/сек" },
-    { id:"at5", name:"Нейросеть", icon:"brain", cost:3825000, req:90, dpsAdd:3000, desc:"Плоский +3000 к доходу/сек" },
-    { id:"at6", name:"Оркестратор роёв", icon:"satellite", cost:29750000, req:130, dpsAdd:15000, desc:"Плоский +15000 к доходу/сек" },
-    { id:"at7", name:"Сингулярное ядро", icon:"blackhole", cost:233750000, req:190, dpsAdd:75000, desc:"Плоский +75000 к доходу/сек" },
-    { id:"at8", name:"Гиперкластер", icon:"chip", cost:1700000000, req:260, dpsAdd:400000, desc:"Плоский +400000 к доходу/сек" },
-    { id:"at9", name:"Ноосфера", icon:"brain", cost:12750000000, req:350, dpsAdd:2000000, desc:"Плоский +2000000 к доходу/сек" },
-    { id:"at10", name:"Мультивселенское ядро", icon:"portal", cost:106250000000, req:500, dpsAdd:10000000, desc:"Плоский +10000000 к доходу/сек" },
-    { id:"at11", name:"Абсолютный интеллект", icon:"galaxy", cost:850000000000, req:700, dpsAdd:50000000, desc:"Плоский +50000000 к доходу/сек" },
-    { id:"at12", name:"Вечный двигатель", icon:"battery", cost:6375000000000, req:1000, dpsAdd:250000000, desc:"Плоский +250000000 к доходу/сек" }
+    { id:"at1", name:"Механическая рука", icon:"arm", cost:300, req:8, dpsAdd:5, desc:"Плоский +5 к доходу/сек" },
+    { id:"at2", name:"Робот-помощник", icon:"robot", cost:2500, req:20, dpsAdd:25, desc:"Плоский +25 к доходу/сек" },
+    { id:"at3", name:"ИИ-ферма", icon:"brain", cost:15000, req:35, dpsAdd:120, desc:"Плоский +120 к доходу/сек" },
+    { id:"at4", name:"Квантовый процессор", icon:"chip", cost:120000, req:60, dpsAdd:600, desc:"Плоский +600 к доходу/сек" },
+    { id:"at5", name:"Нейросеть", icon:"brain", cost:900000, req:90, dpsAdd:3000, desc:"Плоский +3000 к доходу/сек" },
+    { id:"at6", name:"Оркестратор роёв", icon:"satellite", cost:7000000, req:130, dpsAdd:15000, desc:"Плоский +15000 к доходу/сек" },
+    { id:"at7", name:"Сингулярное ядро", icon:"blackhole", cost:55000000, req:190, dpsAdd:75000, desc:"Плоский +75000 к доходу/сек" },
+    { id:"at8", name:"Гиперкластер", icon:"chip", cost:400000000, req:260, dpsAdd:400000, desc:"Плоский +400000 к доходу/сек" },
+    { id:"at9", name:"Ноосфера", icon:"brain", cost:3000000000, req:350, dpsAdd:2000000, desc:"Плоский +2000000 к доходу/сек" },
+    { id:"at10", name:"Мультивселенское ядро", icon:"portal", cost:25000000000, req:500, dpsAdd:10000000, desc:"Плоский +10000000 к доходу/сек" },
+    { id:"at11", name:"Абсолютный интеллект", icon:"galaxy", cost:200000000000, req:700, dpsAdd:50000000, desc:"Плоский +50000000 к доходу/сек" },
+    { id:"at12", name:"Вечный двигатель", icon:"battery", cost:1500000000000, req:1000, dpsAdd:250000000, desc:"Плоский +250000000 к доходу/сек" }
   ];
 
   const farms = [
-    { key:"farm_lemon", name:"Лимонадный ларёк", icon:"cup", baseCost:213, growth:1.13, income:0.5, desc:"Простой источник дохода" },
-    { key:"farm_dog", name:"Собачья ферма", icon:"dog", baseCost:1063, growth:1.14, income:3, desc:"Милые собачки приносят монеты" },
-    { key:"farm_farm", name:"Пшеничное поле", icon:"wheat", baseCost:5100, growth:1.15, income:14, desc:"Классическая ферма" },
-    { key:"farm_factory", name:"Завод", icon:"factory", baseCost:25500, growth:1.16, income:65, desc:"Промышленное производство" },
-    { key:"farm_mine", name:"Шахта", icon:"pick", baseCost:127500, growth:1.17, income:300, desc:"Добыча ресурсов из недр" },
-    { key:"farm_bank", name:"Банк", icon:"bank", baseCost:637500, growth:1.18, income:1400, desc:"Деньги делают деньги" },
-    { key:"farm_lab", name:"Лаборатория", icon:"flask", baseCost:3187500, growth:1.19, income:6500, desc:"Научные эксперименты приносят прибыль" },
-    { key:"farm_rocket", name:"Космодром", icon:"rocket", baseCost:17000000, growth:1.20, income:30000, desc:"Добыча ресурсов в космосе" },
-    { key:"farm_portal", name:"Портал", icon:"portal", baseCost:106250000, growth:1.21, income:150000, desc:"Ресурсы из параллельных миров" },
-    { key:"farm_star", name:"Звёздная кузница", icon:"starforge", baseCost:637500000, growth:1.22, income:800000, desc:"Куёт валюту из звёздной пыли" },
-    { key:"farm_crystal", name:"Кристальная пещера", icon:"crystal", baseCost:4250000000, growth:1.23, income:4000000, desc:"Растит редкие кристаллы валюты" },
-    { key:"farm_forest", name:"Живой лес", icon:"tree", baseCost:29750000000, growth:1.24, income:20000000, desc:"Древний лес насыщен энергией" },
-    { key:"farm_orbital", name:"Орбитальная станция", icon:"satellite", baseCost:212500000000, growth:1.25, income:100000000, desc:"Добыча ресурсов на орбите" },
-    { key:"farm_volcano", name:"Вулканическая кузня", icon:"volcano", baseCost:1700000000000, growth:1.26, income:600000000, desc:"Плавит валюту в жерле вулкана" },
-    { key:"farm_galaxy", name:"Галактический рынок", icon:"galaxy", baseCost:12750000000000, growth:1.27, income:4000000000, desc:"Торговля в масштабах галактики" },
-    { key:"farm_blackhole", name:"Чёрная дыра", icon:"blackhole", baseCost:106250000000000, growth:1.28, income:30000000000, desc:"Извлекает валюту из горизонта событий" },
-    { key:"farm_nebula", name:"Туманность", icon:"galaxy", baseCost:850000000000000, growth:1.29, income:200000000000, desc:"Туманность, богатая ресурсами" },
-    { key:"farm_dimension", name:"Карманное измерение", icon:"portal", baseCost:6375000000000000, growth:1.30, income:1200000000000, desc:"Собственное измерение валюты" },
-    { key:"farm_singularity", name:"Сингулярность", icon:"blackhole", baseCost:51000000000000000, growth:1.31, income:8000000000000, desc:"Генерирует практически бесконечный доход" },
-    { key:"farm_multiverse", name:"Мультивселенная", icon:"sparkles", baseCost:425000000000000000, growth:1.32, income:50000000000000, desc:"Доход со всех вселенных сразу" }
+    { key:"farm_lemon", name:"Лимонадный ларёк", icon:"cup", baseCost:50, growth:1.13, income:0.5, desc:"Простой источник дохода" },
+    { key:"farm_dog", name:"Собачья ферма", icon:"dog", baseCost:250, growth:1.14, income:3, desc:"Милые собачки приносят монеты" },
+    { key:"farm_farm", name:"Пшеничное поле", icon:"wheat", baseCost:1200, growth:1.15, income:14, desc:"Классическая ферма" },
+    { key:"farm_factory", name:"Завод", icon:"factory", baseCost:6000, growth:1.16, income:65, desc:"Промышленное производство" },
+    { key:"farm_mine", name:"Шахта", icon:"pick", baseCost:30000, growth:1.17, income:300, desc:"Добыча ресурсов из недр" },
+    { key:"farm_bank", name:"Банк", icon:"bank", baseCost:150000, growth:1.18, income:1400, desc:"Деньги делают деньги" },
+    { key:"farm_lab", name:"Лаборатория", icon:"flask", baseCost:750000, growth:1.19, income:6500, desc:"Научные эксперименты приносят прибыль" },
+    { key:"farm_rocket", name:"Космодром", icon:"rocket", baseCost:4000000, growth:1.20, income:30000, desc:"Добыча ресурсов в космосе" },
+    { key:"farm_portal", name:"Портал", icon:"portal", baseCost:25000000, growth:1.21, income:150000, desc:"Ресурсы из параллельных миров" },
+    { key:"farm_star", name:"Звёздная кузница", icon:"starforge", baseCost:150000000, growth:1.22, income:800000, desc:"Куёт валюту из звёздной пыли" },
+    { key:"farm_crystal", name:"Кристальная пещера", icon:"crystal", baseCost:1000000000, growth:1.23, income:4000000, desc:"Растит редкие кристаллы валюты" },
+    { key:"farm_forest", name:"Живой лес", icon:"tree", baseCost:7000000000, growth:1.24, income:20000000, desc:"Древний лес насыщен энергией" },
+    { key:"farm_orbital", name:"Орбитальная станция", icon:"satellite", baseCost:50000000000, growth:1.25, income:100000000, desc:"Добыча ресурсов на орбите" },
+    { key:"farm_volcano", name:"Вулканическая кузня", icon:"volcano", baseCost:400000000000, growth:1.26, income:600000000, desc:"Плавит валюту в жерле вулкана" },
+    { key:"farm_galaxy", name:"Галактический рынок", icon:"galaxy", baseCost:3000000000000, growth:1.27, income:4000000000, desc:"Торговля в масштабах галактики" },
+    { key:"farm_blackhole", name:"Чёрная дыра", icon:"blackhole", baseCost:25000000000000, growth:1.28, income:30000000000, desc:"Извлекает валюту из горизонта событий" },
+    { key:"farm_nebula", name:"Туманность", icon:"galaxy", baseCost:200000000000000, growth:1.29, income:200000000000, desc:"Туманность, богатая ресурсами" },
+    { key:"farm_dimension", name:"Карманное измерение", icon:"portal", baseCost:1500000000000000, growth:1.30, income:1200000000000, desc:"Собственное измерение валюты" },
+    { key:"farm_singularity", name:"Сингулярность", icon:"blackhole", baseCost:12000000000000000, growth:1.31, income:8000000000000, desc:"Генерирует практически бесконечный доход" },
+    { key:"farm_multiverse", name:"Мультивселенная", icon:"sparkles", baseCost:100000000000000000, growth:1.32, income:50000000000000, desc:"Доход со всех вселенных сразу" }
   ];
 
   const multiUpgrades = [
-    { key: "m2", name: "Множитель x2", icon: "sparkles", baseCost: 2125, factor: 2, maxLevel: 1 },
-    { key: "m5", name: "Множитель x5", icon: "star", baseCost: 21250, factor: 5, maxLevel: 1 },
-    { key: "m10", name: "Множитель x10", icon: "gem", baseCost: 212500, factor: 10, maxLevel: 1 },
-    { key: "m25", name: "Множитель x25", icon: "crystal", baseCost: 2125000, factor: 25, maxLevel: 1 },
-    { key: "m50", name: "Множитель x50", icon: "starforge", baseCost: 21250000, factor: 50, maxLevel: 1 },
-    { key: "m100", name: "Множитель x100", icon: "galaxy", baseCost: 212500000, factor: 100, maxLevel: 1 },
-    { key: "m500", name: "Множитель x500", icon: "volcano", baseCost: 2125000000, factor: 500, maxLevel: 1 },
-    { key: "m1000", name: "Множитель x1000", icon: "blackhole", baseCost: 21250000000, factor: 1000, maxLevel: 1 },
-    { key: "m10000", name: "Множитель x10000", icon: "portal", baseCost: 340000000000, factor: 10000, maxLevel: 1 }
+    { key: "m2", name: "Множитель x2", icon: "sparkles", baseCost: 500, factor: 2, maxLevel: 1 },
+    { key: "m5", name: "Множитель x5", icon: "star", baseCost: 5000, factor: 5, maxLevel: 1 },
+    { key: "m10", name: "Множитель x10", icon: "gem", baseCost: 50000, factor: 10, maxLevel: 1 },
+    { key: "m25", name: "Множитель x25", icon: "crystal", baseCost: 500000, factor: 25, maxLevel: 1 },
+    { key: "m50", name: "Множитель x50", icon: "starforge", baseCost: 5000000, factor: 50, maxLevel: 1 },
+    { key: "m100", name: "Множитель x100", icon: "galaxy", baseCost: 50000000, factor: 100, maxLevel: 1 },
+    { key: "m500", name: "Множитель x500", icon: "volcano", baseCost: 500000000, factor: 500, maxLevel: 1 },
+    { key: "m1000", name: "Множитель x1000", icon: "blackhole", baseCost: 5000000000, factor: 1000, maxLevel: 1 },
+    { key: "m10000", name: "Множитель x10000", icon: "portal", baseCost: 80000000000, factor: 10000, maxLevel: 1 }
   ];
 
   const specialUpgrades = [
     { key: "battery", name: "Батарея улучшений", icon: "battery",
-      baseCost: 3400, growth: 3.2, maxLevel: 10,
+      baseCost: 800, growth: 3.2, maxLevel: 10,
       desc: (lvl) => `+20% ко всем эффектам за уровень. Ур. ${lvl}/10` },
     { key: "accel", name: "Ускоритель", icon: "turbo",
-      baseCost: 8500, growth: 4, maxLevel: 5,
+      baseCost: 2000, growth: 4, maxLevel: 5,
       desc: (lvl) => `Шанс x3 буста на 10 сек при клике. Ур. ${lvl}/5` },
     { key: "overclock", name: "Форсаж", icon: "bolt",
-      baseCost: 42500, growth: 5, maxLevel: 8,
+      baseCost: 10000, growth: 5, maxLevel: 8,
       desc: (lvl) => `+8% ко всему доходу за уровень. Ур. ${lvl}/8` },
     { key: "crit", name: "Критический удар", icon: "dagger",
-      baseCost: 21250, growth: 3.5, maxLevel: 10,
+      baseCost: 5000, growth: 3.5, maxLevel: 10,
       desc: (lvl) => `Шанс ${(lvl*3)}% на x10 удар при клике. Ур. ${lvl}/10` },
     { key: "offline", name: "Оффлайн-генератор", icon: "chip",
-      baseCost: 85000, growth: 4.5, maxLevel: 6,
+      baseCost: 20000, growth: 4.5, maxLevel: 6,
       desc: (lvl) => `+${(lvl*15)}% к оффлайн-доходу и +${lvl}ч к лимиту накопления. Ур. ${lvl}/6` }
   ];
 
@@ -672,15 +672,7 @@
     { id:"r10", name:"Абсолютная сила", icon:"blackhole", cost:30, desc:"+200% к автодоходу навсегда" }
   ];
 
-  // New: Star Shop items (spend prestige stars)
-  const starShopItems = [
-    { id: "ss1", name: "Вспышка прогресса", cost: 5, desc: "+15% ко всему доходу на 1 час (одноразово)", effect: () => { /* temporary handled in render */ } },
-    { id: "ss2", name: "Вечный клик", cost: 12, desc: "+25 к базовому урону за клик навсегда", permanent: true, apply: () => { state.clickPower += 25; } },
-    { id: "ss3", name: "Звёздный множитель", cost: 8, desc: "+0.5 к множителю перерождения (навсегда)", permanent: true, apply: () => { /* handled via extraStarsMult */ } }
-  ];
-
   const achievementsData = [
-    // (unchanged for brevity - same as original)
     { id:"ac_click_10", name:"Первые шаги", desc:"Сделайте 10 кликов", icon:"bolt", bonus:0.01, check:(s)=>s.totalClicks>=10 },
     { id:"ac_click_100", name:"Разминка", desc:"Сделайте 100 кликов", icon:"bolt", bonus:0.01, check:(s)=>s.totalClicks>=100 },
     { id:"ac_click_1000", name:"Кликер", desc:"Сделайте 1,000 кликов", icon:"bolt", bonus:0.01, check:(s)=>s.totalClicks>=1000 },
@@ -727,20 +719,21 @@
   ];
 
   const faqData = [
-    { q: "Как играть в Forge Core?", a: "Нажимайте на большую кнопку в центре экрана, чтобы получать валюту. За каждый клик вы получаете определённое количество монет. Используйте валюту для улучшений. Игра стала сложнее — цены выросли." },
-    { q: "Что такое урон за клик?", a: "Количество валюты за клик. Улучшайте в вкладке 'Урон'. Цены значительно повышены." },
-    { q: "Что такое доход в секунду (DPS)?", a: "Пассивный доход от автокликеров и ферм." },
-    { q: "Что такое фермы?", a: "Здания с пассивным доходом. Цены сильно повышены для баланса." },
-    { q: "Что такое бонусные множители?", a: "Постоянные множители всей валюты во вкладке 'Бусты'." },
-    { q: "Что такое батарея, ускоритель и др.?", a: "Специальные улучшения с усиленными ценами." },
-    { q: "Что такое достижения?", a: "Постоянные бонусы за цели." },
-    { q: "Что такое перерождение (Rebirth)?", a: "Сброс прогресса за звёзды (+10% множитель за звезду). Звёзды можно тратить в Звёздном магазине." },
-    { q: "Что такое Вознесение?", a: "Сброс звёзд за кристаллы. Кристаллы тратятся на реликвии и Звёздный магазин." },
-    { q: "Что такое реликвии?", a: "Постоянные бонусы за кристаллы." },
-    { q: "Что такое Звёздный магазин?", a: "Новые траты для звёзд перерождения: постоянные бонусы и временные усиления." },
-    { q: "Не потеряю ли я всё?", a: "Валюта/улучшения сбрасываются. Звёзды, кристаллы, достижения и реликвии — нет." },
-    { q: "Как сбросить прогресс?", a: "В профиле — кнопка 'Сбросить игру'. Теперь работает корректно." },
-    { q: "Как сохраняется прогресс?", a: "Автосохранение в localStorage." }
+    { q: "Как играть в Forge Core?", a: "Нажимайте на большую кнопку в центре экрана, чтобы получать валюту. За каждый клик вы получаете определённое количество монет — это значение отображается в статистике 'Клик'. Используйте накопленную валюту, чтобы покупать улучшения в магазине и увеличивать свой доход." },
+    { q: "Что такое урон за клик?", a: "Это количество валюты, которое вы получаете за одно нажатие на кнопку. Улучшайте его во вкладке 'Урон' — там есть базовое улучшение 'Усиление удара' и мощные тиерные улучшения, которые дают плоский бонус, но требуют определённого уровня базового улучшения." },
+    { q: "Что такое доход в секунду (DPS)?", a: "Это пассивный доход, который вы получаете каждую секунду без необходимости кликать. Он складывается из автокликеров (вкладка 'Авто') и всех ферм, которые вы купили (вкладка 'Фермы')." },
+    { q: "Что такое фермы?", a: "Фермы — здания, которые приносят фиксированный пассивный доход каждую секунду. Цена каждой следующей фермы растёт экспоненциально. Всего в игре 20 видов ферм — от лимонадного ларька до Мультивселенной." },
+    { q: "Что такое бонусные множители?", a: "Во вкладке 'Бусты' можно приобрести множители от x2 до x10000, которые умножают ВСЮ вашу валюту. Это одноразовые покупки, но их эффект действует постоянно." },
+    { q: "Что такое батарея, ускоритель, форсаж, крит и оффлайн-генератор?", a: "Батарея даёт +20% ко всем эффектам за уровень. Ускоритель даёт шанс на буст x3 на 10 секунд. Форсаж добавляет +8% ко всему доходу за уровень. Критический удар даёт шанс на клик x10. Оффлайн-генератор увеличивает доход и лимит накопления, пока вы не в игре." },
+    { q: "Что такое достижения?", a: "Во вкладке 'Дост.' собраны десятки целей. За каждое выполненное достижение вы получаете постоянный процентный бонус ко всей валюте, который не сбрасывается ни при перерождении, ни при вознесении." },
+    { q: "Что такое перерождение (Rebirth)?", a: "Перерождение сбрасывает текущий прогресс (валюту, улучшения, фермы) в обмен на звёзды перерождения. Каждая звезда даёт постоянный множитель +10% ко всей валюте НАВСЕГДА. Формула: звёзды = √(всего заработано ÷ 100,000,000)." },
+    { q: "Что такое Вознесение?", a: "Вознесение — это второй уровень перерождения, доступный при накоплении 40+ звёзд. При вознесении звёзды сбрасываются в обмен на Кристаллы Вознесения, которые тратятся на постоянные Реликвии. Достижения и уже купленные реликвии остаются навсегда." },
+    { q: "Что такое реликвии?", a: "Реликвии — мощные постоянные бонусы, покупаемые за Кристаллы Вознесения. Они никогда не сбрасываются, даже при повторных вознесениях, и дают огромные бонусы к доходу, крит-шансу и другим параметрам." },
+    { q: "Не потеряю ли я всё после перерождения или вознесения?", a: "Валюта, улучшения и фермы сбрасываются при обоих действиях. Но звёзды и достижения остаются после перерождения, а реликвии, кристаллы вознесения и достижения остаются НАВСЕГДА даже после вознесения." },
+    { q: "Что даёт ежедневный вход?", a: "Каждый день при заходе в игру вы получаете бонус валюты, который растёт с серией дней подряд. Пропуск дня сбрасывает серию. За серии в 3/7/14 дней также даются достижения." },
+    { q: "Как сохраняется прогресс?", a: "Игра автоматически сохраняет прогресс в память вашего браузера (localStorage) каждую секунду. Вы также получаете оффлайн-доход за время отсутствия." },
+    { q: "Как сбросить прогресс полностью?", a: "Зайдите во вкладку 'Профиль' и нажмите кнопку 'Сбросить игру'. Это действие необратимо и удалит вообще весь прогресс." },
+    { q: "Игра зависает или не сохраняется, что делать?", a: "Убедитесь, что у вашего браузера есть доступ к localStorage (не режим инкогнито). Попробуйте вручную нажать 'Сохранить сейчас' в профиле." }
   ];
 
   /* ================= SAVE / LOAD ================= */
@@ -761,15 +754,12 @@
       if (raw) {
         const loaded = JSON.parse(raw);
         state = Object.assign(JSON.parse(JSON.stringify(defaultState)), loaded);
-        // ensure all fields
-        state.multipliersBought = Object.assign({m2:0,m5:0,m10:0,m25:0,m50:0,m100:0,m500:0,m1000:0,m10000:0}, loaded.multipliersBought || {});
-        state.specials = Object.assign({battery:0, accel:0, overclock:0, crit:0, offline:0}, loaded.specials || {});
+        state.multipliersBought = Object.assign({m2:0,m5:0,m10:0,m25:0,m50:0,m100:0,m500:0,m1000:0,m10000:0}, loaded.multipliersBought);
+        state.specials = Object.assign({battery:0, accel:0, overclock:0, crit:0, offline:0}, loaded.specials);
         state.relics = loaded.relics || {};
         state.farms = loaded.farms || {};
         state.achievements = loaded.achievements || {};
-        state.starShopBought = loaded.starShopBought || {};
 
-        // offline
         const capSec = 3600*4 + state.specials.offline*3600;
         const elapsedSec = Math.floor((Date.now() - (state.lastSeen||Date.now()))/1000);
         const offlineSec = Math.min(capSec, elapsedSec);
@@ -783,6 +773,7 @@
           }
         }
 
+        // daily login streak
         const today = todayStr();
         if (state.lastLoginDay !== today) {
           const oneDayMs = 86400000;
@@ -818,11 +809,7 @@
 
   function batteryBonus() { return 1 + state.specials.battery * 0.2; }
   function overclockBonus() { return 1 + state.specials.overclock * 0.08; }
-  function prestigeMult() { 
-    let extra = 0;
-    if (state.starShopBought && state.starShopBought.ss3) extra = 0.5;
-    return 1 + state.prestigeStars * 0.1 + extra; 
-  }
+  function prestigeMult() { return 1 + state.prestigeStars * 0.1; }
   function achievementMult() {
     let bonus = 0;
     achievementsData.forEach(a => { if (state.achievements[a.id]) bonus += a.bonus; });
@@ -947,6 +934,8 @@
   const capCrit = document.getElementById("cap-crit");
 
   let currentPanel = null;
+  // panels that show live-updating shop data and are safe to auto-refresh while open.
+  // "faq" and "profile" are intentionally excluded so open FAQ answers don't get force-collapsed.
   const AUTO_REFRESH_PANELS = ["damage","auto","farms","boosts","relics","rebirth","ascension","achievements"];
 
   /* ================= RENDER ================= */
@@ -1067,7 +1056,6 @@
     }
 
     else if (kind === "auto") {
-      // similar for auto...
       panelTitle.innerHTML = iconHtml("robot") + " Автоклики";
       panelContent.appendChild(buildShopItem({
         icon: autoUpgrade.icon, title: autoUpgrade.name, desc: autoUpgrade.desc(state.autoLevel),
@@ -1094,14 +1082,14 @@
       panelTitle.innerHTML = iconHtml("house") + " Фермы";
       const label = document.createElement("div");
       label.className = "section-label";
-      label.textContent = "Покупайте фермы для пассивного дохода (цены повышены)";
+      label.textContent = "Покупайте фермы для постоянного пассивного дохода";
       panelContent.appendChild(label);
       farms.forEach(f => {
         const count = state.farms[f.key] || 0;
         const cost = costFor(f.baseCost, f.growth, count);
         panelContent.appendChild(buildShopItem({
           icon: f.icon, title: `${f.name} (x${count})`,
-          desc: `${f.desc} • +${formatNum(f.income)}/сек`,
+          desc: `${f.desc} • +${formatNum(f.income)}/сек за штуку`,
           cost,
           onBuy: (c) => { state.currency -= c; state.farms[f.key] = count + 1; }
         }));
@@ -1115,7 +1103,7 @@
         const maxed = lvl >= u.maxLevel;
         panelContent.appendChild(buildShopItem({
           icon: u.icon, title: u.name,
-          desc: maxed ? "Куплено" : `x${u.factor} навсегда`,
+          desc: maxed ? "Куплено" : `Множитель всей валюты x${u.factor} навсегда`,
           cost: maxed ? null : u.baseCost, maxed,
           onBuy: (cost) => { state.currency -= cost; state.multipliersBought[u.key] = 1; state.multiplier *= u.factor; }
         }));
@@ -1136,10 +1124,10 @@
     }
 
     else if (kind === "relics") {
-      panelTitle.innerHTML = iconHtml("gem") + " Реликвии";
+      panelTitle.innerHTML = iconHtml("gem") + " Реликвии вознесения";
       const label = document.createElement("div");
       label.className = "section-label";
-      label.textContent = `Кристаллы: ${state.ascensionCrystals}. Также доступен Звёздный магазин.`;
+      label.textContent = `У вас ${state.ascensionCrystals} кристаллов вознесения. Реликвии не сбрасываются никогда.`;
       panelContent.appendChild(label);
       relicsData.forEach(r => panelContent.appendChild(buildRelicItem(r)));
     }
@@ -1153,18 +1141,20 @@
         <div class="rebirth-icon-big">${iconHtml("refresh")}</div>
         <div style="font-size:0.85em;color:var(--text-dim);margin-top:6px;">Текущие звёзды</div>
         <div class="rebirth-stars">${iconHtml("star")} ${state.prestigeStars}</div>
-        <div style="font-size:0.8em;color:var(--text-dim);">x${prestigeMult().toFixed(1)} ко всему</div>
-        <div style="margin-top:14px;font-size:0.85em;color:var(--text-dim);">Получите:</div>
+        <div style="font-size:0.8em;color:var(--text-dim);">Постоянный бонус: <b style="color:var(--gold-prestige)">x${prestigeMult().toFixed(1)}</b> ко всей валюте</div>
+        <div style="margin-top:14px;font-size:0.85em;color:var(--text-dim);">При перерождении сейчас вы получите:</div>
         <div class="rebirth-stars" style="font-size:1.6em;">+${potentialStars} ${iconHtml("star")}</div>
         <button class="rebirth-btn ${potentialStars < 1 ? 'disabled' : ''}" id="do-rebirth">Переродиться</button>
         <div class="rebirth-info">
-          Сброс прогресса за звёзды. Звёзды можно тратить в Звёздном магазине (доступно после первого перерождения).
+          Перерождение сбросит вашу валюту, улучшения и фермы, но звёзды, достижения, реликвии и кристаллы вознесения остаются НАВСЕГДА.<br><br>
+          Формула: звёзды = √(всего заработано ÷ 100,000,000)<br>
+          При 40+ звёздах откроется Вознесение — второй уровень прогресса.
         </div>
       `;
       panelContent.appendChild(box);
       document.getElementById("do-rebirth").addEventListener("click", () => {
-        if (potentialStars < 1) { showToast("Заработайте больше!"); return; }
-        if (confirm(`Получить +${potentialStars} звёзд?`)) {
+        if (potentialStars < 1) { showToast("Заработайте больше валюты перед перерождением!"); return; }
+        if (confirm(`Переродиться и получить +${potentialStars} звёзд? Валюта, улучшения и фермы будут сброшены!`)) {
           const newStars = state.prestigeStars + potentialStars;
           const keep = keepMetaProgress();
           state = JSON.parse(JSON.stringify(defaultState));
@@ -1174,13 +1164,12 @@
           save();
           renderPanel("rebirth");
           renderStats();
-          showToast(`+${newStars} звёзд!`);
+          showToast(`Перерождение успешно! Теперь у вас ${newStars} звёзд!`);
         }
       });
     }
 
     else if (kind === "ascension") {
-      // similar, with crystals
       panelTitle.innerHTML = iconHtml("portal") + " Вознесение";
       const ASCEND_REQ = 40;
       const crystalsGain = Math.floor(state.prestigeStars/10 * (1+relicCrystalGainBonus()));
@@ -1189,52 +1178,59 @@
       box.className = "rebirth-box";
       box.innerHTML = `
         <div class="rebirth-icon-big ascend">${iconHtml("portal")}</div>
-        <div style="font-size:0.85em;color:var(--text-dim);margin-top:6px;">Кристаллы</div>
+        <div style="font-size:0.85em;color:var(--text-dim);margin-top:6px;">Кристаллы вознесения</div>
         <div class="rebirth-stars ascend">${iconHtml("gem")} ${state.ascensionCrystals}</div>
+        <div style="font-size:0.8em;color:var(--text-dim);">Вознесений совершено: <b style="color:var(--violet-ascend)">${state.ascensionCount}</b></div>
+        <div style="margin-top:14px;font-size:0.85em;color:var(--text-dim);">
+          ${locked ? `Требуется ${ASCEND_REQ} звёзд перерождения (сейчас ${state.prestigeStars})` : "При вознесении сейчас вы получите:"}
+        </div>
+        ${locked ? "" : `<div class="rebirth-stars ascend" style="font-size:1.6em;">+${crystalsGain} ${iconHtml("gem")}</div>`}
         <button class="rebirth-btn ascend ${locked || crystalsGain < 1 ? 'disabled' : ''}" id="do-ascend">Вознестись</button>
         <div class="rebirth-info">
-          Получите кристаллы для реликвий и Звёздного магазина.
+          Вознесение сбрасывает звёзды перерождения (и всё, что сбрасывает перерождение) в обмен на Кристаллы Вознесения.<br><br>
+          Кристаллы тратятся на Реликвии во вкладке 'Реликвии' — они остаются НАВСЕГДА, даже после следующих вознесений.<br><br>
+          Формула: кристаллы = звёзды ÷ 10
         </div>
       `;
       panelContent.appendChild(box);
-      // ... (add listener similar to original)
       const btn = document.getElementById("do-ascend");
       if (!locked) {
         btn.addEventListener("click", () => {
-          if (crystalsGain < 1) return;
-          if (confirm(`Получить +${crystalsGain} кристаллов?`)) {
+          if (crystalsGain < 1) { showToast("Наберите больше звёзд перед вознесением!"); return; }
+          if (confirm(`Вознестись и получить +${crystalsGain} кристаллов? Все звёзды перерождения будут сброшены!`)) {
             const gained = crystalsGain;
             const keep = keepMetaProgress();
             state = JSON.parse(JSON.stringify(defaultState));
             restoreMetaProgress(keep);
-            state.ascensionCrystals = (keep.ascensionCrystals || 0) + gained;
-            state.ascensionCount = (keep.ascensionCount || 0) + 1;
+            state.ascensionCrystals = keep.ascensionCrystals + gained;
+            state.ascensionCount = keep.ascensionCount + 1;
             applyRelicStartBonuses();
             save();
             renderPanel("ascension");
             renderStats();
+            showToast(`Вознесение успешно! Получено +${gained} кристаллов!`);
           }
         });
       }
     }
 
     else if (kind === "achievements") {
-      // unchanged
       panelTitle.innerHTML = iconHtml("trophy") + " Достижения";
       const unlockedCount = achievementsData.filter(a => state.achievements[a.id]).length;
       const summary = document.createElement("div");
       summary.className = "section-label";
-      summary.textContent = `Открыто ${unlockedCount}/${achievementsData.length}`;
+      summary.textContent = `Открыто ${unlockedCount} из ${achievementsData.length} • Общий бонус: +${Math.round((achievementMult()-1)*100)}%`;
       panelContent.appendChild(summary);
       achievementsData.forEach(a => {
         const unlocked = !!state.achievements[a.id];
         const div = document.createElement("div");
         div.className = "shop-item" + (unlocked ? " affordable" : "");
+        div.style.opacity = unlocked ? "1" : "0.55";
         div.innerHTML = `
           <div class="shop-icon">${iconHtml(unlocked ? a.icon : "lock")}</div>
           <div class="shop-info">
             <div class="shop-title">${a.name}</div>
-            <div class="shop-desc">${a.desc} • +${Math.round(a.bonus*100)}%</div>
+            <div class="shop-desc">${a.desc} • +${Math.round(a.bonus*100)}% ко всему</div>
           </div>
           <div class="shop-buy-btn ${unlocked ? "" : "disabled"}">${unlocked ? iconHtml("check") : iconHtml("lock")}</div>
         `;
@@ -1249,20 +1245,28 @@
       const playedSince = new Date(state.createdAt).toLocaleDateString('ru-RU');
       wrap.innerHTML = `
         <div class="profile-card">
-          <div class="profile-stat-row"><span>Валюта</span><b>${formatNum(state.currency)}</b></div>
+          <div class="profile-stat-row"><span>Текущая валюта</span><b>${formatNum(state.currency)}</b></div>
           <div class="profile-stat-row"><span>Всего заработано</span><b>${formatNum(state.totalEarned)}</b></div>
-          <div class="profile-stat-row"><span>Звёзды</span><b>${state.prestigeStars}</b></div>
-          <div class="profile-stat-row"><span>Кристаллы</span><b>${state.ascensionCrystals}</b></div>
+          <div class="profile-stat-row"><span>Всего кликов</span><b>${state.totalClicks}</b></div>
+          <div class="profile-stat-row"><span>Критических ударов</span><b>${state.totalCrits}</b></div>
+          <div class="profile-stat-row"><span>Урон за клик</span><b>${formatNum(getEffectiveClickPower())}</b></div>
+          <div class="profile-stat-row"><span>Доход в секунду</span><b>${formatNum(getEffectiveDps())}</b></div>
+          <div class="profile-stat-row"><span>Звёзды перерождения</span><b>${state.prestigeStars}</b></div>
+          <div class="profile-stat-row"><span>Кристаллы вознесения</span><b>${state.ascensionCrystals}</b></div>
+          <div class="profile-stat-row"><span>Вознесений совершено</span><b>${state.ascensionCount}</b></div>
+          <div class="profile-stat-row"><span>Реликвий получено</span><b>${relicsData.filter(r=>state.relics[r.id]).length}/${relicsData.length}</b></div>
+          <div class="profile-stat-row"><span>Серия входов подряд</span><b>${state.loginStreak} дн.</b></div>
           <div class="profile-stat-row"><span>Достижения</span><b>${achievementsData.filter(a=>state.achievements[a.id]).length}/${achievementsData.length}</b></div>
+          <div class="profile-stat-row" style="border-bottom:none;"><span>Игра с</span><b>${playedSince}</b></div>
         </div>
-        <button class="settings-btn" id="faq-btn">${iconHtml("question")} FAQ</button>
-        <button class="settings-btn" id="hardsave-btn">${iconHtml("save")} Сохранить</button>
-        <button class="settings-btn" id="reset-btn">${iconHtml("trash")} Сбросить игру</button>
+        <button class="settings-btn" id="faq-btn">${iconHtml("question")} FAQ — как играть</button>
+        <button class="settings-btn" id="hardsave-btn">${iconHtml("save")} Сохранить сейчас</button>
+        <button class="settings-btn" id="reset-btn">${iconHtml("trash")} Сбросить игру полностью</button>
       `;
       panelContent.appendChild(wrap);
-      wrap.querySelector("#hardsave-btn").addEventListener("click", () => { save(); showToast("Сохранено!"); });
+      wrap.querySelector("#hardsave-btn").addEventListener("click", () => { save(); showToast("Игра сохранена!"); });
       wrap.querySelector("#reset-btn").addEventListener("click", () => {
-        if (confirm("Сбросить ВЕСЬ прогресс?")) {
+        if (confirm("Точно сбросить ВЕСЬ прогресс, включая звёзды, реликвии и достижения? Это необратимо!")) {
           localStorage.removeItem(SAVE_KEY);
           location.reload();
         }
@@ -1274,12 +1278,14 @@
     }
 
     else if (kind === "faq") {
-      // ... (same as original with updated FAQ)
       panelTitle.innerHTML = iconHtml("question") + " FAQ";
       const backBtn = document.createElement("button");
       backBtn.className = "settings-btn";
-      backBtn.textContent = "← Назад";
-      backBtn.addEventListener("click", () => { currentPanel = "profile"; renderPanel("profile"); });
+      backBtn.textContent = "← Назад в профиль";
+      backBtn.addEventListener("click", () => {
+        currentPanel = "profile";
+        renderPanel("profile");
+      });
       panelContent.appendChild(backBtn);
       faqData.forEach((item) => {
         const div = document.createElement("div");
@@ -1301,7 +1307,8 @@
     }
   }
 
-  /* META PROGRESS */
+  /* ================= META PROGRESS HELPERS (rebirth / ascension) ================= */
+
   function keepMetaProgress(){
     return {
       achievements: state.achievements,
@@ -1312,15 +1319,23 @@
       totalBoosts: state.totalBoosts,
       loginStreak: state.loginStreak,
       lastLoginDay: state.lastLoginDay,
-      createdAt: state.createdAt,
-      starShopBought: state.starShopBought
+      createdAt: state.createdAt
     };
   }
   function restoreMetaProgress(keep){
-    Object.assign(state, keep);
+    state.achievements = keep.achievements;
+    state.relics = keep.relics;
+    state.ascensionCrystals = keep.ascensionCrystals;
+    state.ascensionCount = keep.ascensionCount;
+    state.totalCrits = keep.totalCrits;
+    state.totalBoosts = keep.totalBoosts;
+    state.loginStreak = keep.loginStreak;
+    state.lastLoginDay = keep.lastLoginDay;
+    state.createdAt = keep.createdAt;
   }
 
-  /* CLICK LOGIC */
+  /* ================= CLICK LOGIC ================= */
+
   function spawnFloatNumber(x, y, amount, isCrit) {
     const el = document.createElement("div");
     el.className = "float-num" + (isCrit ? " crit" : "");
@@ -1332,13 +1347,13 @@
   }
 
   function spawnParticles(x, y, isCrit) {
-    const colors = isCrit ? ["#c084fc", "#ff3b1f", "#ffd166"] : ["#ff6a2d", "#ffb347", "#ff3b1f"];
-    const count = isCrit ? 12 : 8;
+    const colors = isCrit ? ["#c084fc", "#ff3b1f", "#ffd166", "#fff"] : ["#ff6a2d", "#ffb347", "#ff3b1f", "#ffd166"];
+    const count = isCrit ? 18 : 10;
     for (let i = 0; i < count; i++) {
       const p = document.createElement("div");
       p.className = "particle";
       const angle = Math.random() * Math.PI * 2;
-      const dist = 35 + Math.random() * 45;
+      const dist = 40 + Math.random() * 60;
       p.style.setProperty("--dx", Math.cos(angle) * dist + "px");
       p.style.setProperty("--dy", Math.sin(angle) * dist + "px");
       p.style.left = x + "px";
@@ -1376,7 +1391,7 @@
         state.boostEndTime = Date.now() + 10000;
         state.boostMultiplier = 3;
         state.totalBoosts++;
-        showToast("x3 буст активирован!");
+        showToast("Ускоритель активирован! x3 на 10 секунд!");
       }
     }
 
@@ -1387,7 +1402,8 @@
     checkAchievements();
   }
 
-  /* TABS */
+  /* ================= TABS / PANELS ================= */
+
   function initGame() {
     load();
     applyRelicStartBonuses();
@@ -1436,6 +1452,8 @@
       if (panelRefreshAccum > 0.5) {
         panelRefreshAccum = 0;
         checkAchievements();
+        // Only auto-refresh panels with no internal toggle state (FAQ is excluded on purpose,
+        // otherwise re-rendering every tick would force-close open FAQ answers).
         if (currentPanel && panels.classList.contains("visible") && AUTO_REFRESH_PANELS.indexOf(currentPanel) !== -1) {
           renderPanel(currentPanel);
         }
@@ -1446,6 +1464,15 @@
     requestAnimationFrame(gameLoop);
 
     setInterval(save, 1000);
+
+    document.addEventListener("gesturestart", e => e.preventDefault());
+    let lastTouchEnd = 0;
+    document.addEventListener("touchend", (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) e.preventDefault();
+      lastTouchEnd = now;
+    }, false);
+
     window.addEventListener("beforeunload", save);
   }
 
